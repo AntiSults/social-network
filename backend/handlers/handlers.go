@@ -14,7 +14,7 @@ type RegisterForm struct {
 	Dob       string `json:"dob"`
 }
 
-func Register(w http.ResponseWriter, r *http.Request){
+func Register(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*") // Adjust for production
 	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
@@ -38,6 +38,4 @@ func Register(w http.ResponseWriter, r *http.Request){
 	} else {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
-
-	
 }

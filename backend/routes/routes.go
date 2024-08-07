@@ -1,13 +1,12 @@
 package routes
 
 import (
+	"net/http"
 	"social-network/backend/handlers"
-
-	"github.com/gorilla/mux"
 )
 
-func SetupRoutes() *mux.Router{
-	router := mux.NewRouter()
-	router.HandleFunc("/register", handlers.Register).Methods("POST", "OPTIONS")
-	return router
+func SetupRoutes() *http.ServeMux {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/register", handlers.Register)
+	return mux
 }
