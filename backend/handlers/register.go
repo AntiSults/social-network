@@ -20,35 +20,44 @@ type RegisterForm struct {
 const avatarDir = "../public/uploads"
 
 func Register(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*") // Adjust for production
+
+	// Allow CORS
+	w.Header().Set("Access-Control-Allow-Origin", "*") 
 	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	if r.Method == http.MethodOptions {
-		// Handle preflight requests
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	fmt.Println("Made it here")
+
 	if r.Method == http.MethodPost {
 		email := r.FormValue("email")
     	password := r.FormValue("password")
     	firstName := r.FormValue("firstName")
     	lastName := r.FormValue("lastName")
     	dob := r.FormValue("dob")
+		
+		// Need to save to db, including avatarPath
 		fmt.Println(email, password, firstName, lastName, dob)
+
+
+		// Avatar image
 		if file, handler, err := r.FormFile("avatar"); err==nil {
 			defer file.Close()
 
+			// Makes sure the directory exists
 			if err := os.MkdirAll(avatarDir, os.ModePerm); err!= nil {
 				http.Error(w, "Failed to create upload directory", http.StatusInternalServerError)
             	return
 			}
-			fmt.Println("Handler: " + handler.Filename)
+			
+			// Creates a specific file name for the img
 			avatarFileName := fmt.Sprintf("%d%s", time.Now().UnixNano(), filepath.Ext(handler.Filename))
         	avatarPath := filepath.Join(avatarDir, avatarFileName)
 
+			// Creates the file in the server
 			img, err := os.Create(avatarPath)
 			if err != nil {
 				http.Error(w, "Failed to save the file", http.StatusInternalServerError)
@@ -56,6 +65,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			}
 			defer img.Close()
 
+			// Copies the file to the file server
 			if _, err := io.Copy(img, file); err!=nil{
 				http.Error(w, "Failed to save the file", http.StatusInternalServerError)
             	return

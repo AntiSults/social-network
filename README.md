@@ -17,7 +17,9 @@ backend runs on port :8080
 
 ### SO FAR IMPLEMENTED
 
-Front end sends registration form to backend
+Front end sends registration form to backend, including avatar  
+Also creates a randomly named image file in the /public/uploads directory
+Early implementation of migrating sql tables
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
