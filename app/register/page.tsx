@@ -7,6 +7,7 @@ import Button from "../components/Button";
 import { redirect } from "next/dist/server/api-utils";
 
 import { useRouter } from "next/navigation";
+import AvatarUploadField from "../components/AvatarUploadField";
 
 const RegisterPage = () => {
   const [email, setEmail] = useState("");
@@ -14,27 +15,27 @@ const RegisterPage = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [dob, setDob] = useState("");
+  const [avatar, setAvatar] = useState<File | null>(null);
   const router = useRouter();
 
   const HandleRegisterForm = async (e: React.FormEvent) => {
     console.log("Form submitted");
     e.preventDefault();
 
-    const formData = {
-      email,
-      password,
-      firstName,
-      lastName,
-      dob,
-    };
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("firstName", firstName);
+    formData.append("lastName", lastName);
+    formData.append("dob", dob);
+    if (avatar) {
+      formData.append("avatar", avatar);
+    }
 
     try {
       const response = await fetch("http://localhost:8080/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+        body: formData,
       });
 
       if (response.ok) {
@@ -45,6 +46,11 @@ const RegisterPage = () => {
     } catch (error) {
       console.error("Network error:", error);
     }
+  };
+
+  const HandleFileSelect = (file: File) => {
+    setAvatar(file);
+    console.log("avatar: ", avatar);
   };
 
   return (
@@ -90,6 +96,7 @@ const RegisterPage = () => {
           value={dob}
           onChange={(e) => setDob(e.target.value)}
         />
+        <AvatarUploadField onFileSelect={HandleFileSelect} />
         <Button type="submit" name="Register" />
       </div>
     </form>
