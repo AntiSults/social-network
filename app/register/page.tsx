@@ -4,12 +4,14 @@ import React, { useState } from "react";
 import styles from "./page.module.css";
 import FieldInput from "../components/FieldInput";
 import Button from "../components/Button";
-import { redirect } from "next/dist/server/api-utils";
 
 import { useRouter } from "next/navigation";
 import AvatarUploadField from "../components/AvatarUploadField";
 
 const RegisterPage = () => {
+  // Using useStates to be able to change the values later, also
+  // the reason why all of this code has to be in this function.
+  // Couldn't get the useStates working outside of it
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -18,6 +20,7 @@ const RegisterPage = () => {
   const [avatar, setAvatar] = useState<File | null>(null);
   const router = useRouter();
 
+  // Get called when button is clicked, sends data to backend
   const HandleRegisterForm = async (e: React.FormEvent) => {
     console.log("Form submitted");
     e.preventDefault();
@@ -48,9 +51,9 @@ const RegisterPage = () => {
     }
   };
 
+  // Gets called when an avatar is uploaded
   const HandleFileSelect = (file: File) => {
     setAvatar(file);
-    console.log("avatar: ", avatar);
   };
 
   return (

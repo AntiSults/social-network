@@ -1,6 +1,6 @@
-import { imageConfigDefault } from "next/dist/shared/lib/image-config";
 import React, { useState } from "react";
 
+// Gets a function which sends file to backend
 interface Props {
   onFileSelect: (file: File) => void;
 }
@@ -8,32 +8,34 @@ interface Props {
 const AvatarUploadField = ({ onFileSelect }: Props) => {
   const [preview, setPreview] = useState<string | null>(null);
 
+  // Calls the function from Props and gives preview
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setPreview(URL.createObjectURL(file));
-      console.log(URL.createObjectURL(file));
       onFileSelect(file);
     }
   };
 
   return (
     <>
-      <label>
-        Choose your avatar (Optional)
+      <label className="form-control w-full max-w-xs">
+        <div className="label">
+          <span className="label-text">Choose your avatar (Optional)</span>
+        </div>
         <input
-          className="avatarInput"
+          className="file-input file-input-bordered w-full"
           type="file"
           accept="image"
           onChange={handleFileChange}
         />
-        ;
+
         {preview && (
-          <img
-            src={preview}
-            alt="Avatar Preview"
-            style={{ width: 100, height: 100, borderRadius: "50%" }}
-          />
+          <div className="avatar">
+            <div className="w-24 rounded">
+              <img src={preview} alt="Avatar Preview" />
+            </div>
+          </div>
         )}
       </label>
     </>
