@@ -9,10 +9,10 @@ import (
 )
 
 func main() {
-	dbPath := "./db/database.db"
+	
 	migrationsPath := "./db/migrations/sqlite" 
 
-	db, err := sqlite.ConnectAndMigrateDb(dbPath, migrationsPath)
+	db, err := sqlite.ConnectAndMigrateDb(migrationsPath)
 	if err != nil {
 		log.Fatalf("Failed to connect or migrate the database: %v", err)
 	}

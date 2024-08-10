@@ -10,9 +10,10 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func ConnectAndMigrateDb(dbPath string, migrationsPath string) (*sql.DB, error) {
+func ConnectAndMigrateDb(migrationsPath string) (*sql.DB, error) {
     // Open SQLite database connection
-    db, err := sql.Open("sqlite3", dbPath)
+    
+    db, err := OpenDatabase()
     if err != nil {
         return nil, err
     }
@@ -40,28 +41,37 @@ func ConnectAndMigrateDb(dbPath string, migrationsPath string) (*sql.DB, error) 
     return db, nil
 }
 
+func OpenDatabase () (*sql.DB, error) {
+    dbPath := "./db/database.db"
+    db, err := sql.Open("sqlite3", dbPath)
+    if err != nil {
+        return nil, err
+    }
+    return db, err
+}
+
 
 //TEST FUNCTION REMOVE LATER
-func printTables(db *sql.DB) error {
-    rows, err := db.Query("SELECT name FROM sqlite_master WHERE type='table';")
-    if err != nil {
-        return fmt.Errorf("failed to query tables: %w", err)
-    }
-    defer rows.Close()
+// func printTables(db *sql.DB) error {
+//     rows, err := db.Query("SELECT name FROM sqlite_master WHERE type='table';")
+//     if err != nil {
+//         return fmt.Errorf("failed to query tables: %w", err)
+//     }
+//     defer rows.Close()
 
-    fmt.Println("Tables in the database:")
-    for rows.Next() {
-        var tableName string
-        if err := rows.Scan(&tableName); err != nil {
-            return fmt.Errorf("failed to scan table name: %w", err)
-        }
-        fmt.Println(tableName)
-    }
+//     fmt.Println("Tables in the database:")
+//     for rows.Next() {
+//         var tableName string
+//         if err := rows.Scan(&tableName); err != nil {
+//             return fmt.Errorf("failed to scan table name: %w", err)
+//         }
+//         fmt.Println(tableName)
+//     }
 
-    if err := rows.Err(); err != nil {
-        return fmt.Errorf("rows iteration error: %w", err)
-    }
+//     if err := rows.Err(); err != nil {
+//         return fmt.Errorf("rows iteration error: %w", err)
+//     }
 
-    return nil
-}
+//     return nil
+// }
 

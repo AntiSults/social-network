@@ -17,12 +17,13 @@ const RegisterPage = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [dob, setDob] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [aboutMe, setAboutMe] = useState("");
   const [avatar, setAvatar] = useState<File | null>(null);
   const router = useRouter();
 
   // Get called when button is clicked, sends data to backend
   const HandleRegisterForm = async (e: React.FormEvent) => {
-    console.log("Form submitted");
     e.preventDefault();
 
     const formData = new FormData();
@@ -33,6 +34,12 @@ const RegisterPage = () => {
     formData.append("dob", dob);
     if (avatar) {
       formData.append("avatar", avatar);
+    }
+    if (nickname != "") {
+      formData.append("nickname", nickname);
+    }
+    if (aboutMe != "") {
+      formData.append("aboutMe", aboutMe);
     }
 
     try {
@@ -98,6 +105,22 @@ const RegisterPage = () => {
           required={true}
           value={dob}
           onChange={(e) => setDob(e.target.value)}
+        />
+        <FieldInput
+          name="Nickname[Optional]"
+          type="text"
+          placeholder="Johnny"
+          required={false}
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
+        />
+        <FieldInput
+          name="About me[Optional]"
+          type="textarea"
+          placeholder="I'm a cool guy!"
+          required={false}
+          value={aboutMe}
+          onChange={(e) => setAboutMe(e.target.value)}
         />
         <AvatarUploadField onFileSelect={HandleFileSelect} />
         <Button type="submit" name="Register" />

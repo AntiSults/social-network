@@ -22,7 +22,11 @@ const FieldInput = ({
       {name}
       <input
         type={type}
-        className="grow"
+        className={
+          type != "textarea"
+            ? "grow"
+            : "grow textarea textarea-ghost textarea-xs w-full max-w-xs"
+        }
         placeholder={placeholder}
         required={required}
         value={value}
