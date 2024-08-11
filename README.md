@@ -30,7 +30,7 @@ Info about different directories
 
 ### `/app`
 
-this is where entire fronent is based, page.tsx here is html for home page
+this is where entire frontend is based, page.tsx here is html for home page
 
 #### `/components`
 
