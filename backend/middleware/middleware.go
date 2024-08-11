@@ -6,10 +6,12 @@ import (
 	"social-network/backend/db/sqlite"
 )
 
+// Allows CORS from specific origin
 func CorsMiddleWare(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
-		// Allow only specific origins 
+		
+		// Headers for CORS
 		if origin == "http://localhost:3000" { 
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -58,6 +60,7 @@ func RequireLogin(next http.Handler) http.Handler {
 	})
 }
 
+// Compares current session from cookies against database
 func validateSession(sessionID string) (int, bool, error) {
 	db, err := sqlite.OpenDatabase()
 	if err != nil {
@@ -74,6 +77,7 @@ func validateSession(sessionID string) (int, bool, error) {
 	return userID, true, nil
 }
 
+// TEST FUNCTION DELETE LATER
 func DummyCheck(w http.ResponseWriter, r *http.Request) {
 	
 	fmt.Println("joujou")

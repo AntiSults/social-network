@@ -62,6 +62,10 @@ Calling the migrations, also used for opening the database
 
 Handles requests from http, they're set up in `/routes`
 
+#### `/middleware`
+
+Middleware functions between server and frontend
+
 #### `/routes`
 
 Sets up handlers
