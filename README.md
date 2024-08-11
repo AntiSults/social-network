@@ -19,7 +19,62 @@ backend runs on port :8080
 
 Front end sends registration form to backend, including avatar  
 Also creates a randomly named image file in the /public/uploads directory  
-Early implementation of migrating sql tables
+Early implementation of migrating sql tables  
+Creates a session token for login, inserts to database
+
+## Directories
+
+Info about different directories
+
+### Front end
+
+### `/app`
+
+this is where entire fronent is based, page.tsx here is html for home page
+
+#### `/components`
+
+reusable components for react
+
+#### `/login` & `register`
+
+Different pages (page.tsx in both these directories is the page itself)
+
+### Back end
+
+### `/backend`
+
+Entire back-end is located here, also `main.go` is here which initializes the entire back end
+
+#### `/db`
+
+Database location
+
+##### `/migrations/sqlite`
+
+Migrations location
+
+##### `/sqlite`
+
+Calling the migrations, also used for opening the database
+
+#### `/handlers`
+
+Handles requests from http, they're set up in `/routes`
+
+#### `/routes`
+
+Sets up handlers
+
+#### `/structs`
+
+File for structs
+
+### `/public/uploads`
+
+Right now holds avatar images for users
+
+## Default readme
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
