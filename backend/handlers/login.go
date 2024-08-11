@@ -12,15 +12,7 @@ import (
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	// Allow CORS
-	w.Header().Set("Access-Control-Allow-Origin", "*") 
-	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
 	if r.Method == http.MethodPost {
 		
 		email:= r.FormValue("email")
@@ -80,7 +72,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 		w.WriteHeader(http.StatusOK)
 	} else {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 }

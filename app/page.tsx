@@ -5,8 +5,15 @@ const Home = () => {
   return (
     <div>
       Home
-      <Link href="/register">Register</Link>
-      <Link href="/login">Login</Link>
+      <div>
+        <Link href="/register">Register</Link>
+      </div>
+      <div>
+        <Link href="/login">Login</Link>
+      </div>
+      <div>
+        <Link href="/testLoggedIn">Test if user is logged in </Link>
+      </div>
     </div>
   );
 };
