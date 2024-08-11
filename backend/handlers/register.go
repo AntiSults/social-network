@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -22,6 +23,7 @@ type RegisterForm struct {
 }
 
 const avatarDir = "../public/uploads"
+var errNoFile = fmt.Errorf("no file")
 
 func Register(w http.ResponseWriter, r *http.Request) {
 
@@ -64,13 +66,14 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 		avatarPath, err := saveImage(r)
 		if err != nil {
-			http.Error(w, "Failed to save image file", http.StatusInternalServerError)
-			return
+			if !errors.Is(err, errNoFile) {
+				http.Error(w, "Failed to save image file", http.StatusInternalServerError)
+				return
+			} 
+		} else {
+			user.AvatarPath = avatarPath
 		}
-		user.AvatarPath = avatarPath
 
-		// Need to save to db, including avatarPath
-		fmt.Println(user)
 		err = insertUserToDatabase(user)
 		if err!=nil{
 			http.Error(w, "Failed to insert into Users table", http.StatusInternalServerError)
@@ -84,6 +87,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 func saveImage (r *http.Request) (string, error) {
 	if file, handler, err := r.FormFile("avatar"); err==nil {
+		
 		defer file.Close()
 
 		// Makes sure the directory exists
@@ -108,7 +112,7 @@ func saveImage (r *http.Request) (string, error) {
 		}
 		return avatarPath, nil
 	} else {
-		return "", err
+		return "", errNoFile
 	}
 	
 }
@@ -128,7 +132,26 @@ func insertUserToDatabase(user structs.User) error {
 	}
 	defer prep.Close()
 
-	_, err = prep.Exec(user.Email, user.Password, user.FirstName, user.LastName, user.DOB, user.NickName, user.AboutMe, user.AvatarPath)
+	var nickName, aboutMe, avatarPath interface{}
+	if user.NickName == "" {
+		nickName = nil
+	} else {
+		nickName = user.NickName
+	}
+
+	if user.AboutMe == "" {
+		aboutMe = nil
+	} else {
+		aboutMe = user.AboutMe
+	}
+
+	if user.AvatarPath == "" {
+		avatarPath = nil
+	} else {
+		avatarPath = user.AvatarPath
+	}
+
+	_, err = prep.Exec(user.Email, user.Password, user.FirstName, user.LastName, user.DOB, nickName, aboutMe, avatarPath)
 	if err !=nil  {
 		return err
 	}

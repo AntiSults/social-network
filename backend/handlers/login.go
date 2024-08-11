@@ -2,9 +2,12 @@ package handlers
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"social-network/backend/db/sqlite"
+	"time"
 
+	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -31,8 +34,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		defer db.Close()
 
 		// Get the hashed pw from db
+		var userID string
 		var hashedPw string
-		err = db.QueryRow("SELECT Password FROM Users WHERE Email = ?", email).Scan(&hashedPw)
+		err = db.QueryRow("SELECT ID, Password FROM Users WHERE Email = ?", email).Scan(&userID, &hashedPw)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				http.Error(w, "User email not found", http.StatusUnauthorized)
@@ -46,7 +50,34 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		err = bcrypt.CompareHashAndPassword([]byte(hashedPw), []byte(password))
 		if err != nil {
 			http.Error(w, "Wrong password", http.StatusUnauthorized)
+			return
 		}
+
+		sessionToken, err := uuid.NewV4()
+		if err != nil {
+			http.Error(w, "Error creating session token", http.StatusInternalServerError)
+			return
+		}
+		expiresAt := time.Now().Add(24 * time.Hour)
+
+		_, err = db.Exec(`
+			INSERT INTO Sessions (UserID, SessionToken, ExpiresAt) VALUES (?, ?, ?)
+		`, userID, sessionToken, expiresAt)
+
+		if err != nil {
+			fmt.Println(err)
+			http.Error(w, "Error inserting a session", http.StatusInternalServerError)
+		}
+
+		cookie := &http.Cookie{
+			Name: "session_token",
+			Value: sessionToken.String(),
+			Expires: expiresAt,
+			SameSite: http.SameSiteNoneMode,
+			Secure: true,
+		}
+		http.SetCookie(w, cookie)
+
 		w.WriteHeader(http.StatusOK)
 	} else {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
