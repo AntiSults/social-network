@@ -1,9 +1,12 @@
 package middleware
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"social-network/backend/db/sqlite"
+	"social-network/backend/structs"
 )
 
 // Allows CORS from specific origin
@@ -43,20 +46,23 @@ NEED TO HANDLE ERRORS ON FRONTEND LOGINS/PAGE.TSX
 
 func RequireLogin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("session_id")
+		cookie, err := r.Cookie("session_token")
         if err != nil {
-            http.Redirect(w, r, "/login", http.StatusFound)
-            return
+			fmt.Println(err)
+			SendErrorResponse(w, "Invalid session. Please log in.", http.StatusUnauthorized)
+			return
         }
 
         // Validate the session
         userID, check, err := validateSession(cookie.Value)
         if !check {
 			fmt.Println(err)
-            http.Redirect(w, r, "/login", http.StatusFound)
+            SendErrorResponse(w, "Please log in. " + err.Error(), http.StatusUnauthorized)
             return
         }
 		fmt.Println(userID)
+//?
+		next.ServeHTTP(w, r)
 	})
 }
 
@@ -75,6 +81,16 @@ func validateSession(sessionID string) (int, bool, error) {
 		return -1, false, err
 	}
 	return userID, true, nil
+}
+
+func RedirectToLogin(w http.ResponseWriter, r *http.Request, message string, statusCode int) {
+	redirectURL := "/login?error=" + url.QueryEscape(message)
+	http.Redirect(w, r, redirectURL, statusCode)
+}
+
+func SendErrorResponse(w http.ResponseWriter, message string, code int){
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(structs.ErrorResponse{Message: message})
 }
 
 // TEST FUNCTION DELETE LATER

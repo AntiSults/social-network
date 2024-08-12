@@ -12,3 +12,7 @@ type User struct {
 	AboutMe string `json:"aboutMe"`
 	AvatarPath string `json:"avatarPath"`
 }
+
+type ErrorResponse struct {
+	Message string `json:"message"`
+}

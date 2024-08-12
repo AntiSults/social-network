@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"social-network/backend/db/sqlite"
+	"social-network/backend/middleware"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -31,7 +32,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		err = db.QueryRow("SELECT ID, Password FROM Users WHERE Email = ?", email).Scan(&userID, &hashedPw)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				http.Error(w, "User email not found", http.StatusUnauthorized)
+				middleware.SendErrorResponse(w, "User email not found", http.StatusBadRequest)
 				return
 			}
 			http.Error(w, "Database error", http.StatusInternalServerError)
@@ -41,7 +42,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		// Compare passwords 
 		err = bcrypt.CompareHashAndPassword([]byte(hashedPw), []byte(password))
 		if err != nil {
-			http.Error(w, "Wrong password", http.StatusUnauthorized)
+			middleware.SendErrorResponse(w, "Wrong password", http.StatusBadRequest)
 			return
 		}
 
@@ -59,6 +60,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println(err)
 			http.Error(w, "Error inserting a session", http.StatusInternalServerError)
+			return
 		}
 
 		cookie := &http.Cookie{

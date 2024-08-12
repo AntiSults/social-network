@@ -40,6 +40,12 @@ reusable components for react
 
 Different pages (page.tsx in both these directories is the page itself)
 
+#### `/testLoggedIn`
+
+Test page for testing if user is logged in or not **MUST DELETE ON PRODUCTION**
+
+####
+
 ### Back end
 
 ### `/backend`
@@ -74,9 +80,14 @@ Sets up handlers
 
 File for structs
 
-### `/public/uploads`
+#### `/public/uploads`
 
 Right now holds avatar images for users
+
+#### `/middleware`
+
+Holds middleware functions between server and frontend  
+So far validates if user is logged in, handles CORS, handles server errors
 
 ## Default readme
 
