@@ -70,7 +70,8 @@ Calling the migrations, also used for opening the database
 
 #### `/handlers`
 
-Handles requests from http, they're set up in `/routes`
+Handles requests from http, they're set up in `/routes`  
+Register, Login, Logout, GetAvatar
 
 #### `/middleware`
 
