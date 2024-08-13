@@ -14,7 +14,7 @@ const Home = () => {
 
   return (
     <>
-      {NavBar(isLoggedIn)}
+      <NavBar logged={isLoggedIn}></NavBar>
       <div>
         <div>
           <Link href="/testLoggedIn">Test if user is logged in [click]</Link>

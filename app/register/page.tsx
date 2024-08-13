@@ -7,6 +7,7 @@ import Button from "../components/Button";
 
 import { useRouter } from "next/navigation";
 import AvatarUploadField from "../components/AvatarUploadField";
+import NavBar from "../components/NavBar";
 
 const RegisterPage = () => {
   // Using useStates to be able to change the values later, also
@@ -64,68 +65,71 @@ const RegisterPage = () => {
   };
 
   return (
-    <form onSubmit={HandleRegisterForm}>
-      <div id={styles.register} className="mx-auto">
-        <FieldInput
-          name="Email"
-          type="email"
-          placeholder="example@example.com"
-          required={true}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <FieldInput
-          name="Password"
-          type="password"
-          placeholder="shh secret"
-          required={true}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <FieldInput
-          name="First Name"
-          type="text"
-          placeholder="John"
-          required={true}
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-        />
-        <FieldInput
-          name="Last Name"
-          type="text"
-          placeholder="Smith"
-          required={true}
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-        />
-        <FieldInput
-          name="Date of birth"
-          type="date"
-          placeholder=""
-          required={true}
-          value={dob}
-          onChange={(e) => setDob(e.target.value)}
-        />
-        <FieldInput
-          name="Nickname[Optional]"
-          type="text"
-          placeholder="Johnny"
-          required={false}
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
-        />
-        <FieldInput
-          name="About me[Optional]"
-          type="textarea"
-          placeholder="I'm a cool guy!"
-          required={false}
-          value={aboutMe}
-          onChange={(e) => setAboutMe(e.target.value)}
-        />
-        <AvatarUploadField onFileSelect={HandleFileSelect} />
-        <Button type="submit" name="Register" />
-      </div>
-    </form>
+    <>
+      <NavBar logged={false}></NavBar>
+      <form onSubmit={HandleRegisterForm}>
+        <div id={styles.register} className="mx-auto">
+          <FieldInput
+            name="Email"
+            type="email"
+            placeholder="example@example.com"
+            required={true}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <FieldInput
+            name="Password"
+            type="password"
+            placeholder="shh secret"
+            required={true}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <FieldInput
+            name="First Name"
+            type="text"
+            placeholder="John"
+            required={true}
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+          />
+          <FieldInput
+            name="Last Name"
+            type="text"
+            placeholder="Smith"
+            required={true}
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+          />
+          <FieldInput
+            name="Date of birth"
+            type="date"
+            placeholder=""
+            required={true}
+            value={dob}
+            onChange={(e) => setDob(e.target.value)}
+          />
+          <FieldInput
+            name="Nickname[Optional]"
+            type="text"
+            placeholder="Johnny"
+            required={false}
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+          />
+          <FieldInput
+            name="About me[Optional]"
+            type="textarea"
+            placeholder="I'm a cool guy!"
+            required={false}
+            value={aboutMe}
+            onChange={(e) => setAboutMe(e.target.value)}
+          />
+          <AvatarUploadField onFileSelect={HandleFileSelect} />
+          <Button type="submit" name="Register" />
+        </div>
+      </form>
+    </>
   );
 };
 

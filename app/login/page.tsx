@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import FieldInput from "../components/FieldInput";
 import { useRouter } from "next/navigation";
 import Button from "../components/Button";
+import NavBar from "../components/NavBar";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -48,6 +49,7 @@ const LoginPage = () => {
 
   return (
     <>
+      <NavBar logged={false} logpage={true}></NavBar>
       <div>{error && <p style={{ color: "red" }}>{error}</p>}</div>
       <form onSubmit={handleLogin}>
         <FieldInput

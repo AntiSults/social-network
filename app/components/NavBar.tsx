@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
-const NavBar = (logged: boolean) => {
+interface Props {
+  logged: boolean;
+  logpage?: boolean;
+}
+
+const NavBar = ({ logged, logpage = false }: Props) => {
   const [avatarPath, setAvatarPath] = useState("");
 
   useEffect(() => {
@@ -56,7 +60,7 @@ const NavBar = (logged: boolean) => {
         </div>
         <div className="flex flex-1 justify-end px-2">
           <div className="flex items-stretch">
-            {!logged && (
+            {!logged && !logpage && (
               <a href="/login" className="btn btn-ghost rounded-btn">
                 Login
               </a>
