@@ -1,20 +1,26 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import NavBar from "./components/NavBar";
+import checkLoginStatus from "./utils/checkLoginStatus";
 
 const Home = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setIsLoggedIn(checkLoginStatus());
+  });
+
   return (
-    <div>
-      Home
+    <>
+      {NavBar(isLoggedIn)}
       <div>
-        <Link href="/register">Register</Link>
+        <div>
+          <Link href="/testLoggedIn">Test if user is logged in [click]</Link>
+        </div>
       </div>
-      <div>
-        <Link href="/login">Login</Link>
-      </div>
-      <div>
-        <Link href="/testLoggedIn">Test if user is logged in </Link>
-      </div>
-    </div>
+    </>
   );
 };
 

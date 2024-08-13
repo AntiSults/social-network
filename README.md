@@ -44,6 +44,10 @@ Different pages (page.tsx in both these directories is the page itself)
 
 Test page for testing if user is logged in or not **MUST DELETE ON PRODUCTION**
 
+#### `/utils`
+
+Folder for utilities, so far authentication
+
 ####
 
 ### Back end

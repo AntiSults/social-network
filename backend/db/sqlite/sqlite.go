@@ -50,6 +50,18 @@ func OpenDatabase () (*sql.DB, error) {
     return db, err
 }
 
+func GetUserIdFromToken(db *sql.DB, session string) (int, error) {
+    var UserID int
+    err := db.QueryRow("SELECT UserID FROM Sessions WHERE SessionToken = ?", session).Scan(&UserID)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            return -1, err
+        }
+        return -1, err
+    }
+    return UserID, nil
+}
+
 
 //TEST FUNCTION REMOVE LATER
 // func printTables(db *sql.DB) error {

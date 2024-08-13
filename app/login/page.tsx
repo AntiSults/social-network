@@ -67,6 +67,9 @@ const LoginPage = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
         <Button type="submit" name="Login" />
+        <a href="/register" className="btn">
+          Register
+        </a>
       </form>
     </>
   );
