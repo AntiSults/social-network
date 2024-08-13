@@ -20,7 +20,11 @@ backend runs on port :8080
 Front end sends registration form to backend, including avatar  
 Also creates a randomly named image file in the /public/uploads directory  
 Early implementation of migrating sql tables  
-Creates a session token for login, inserts to database
+Creates a session token for login, inserts to database  
+Authenticates login  
+Able to logout  
+Changes homescreen based on if logged in or not  
+Fetches avatar and displays it (also has a default avatar)
 
 ## Directories
 
