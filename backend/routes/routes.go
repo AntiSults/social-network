@@ -12,6 +12,7 @@ func SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/login", handlers.Login)
 	mux.HandleFunc("/logout", handlers.Logout)
 	mux.HandleFunc("/getAvatarPath", handlers.GetAvatarPath)
+	mux.Handle("/getUserData", middleware.RequireLogin(http.HandlerFunc(handlers.GetUserData)))
 	mux.Handle("/testLoggedIn", middleware.RequireLogin(http.HandlerFunc(middleware.DummyCheck)))
 	return mux
 }
