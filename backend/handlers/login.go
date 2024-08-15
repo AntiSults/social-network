@@ -15,21 +15,12 @@ import (
 func Login(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodPost {
-		
-		email:= r.FormValue("email")
+
+		email := r.FormValue("email")
 		password := r.FormValue("password")
 
-		db, err := sqlite.OpenDatabase()
-		if err != nil {
-			http.Error(w, "Couldn't connect to database", http.StatusInternalServerError)
-			return
-		}
-		defer db.Close()
-
 		// Get the hashed pw from db
-		var userID string
-		var hashedPw string
-		err = db.QueryRow("SELECT ID, Password FROM Users WHERE Email = ?", email).Scan(&userID, &hashedPw)
+		userID, hashedPw, err := sqlite.Db.GetId_Password(email)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				middleware.SendErrorResponse(w, "User email not found", http.StatusBadRequest)
@@ -39,7 +30,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Compare passwords 
+		// Compare passwords
 		err = bcrypt.CompareHashAndPassword([]byte(hashedPw), []byte(password))
 		if err != nil {
 			middleware.SendErrorResponse(w, "Wrong password", http.StatusBadRequest)
@@ -53,9 +44,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 		expiresAt := time.Now().Add(24 * time.Hour)
 
-		_, err = db.Exec(`
-			INSERT INTO Sessions (UserID, SessionToken, ExpiresAt) VALUES (?, ?, ?)
-		`, userID, sessionToken, expiresAt)
+		err = sqlite.Db.SaveSession(userID, sessionToken, expiresAt)
 
 		if err != nil {
 			fmt.Println(err)
@@ -64,11 +53,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 
 		cookie := &http.Cookie{
-			Name: "session_token",
-			Value: sessionToken.String(),
-			Expires: expiresAt,
+			Name:     "session_token",
+			Value:    sessionToken.String(),
+			Expires:  expiresAt,
 			SameSite: http.SameSiteNoneMode,
-			Secure: true,
+			Secure:   true,
 		}
 		http.SetCookie(w, cookie)
 

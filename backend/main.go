@@ -10,14 +10,14 @@ import (
 )
 
 func main() {
-	
-	migrationsPath := "./db/migrations/sqlite" 
 
-	db, err := sqlite.ConnectAndMigrateDb(migrationsPath)
+	migrationsPath := "./db/migrations/sqlite"
+
+	_, err := sqlite.ConnectAndMigrateDb(migrationsPath)
 	if err != nil {
 		log.Fatalf("Failed to connect or migrate the database: %v", err)
 	}
-	defer db.Close()
+	defer sqlite.Db.Close()
 
 	mux := routes.SetupRoutes()
 	fmt.Println("Starting server on: http://localhost:8080\nCtrl+c for exit")

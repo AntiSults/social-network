@@ -23,12 +23,13 @@ type RegisterForm struct {
 }
 
 const avatarDir = "../public/uploads"
+
 var errNoFile = fmt.Errorf("no file")
 
 func Register(w http.ResponseWriter, r *http.Request) {
 
 	// // Allow CORS
-	// w.Header().Set("Access-Control-Allow-Origin", "*") 
+	// w.Header().Set("Access-Control-Allow-Origin", "*")
 	// w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 	// w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
@@ -37,16 +38,15 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
-
 	if r.Method == http.MethodPost {
 
 		user := structs.User{
-        	Email:     r.FormValue("email"),
-        	FirstName: r.FormValue("firstName"),
-        	LastName:  r.FormValue("lastName"),
-        	NickName:  r.FormValue("nickname"),
-        	AboutMe:   r.FormValue("aboutMe"),
-    	}
+			Email:     r.FormValue("email"),
+			FirstName: r.FormValue("firstName"),
+			LastName:  r.FormValue("lastName"),
+			NickName:  r.FormValue("nickname"),
+			AboutMe:   r.FormValue("aboutMe"),
+		}
 
 		dob := r.FormValue("dob")
 
@@ -69,13 +69,13 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			if !errors.Is(err, errNoFile) {
 				http.Error(w, "Failed to save image file", http.StatusInternalServerError)
 				return
-			} 
+			}
 		} else {
 			user.AvatarPath = avatarPath
 		}
 
-		err = insertUserToDatabase(user)
-		if err!=nil{
+		err = sqlite.Db.InsertUserToDatabase(user)
+		if err != nil {
 			http.Error(w, "Failed to insert into Users table", http.StatusInternalServerError)
 			return
 		}
@@ -85,19 +85,19 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func saveImage (r *http.Request) (string, error) {
-	if file, handler, err := r.FormFile("avatar"); err==nil {
-		
+func saveImage(r *http.Request) (string, error) {
+	if file, handler, err := r.FormFile("avatar"); err == nil {
+
 		defer file.Close()
 
 		// Makes sure the directory exists
-		if err := os.MkdirAll(avatarDir, os.ModePerm); err!= nil {
-        	return "", err
+		if err := os.MkdirAll(avatarDir, os.ModePerm); err != nil {
+			return "", err
 		}
-		
+
 		// Creates a specific file name for the img
 		avatarFileName := fmt.Sprintf("%d%s", time.Now().UnixNano(), filepath.Ext(handler.Filename))
-        avatarPath := filepath.Join(avatarDir, avatarFileName)
+		avatarPath := filepath.Join(avatarDir, avatarFileName)
 
 		// Creates the file in the server
 		img, err := os.Create(avatarPath)
@@ -107,55 +107,12 @@ func saveImage (r *http.Request) (string, error) {
 		defer img.Close()
 
 		// Copies the file to the file server
-		if _, err := io.Copy(img, file); err!=nil{
+		if _, err := io.Copy(img, file); err != nil {
 			return "", err
 		}
 		return avatarPath, nil
 	} else {
 		return "", errNoFile
 	}
-	
-}
 
-func insertUserToDatabase(user structs.User) error {
-
-	db, err := sqlite.OpenDatabase()
-	if err !=nil  {return err}
-	defer db.Close()
-
-	prep, err := db.Prepare(`
-			INSERT INTO Users (Email, Password, FirstName, LastName, DOB, NickName, AboutMe, AvatarPath)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-		`)
-	if err !=nil  {
-		return err
-	}
-	defer prep.Close()
-
-	var nickName, aboutMe, avatarPath interface{}
-	if user.NickName == "" {
-		nickName = nil
-	} else {
-		nickName = user.NickName
-	}
-
-	if user.AboutMe == "" {
-		aboutMe = nil
-	} else {
-		aboutMe = user.AboutMe
-	}
-
-	if user.AvatarPath == "" {
-		avatarPath = nil
-	} else {
-		avatarPath = user.AvatarPath
-	}
-
-	_, err = prep.Exec(user.Email, user.Password, user.FirstName, user.LastName, user.DOB, nickName, aboutMe, avatarPath)
-	if err !=nil  {
-		return err
-	}
-	fmt.Println("Successfully inserted to db!")
-
-	return nil
 }
