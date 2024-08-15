@@ -25,6 +25,7 @@ Authenticates login
 Able to logout  
 Changes homescreen based on if logged in or not  
 Fetches avatar and displays it (also has a default avatar)
+Checks email against regex, password has to be atleast 4 characters
 
 ## Directories
 
@@ -43,6 +44,10 @@ reusable components for react
 #### `/login` & `register`
 
 Different pages (page.tsx in both these directories is the page itself)
+
+#### `/profile`
+
+User's profile page
 
 #### `/testLoggedIn`
 
