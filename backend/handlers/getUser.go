@@ -7,6 +7,7 @@ import (
 	"social-network/backend/db/sqlite"
 	"social-network/backend/middleware"
 	"social-network/backend/structs"
+	"time"
 )
 
 func GetUserData(w http.ResponseWriter, r *http.Request){
@@ -35,11 +36,15 @@ func GetUserData(w http.ResponseWriter, r *http.Request){
 		var nick sql.NullString
 		var aboutMe sql.NullString
 		var avatarPath sql.NullString
-		err = db.QueryRow("SELECT Email, FirstName, LastName, DOB, NickName, AboutMe, AvatarPath FROM Users WHERE ID = ?", userID).Scan(&user.Email, &user.FirstName, &user.LastName, &user.DOB, &nick, &aboutMe, &avatarPath)
+		var dob time.Time
+		err = db.QueryRow("SELECT Email, FirstName, LastName, DOB, NickName, AboutMe, AvatarPath, profile_visibility FROM Users WHERE ID = ?", userID).Scan(&user.Email, &user.FirstName, &user.LastName, &dob, &nick, &aboutMe, &avatarPath, &user.ProfileVisibility)
 		if err != nil {
 			middleware.SendErrorResponse(w, "Error querying user data to struct"+err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+		user.DOB = dob.Format("2006-01-02")
+		
 
 		if nick.Valid {
 			user.NickName = nick.String

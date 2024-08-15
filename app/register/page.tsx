@@ -8,6 +8,8 @@ import Button from "../components/Button";
 import { useRouter } from "next/navigation";
 import AvatarUploadField from "../components/AvatarUploadField";
 import NavBar from "../components/NavBar";
+import Error from "../components/Error";
+import ErrorMessage from "../components/Error";
 
 const RegisterPage = () => {
   // Using useStates to be able to change the values later, also
@@ -21,6 +23,7 @@ const RegisterPage = () => {
   const [nickname, setNickname] = useState("");
   const [aboutMe, setAboutMe] = useState("");
   const [avatar, setAvatar] = useState<File | null>(null);
+  const [error, setError] = useState("");
   const router = useRouter();
 
   // Get called when button is clicked, sends data to backend
@@ -52,7 +55,8 @@ const RegisterPage = () => {
       if (response.ok) {
         router.push("/");
       } else {
-        console.error("Form submission error:", await response.text());
+        var data = await response.json();
+        setError(data.message);
       }
     } catch (error) {
       console.error("Network error:", error);
@@ -67,6 +71,7 @@ const RegisterPage = () => {
   return (
     <>
       <NavBar logged={false}></NavBar>
+      {error && ErrorMessage(error)}
       <form onSubmit={HandleRegisterForm}>
         <div id={styles.register} className="mx-auto">
           <FieldInput

@@ -7,36 +7,20 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"social-network/backend/db/sqlite"
+	"social-network/backend/middleware"
 	"social-network/backend/structs"
 	"time"
 
+	"github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
 )
-
-type RegisterForm struct {
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Dob       string `json:"dob"`
-}
 
 const avatarDir = "../public/uploads"
 var errNoFile = fmt.Errorf("no file")
 
 func Register(w http.ResponseWriter, r *http.Request) {
-
-	// // Allow CORS
-	// w.Header().Set("Access-Control-Allow-Origin", "*") 
-	// w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-	// w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
-	// if r.Method == http.MethodOptions {
-	// 	w.WriteHeader(http.StatusOK)
-	// 	return
-	// }
-
 
 	if r.Method == http.MethodPost {
 
@@ -46,20 +30,37 @@ func Register(w http.ResponseWriter, r *http.Request) {
         	LastName:  r.FormValue("lastName"),
         	NickName:  r.FormValue("nickname"),
         	AboutMe:   r.FormValue("aboutMe"),
+			ProfileVisibility: "public",
     	}
+		emailRegex := `^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}$`
+		match, err := regexp.Match(emailRegex, []byte(user.Email))
+		if err != nil {
+			middleware.SendErrorResponse(w, "error with regex", http.StatusBadRequest)
+			return
+		}
+		if (!match) {
+			middleware.SendErrorResponse(w, "Invalid email aadress", http.StatusBadRequest)
+			return
+		}
 
 		dob := r.FormValue("dob")
 
 		parsedDob, err := time.Parse("2006-01-02", dob)
 		if err != nil {
-			http.Error(w, "Failed to parse date", http.StatusBadRequest)
+			middleware.SendErrorResponse(w, "Failed to parse date", http.StatusBadRequest)
 			return
 		}
-		user.DOB = parsedDob
+		user.DOB = parsedDob.Format("2006-01-02")
 
-		hashedPw, err := bcrypt.GenerateFromPassword([]byte(r.FormValue("password")), bcrypt.DefaultCost)
+		password := r.FormValue("password")
+
+		if(len(password) < 4) {
+			middleware.SendErrorResponse(w, "Password too short!", http.StatusBadRequest)
+		}
+
+		hashedPw, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		if err != nil {
-			http.Error(w, "Failed to hash password", http.StatusInternalServerError)
+			middleware.SendErrorResponse(w, "Failed to hash password", http.StatusInternalServerError)
 			return
 		}
 		user.Password = string(hashedPw)
@@ -67,7 +68,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		avatarPath, err := saveImage(r)
 		if err != nil {
 			if !errors.Is(err, errNoFile) {
-				http.Error(w, "Failed to save image file", http.StatusInternalServerError)
+				middleware.SendErrorResponse(w, "Failed to save image file", http.StatusInternalServerError)
 				return
 			} 
 		} else {
@@ -75,13 +76,20 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		}
 
 		err = insertUserToDatabase(user)
-		if err!=nil{
-			http.Error(w, "Failed to insert into Users table", http.StatusInternalServerError)
+		if err !=nil {
+			if sqliteErr, ok := err.(sqlite3.Error); ok {
+				if sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
+					middleware.SendErrorResponse(w, "Email already exists", http.StatusBadRequest)
+					return
+				}
+			}
+			middleware.SendErrorResponse(w, "Failed to insert into Users table" + err.Error(), http.StatusInternalServerError)
 			return
 		}
 		w.WriteHeader(http.StatusOK)
 	} else {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
 }
 
