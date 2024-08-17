@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"social-network/backend/structs"
+	"social-network/structs"
 	"time"
 
 	"github.com/gofrs/uuid"

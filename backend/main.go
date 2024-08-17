@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"social-network/backend/db/sqlite"
-	"social-network/backend/middleware"
-	"social-network/backend/routes"
+	"social-network/db/sqlite"
+	"social-network/middleware"
+	"social-network/routes"
 )
 
 func main() {

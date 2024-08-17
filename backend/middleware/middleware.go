@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"social-network/backend/db/sqlite"
-	"social-network/backend/structs"
+	"social-network/db/sqlite"
+	"social-network/structs"
 )
 
 // Allows CORS from specific origin
@@ -31,18 +31,6 @@ func CorsMiddleWare(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
-
-/*NEED TO SEND ERROR NOT REDIRECT
-			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(ErrorResponse{Message: "Invalid session. Please log in again."})
-			return
-NEED TO HANDLE ERRORS ON FRONTEND LOGINS/PAGE.TSX
-	else {
-        // Handle errors by reading the error message from the response
-        const data = await response.json();
-        setError(data.message || 'Login failed');
-      }
-*/
 
 func RequireLogin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
