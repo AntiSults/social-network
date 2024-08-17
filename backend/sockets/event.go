@@ -9,7 +9,7 @@ type Event struct {
 
 type EventHandler func(event Event, c *Client) error
 
-// newEvent will be used to receive messages at Front
+// newEvent will be used to create Events for sending to FrontEnd(if any)
 func newEvent(t string, p json.RawMessage) *Event {
 	return &Event{
 		Type:    t,

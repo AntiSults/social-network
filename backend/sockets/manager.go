@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 	"social-network/structs"
 	"sync"
-
-	"github.com/gorilla/websocket"
 )
 
 var WebsocketUpgrader = websocket.Upgrader{
@@ -17,6 +16,7 @@ var WebsocketUpgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
+
 var (
 	ErrEventNotSupported = errors.New("this event type is not supported")
 )
@@ -44,10 +44,11 @@ func (m *Manager) setupEventHandlers() {
 	m.handlers[EventMessage] = m.handleMessages
 }
 
+// handleMessages takes care of sent messages, save later to DB here
 func (m *Manager) handleMessages(e Event, c *Client) error {
+
 	var message structs.Message
 	fmt.Printf("Handling %v event\n", e.Type)
-	fmt.Println("Event:", e)
 
 	err := json.Unmarshal(e.Payload, &message)
 	if err != nil {
@@ -82,7 +83,6 @@ func (m *Manager) Serve_WS(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-
 	// Create New Client
 	client := NewClient(conn, m)
 	// Add the newly created client to the manager
@@ -112,11 +112,10 @@ func (m *Manager) removeClient(client *Client) {
 		// remove
 		fmt.Println(client.nickname, "WS connection closed")
 		delete(m.Clients, client)
-
 	}
 }
 
-// checkOrigin will check origin and return true if its allowed
+// checkOrigin will check origin and return true if it's allowed
 func checkOrigin(r *http.Request) bool {
 	// Grab the request origin
 	origin := r.Header.Get("Origin")
