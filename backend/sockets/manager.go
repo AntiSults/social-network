@@ -110,7 +110,7 @@ func (m *Manager) removeClient(client *Client) {
 		// close connection
 		client.connection.Close()
 		// remove
-		fmt.Println(client.nickname, "WS connection closed")
+		//fmt.Println(client.nickname, "WS connection closed")
 		delete(m.Clients, client)
 	}
 }

@@ -8,7 +8,8 @@ import (
 )
 
 func SetupRoutes() *http.ServeMux {
-	manager := sockets.NewManager()
+
+	manager := sockets.NewManager() //need it here as instance of Manager struct (Serve_WS is method)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/register", handlers.Register)
 	mux.HandleFunc("/login", handlers.Login)
