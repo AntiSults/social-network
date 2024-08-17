@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"social-network/backend/db/sqlite"
-	"social-network/backend/structs"
+	"social-network/db/sqlite"
+	"social-network/structs"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"

@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"social-network/handlers"
 	"social-network/middleware"
-	"social-network/wsocket"
+	"social-network/sockets"
 )
 
 func SetupRoutes() *http.ServeMux {
-	manager := wsocket.NewManager()
+	manager := sockets.NewManager()
 	mux := http.NewServeMux()
 	mux.HandleFunc("/register", handlers.Register)
 	mux.HandleFunc("/login", handlers.Login)

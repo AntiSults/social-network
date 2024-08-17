@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
-	"social-network/backend/db/sqlite"
-	"social-network/backend/middleware"
+	"social-network/db/sqlite"
+	"social-network/middleware"
 )
 
 func GetAvatarPath(w http.ResponseWriter, r *http.Request) {

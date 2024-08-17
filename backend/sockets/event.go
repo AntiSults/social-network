@@ -1,4 +1,4 @@
-package wsocket
+package sockets
 
 import "encoding/json"
 
