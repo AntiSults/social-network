@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"social-network/structs"
 	"sync"
+
+	"github.com/gorilla/websocket"
 )
 
 var WebsocketUpgrader = websocket.Upgrader{
@@ -36,33 +38,23 @@ func NewManager() *Manager {
 }
 
 // setupEventHandlers adds Event handlers to handlers Map
-// may add different events e.g. for sending posts, comments, notifications in future
 func (m *Manager) setupEventHandlers() {
+
+	// may add different events e.g. for sending posts, comments, notifications in future
 	m.handlers[EventMessage] = m.handleMessages
 }
 
 func (m *Manager) handleMessages(e Event, c *Client) error {
-	// Handle newPM event
+	var message structs.Message
 	fmt.Printf("Handling %v event\n", e.Type)
-	message := ""
+	fmt.Println("Event:", e)
+
 	err := json.Unmarshal(e.Payload, &message)
 	if err != nil {
-		return errors.New("error unmarshalling the payload of the newPM event")
+		return fmt.Errorf("error unmarshalling the payload: %w", err)
 	}
-	// saving message into DB
-	// _, err = Db.SavePM(&message)
-	// if err != nil {
-	// 	log.Println("error saving PM into db: ", err)
-	// }
-	// sending message notification update
-	// updateEvent := newEvent("message_received", e.Payload, c.sessionToken)
-	// for client := range m.Clients {
-	// 	if message.FromUserNick != client.nickname {
-	// 		client.egress <- *updateEvent
-	// 	}
-	// }
-	// Updating local storage for these joined after message pushed
-	// CommonData.Messages = append(CommonData.Messages, message)
+	fmt.Printf("New message: %v Created at: %v\n", message.Content, message.Created)
+
 	return nil
 }
 
@@ -130,7 +122,7 @@ func checkOrigin(r *http.Request) bool {
 	origin := r.Header.Get("Origin")
 
 	switch origin {
-	case "http://localhost:8080":
+	case "http://localhost:8080", "http://localhost:3000":
 		return true
 	default:
 		return false

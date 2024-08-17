@@ -1,61 +1,70 @@
 //this will not be here forever it is a component of out future main page
+
 "use client";
 import React, { useEffect, useState } from "react";
 import FieldInput from "../components/FieldInput";
 import Button from "../components/Button";
 
-
-
 const ChatMessage = () => {
-    const [message, setMessageText] = useState("");
-    //const [error, setError] = useState("");
+    const [message, setMessage] = useState("");
+    const [socket, setSocket] = useState<WebSocket | null>(null);
+
     class Payload {
         content: string;
         created: string;
         constructor(content: string) {
             this.content = content;
-            this.created = new Date().toISOString();;
+            this.created = new Date().toISOString();
         }
     }
 
     class Event {
         type: string;
-        payload: object;
+        payload: Payload;
 
-        constructor(type: string, payload: object) {
+        constructor(type: string, payload: Payload) {
             this.type = type;
             this.payload = payload;
         }
     }
-    useEffect(() => {
-        const socket = new WebSocket('ws://localhost:8080/ws');
 
-        socket.onopen = () => {
+    useEffect(() => {
+        const socketInstance = new WebSocket('ws://localhost:8080/ws');
+
+        socketInstance.onopen = () => {
             console.log('Connected to WebSocket server');
         };
 
-        socket.onmessage = (event) => {
+        socketInstance.onmessage = (event) => {
             console.log('Received message:', event.data);
             // Handle incoming messages
         };
 
-        socket.onerror = (error) => {
-            console.log('Socket error', error);
-        }
+        socketInstance.onerror = (error) => {
+            console.error('Socket error', error);
+        };
 
-        socket.onclose = () => {
+        socketInstance.onclose = () => {
             console.log('Disconnected from WebSocket server');
         };
 
+        setSocket(socketInstance);
+
         // Cleanup on component unmount
         return () => {
-            socket.close();
+            socketInstance.close();
         };
     }, []);
 
-    const sendChatMessage = () => {
-        let event = new Event('chat message', new Payload('test message'))
-    }
+    const sendChatMessage = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (socket && message.trim() !== "") {
+            const payload = new Payload(message);
+            const event = new Event('chat_message', payload);
+            socket.send(JSON.stringify(event));
+            setMessage(""); // Clear the input field after sending
+        }
+    };
 
     return (
         <div>
@@ -64,17 +73,15 @@ const ChatMessage = () => {
                 <FieldInput
                     name="Text:"
                     type="text"
-                    placeholder="push your imagination"
+                    placeholder="Push your imagination"
                     required={true}
                     value={message}
-                    onChange={(e) => setMessageText(e.target.value)}
+                    onChange={(e) => setMessage(e.target.value)}
                 />
                 <Button type="submit" name="Submit Message" />
-
             </form>
         </div>
-    )
+    );
 }
 
-
-export default ChatMessage
+export default ChatMessage;

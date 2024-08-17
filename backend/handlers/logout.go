@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
-	"social-network/backend/db/sqlite"
-	"social-network/backend/middleware"
+	"social-network/db/sqlite"
+	"social-network/middleware"
 	"time"
 )
 

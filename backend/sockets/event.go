@@ -3,22 +3,20 @@ package sockets
 import "encoding/json"
 
 type Event struct {
-	Type         string          `json:"type"`
-	Payload      json.RawMessage `json:"payload"`
-	SessionToken string          `json:"sessionToken,omitempty"`
+	Type    string          `json:"type"`
+	Payload json.RawMessage `json:"payload"`
 }
 
 type EventHandler func(event Event, c *Client) error
 
-// newEvent for creating new event to send message to Front via websocket
+// newEvent will be used to receive messages at Front
 func newEvent(t string, p json.RawMessage) *Event {
 	return &Event{
 		Type:    t,
 		Payload: p,
-		// SessionToken: s,
 	}
 }
 
 const (
-	EventMessage = "newPM"
+	EventMessage = "chat_message"
 )
