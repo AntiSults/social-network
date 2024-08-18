@@ -3,14 +3,12 @@ package handlers
 import (
 	"database/sql"
 	"fmt"
+	"github.com/gofrs/uuid"
 	"net/http"
+	"social-network/db/security"
 	"social-network/db/sqlite"
 	"social-network/middleware"
-
 	"time"
-
-	"github.com/gofrs/uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +30,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Compare passwords
-		err = bcrypt.CompareHashAndPassword([]byte(hashedPw), []byte(password))
+		err = security.CheckPassword([]byte(hashedPw), []byte(password))
 		if err != nil {
 			middleware.SendErrorResponse(w, "Wrong password", http.StatusBadRequest)
 			return

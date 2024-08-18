@@ -7,11 +7,10 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"social-network/db/security"
 	"social-network/db/sqlite"
 	"social-network/structs"
 	"time"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type RegisterForm struct {
@@ -27,16 +26,6 @@ const avatarDir = "../public/uploads"
 var errNoFile = fmt.Errorf("no file")
 
 func Register(w http.ResponseWriter, r *http.Request) {
-
-	// // Allow CORS
-	// w.Header().Set("Access-Control-Allow-Origin", "*")
-	// w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-	// w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
-	// if r.Method == http.MethodOptions {
-	// 	w.WriteHeader(http.StatusOK)
-	// 	return
-	// }
 
 	if r.Method == http.MethodPost {
 
@@ -57,7 +46,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		}
 		user.DOB = parsedDob
 
-		hashedPw, err := bcrypt.GenerateFromPassword([]byte(r.FormValue("password")), bcrypt.DefaultCost)
+		hashedPw, err := security.HashPassword(r.FormValue("password"))
 		if err != nil {
 			http.Error(w, "Failed to hash password", http.StatusInternalServerError)
 			return

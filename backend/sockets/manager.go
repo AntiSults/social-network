@@ -59,7 +59,7 @@ func (m *Manager) handleMessages(e Event, c *Client) error {
 	return nil
 }
 
-// routeEvent routing Events to appropriate handler and validate sessions
+// routeEvent routing Events to appropriate handler
 func (m *Manager) routeEvent(event Event, c *Client) error {
 
 	// Check if Handler is present in Map
