@@ -7,7 +7,6 @@ import (
 	"social-network/structs"
 	"time"
 
-	"github.com/gofrs/uuid"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite3"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -164,6 +163,42 @@ func (d *Database) GetUser(userID int) (*structs.User, error) {
 	return &user, nil
 }
 
+func (d *Database) GetUser_By_email(email string) (*structs.User, error) {
+	var user structs.User
+	var nickName sql.NullString
+	var aboutMe sql.NullString
+	var avatarPath sql.NullString
+
+	// Execute the query
+	err := d.db.QueryRow(`
+		SELECT ID, Email, FirstName, LastName, DOB, NickName, AboutMe, AvatarPath 
+		FROM Users 
+		WHERE Email = ?
+	`, email).Scan(
+		&user.ID,
+		&user.Email,
+		&user.FirstName,
+		&user.LastName,
+		&user.DOB,
+		&nickName,
+		&aboutMe,
+		&avatarPath,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("user with e-mail %v not found", email)
+		}
+		return nil, fmt.Errorf("failed to query user: %w", err)
+	}
+
+	user.NickName = nickName.String
+	user.AboutMe = aboutMe.String
+	user.AvatarPath = avatarPath.String
+
+	return &user, nil
+}
+
 func (d *Database) InsertUserToDatabase(user structs.User) error {
 	if d == nil || d.db == nil {
 		fmt.Println("No database")
@@ -201,10 +236,10 @@ func (d *Database) InsertUserToDatabase(user structs.User) error {
 	return nil
 }
 
-func (d *Database) SaveSession(userID string, token uuid.UUID, exp time.Time) error {
+func (d *Database) SaveSession(userID string, token string, exp time.Time) error {
 	_, err := d.db.Exec(`
 		INSERT INTO Sessions (UserID, SessionToken, ExpiresAt) VALUES (?, ?, ?)
-	`, userID, token.String(), exp)
+	`, userID, token, exp)
 	if err != nil {
 		// Wrap the error with additional context
 		return fmt.Errorf("failed to save session for user %s: %w", userID, err)

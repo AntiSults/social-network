@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"database/sql"
 	"encoding/json"
 	"net/http"
 	"social-network/db/sqlite"
@@ -39,13 +38,4 @@ func GetAvatarPath(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
-}
-
-func getAvatarFromID(db *sql.DB, id int) (string, error) {
-	var avatarPath string
-	err := db.QueryRow("SELECT AvatarPath FROM Users WHERE ID = ?", id).Scan(&avatarPath)
-	if err != nil {
-		return "", err
-	}
-	return avatarPath, nil
 }

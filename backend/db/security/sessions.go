@@ -1,10 +1,13 @@
 package security
 
 import (
-	"github.com/satori/go.uuid"
+	"fmt"
 	"net/http"
+	"social-network/db/sqlite"
 	"sync"
 	"time"
+
+	"github.com/satori/go.uuid"
 )
 
 const sessionLength int = 1800 // seconds
@@ -53,6 +56,13 @@ func NewSession(userName string, userID int, w http.ResponseWriter) {
 	}
 	dbSessions[token] = session
 	session.setCookie(w)
+	err := sqlite.Db.SaveSession(string(userID), token, session.ExpirationTime)
+
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Error inserting a session", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *Session) setCookie(w http.ResponseWriter) {

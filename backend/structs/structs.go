@@ -3,6 +3,7 @@ package structs
 import "time"
 
 type User struct {
+	ID         int       `json:"ID,omitempty"`
 	Email      string    `json:"email"`
 	Password   string    `json:"password"`
 	FirstName  string    `json:"firstName"`
@@ -18,6 +19,9 @@ type ErrorResponse struct {
 }
 
 type Message struct {
-	Content string `json:"content"`
-	Created string `json:"created"`
+	ID          int    `json:"ID,omitempty"`
+	Content     string `json:"content"`
+	Created     string `json:"created"`
+	RecipientID int    `json:"recipientID"`
+	SenderID    int    `json:"senderID"`
 }

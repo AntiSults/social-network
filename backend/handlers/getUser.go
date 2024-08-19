@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+
 	"social-network/db/sqlite"
 	"social-network/middleware"
 )
@@ -33,7 +34,6 @@ func GetUserData(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			middleware.SendErrorResponse(w, "Error marshalling user data to JSON", http.StatusInternalServerError)
 			return
-
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
