@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"net/http"
-	"social-network/db/security"
 	"social-network/db/sqlite"
 	"social-network/middleware"
+	"social-network/security"
 )
 
 func Logout(w http.ResponseWriter, r *http.Request) {

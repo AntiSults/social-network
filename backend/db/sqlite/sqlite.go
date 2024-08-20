@@ -97,17 +97,6 @@ func (d *Database) GetAvatarFromID(id int) (string, error) {
 	}
 	return avatarPath, nil
 }
-func (d *Database) GetId_Password(email string) (string, string, error) {
-
-	var userID string
-	var hashedPw string
-	err := d.db.QueryRow("SELECT ID, Password FROM Users WHERE Email = ?", email).Scan(&userID, &hashedPw)
-	if err != nil {
-		return "", "", sql.ErrNoRows
-	}
-	return userID, hashedPw, nil
-
-}
 
 func (d *Database) DeleteSessionFromDB(session string) error {
 	stmt, err := d.db.Prepare("DELETE FROM Sessions WHERE SessionToken = ?")
@@ -171,12 +160,13 @@ func (d *Database) GetUser_By_email(email string) (*structs.User, error) {
 
 	// Execute the query
 	err := d.db.QueryRow(`
-		SELECT ID, Email, FirstName, LastName, DOB, NickName, AboutMe, AvatarPath 
+		SELECT ID, Email, Password, FirstName, LastName, DOB, NickName, AboutMe, AvatarPath 
 		FROM Users 
 		WHERE Email = ?
 	`, email).Scan(
 		&user.ID,
 		&user.Email,
+		&user.Password,
 		&user.FirstName,
 		&user.LastName,
 		&user.DOB,
@@ -236,13 +226,13 @@ func (d *Database) InsertUserToDatabase(user structs.User) error {
 	return nil
 }
 
-func (d *Database) SaveSession(userID string, token string, exp time.Time) error {
+func (d *Database) SaveSession(userID int, token string, exp time.Time) error {
 	_, err := d.db.Exec(`
 		INSERT INTO Sessions (UserID, SessionToken, ExpiresAt) VALUES (?, ?, ?)
 	`, userID, token, exp)
 	if err != nil {
 		// Wrap the error with additional context
-		return fmt.Errorf("failed to save session for user %s: %w", userID, err)
+		return fmt.Errorf("failed to save session for user %d: %w", userID, err)
 	}
 
 	return nil

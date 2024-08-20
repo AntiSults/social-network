@@ -3,9 +3,9 @@ package handlers
 import (
 	"database/sql"
 	"net/http"
-	"social-network/db/security"
 	"social-network/db/sqlite"
 	"social-network/middleware"
+	"social-network/security"
 	"social-network/structs"
 )
 
@@ -29,7 +29,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 		User = *user
 		// Compare passwords
-		err = security.CheckPassword([]byte(user.Password), []byte(password))
+		err = security.CheckPassword([]byte(User.Password), []byte(password))
 		if err != nil {
 			middleware.SendErrorResponse(w, "Wrong password", http.StatusBadRequest)
 			return

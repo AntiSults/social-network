@@ -56,7 +56,7 @@ func NewSession(userName string, userID int, w http.ResponseWriter) {
 	}
 	dbSessions[token] = session
 	session.setCookie(w)
-	err := sqlite.Db.SaveSession(string(userID), token, session.ExpirationTime)
+	err := sqlite.Db.SaveSession(userID, token, session.ExpirationTime)
 
 	if err != nil {
 		fmt.Println(err)
