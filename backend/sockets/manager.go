@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"social-network/db/sqlite"
 	"social-network/structs"
 	"sync"
+
+	"github.com/gorilla/websocket"
 )
 
 var WebsocketUpgrader = websocket.Upgrader{
@@ -54,7 +56,19 @@ func (m *Manager) handleMessages(e Event, c *Client) error {
 	if err != nil {
 		return fmt.Errorf("error unmarshalling the payload: %w", err)
 	}
-	fmt.Printf("New message: %v Created at: %v\n", message.Content, message.Created)
+	fmt.Println("New message:", &message)
+
+	// saving message into DB
+	_, err = sqlite.Db.SaveMessage(&message)
+
+	if err != nil {
+		log.Println("error saving PM into db: ", err)
+	}
+	// redirecting to Front for testing (for all clients for a while)
+	updateEvent := newEvent("message_received", e.Payload)
+	for client := range m.Clients {
+		client.egress <- *updateEvent
+	}
 
 	return nil
 }

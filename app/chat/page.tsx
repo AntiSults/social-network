@@ -10,10 +10,16 @@ const ChatMessage = () => {
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
     class Payload {
+        id: number;
         content: string;
+        from: number;
+        to: number;
         created: string;
-        constructor(content: string) {
+        constructor(id: number, content: string, from: number, to: number) {
+            this.id = id;
             this.content = content;
+            this.from = from;
+            this.to = to;
             this.created = new Date().toISOString();
         }
     }
@@ -57,9 +63,13 @@ const ChatMessage = () => {
     }, []);
 
     const sendChatMessage = (e: React.FormEvent) => {
+        const messageId: number = 1;
+        const messageFrom: number = 2;
+        const messageTo: number = 5;
+
         e.preventDefault();
         if (socket && message.trim() !== "") {
-            const payload = new Payload(message);
+            const payload = new Payload(messageId, message, messageFrom, messageTo);
             const event = new Event('chat_message', payload);
             socket.send(JSON.stringify(event));
             setMessage(""); // Clear the input field after sending

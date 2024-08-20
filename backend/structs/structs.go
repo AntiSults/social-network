@@ -19,9 +19,9 @@ type ErrorResponse struct {
 }
 
 type Message struct {
-	ID          int    `json:"ID,omitempty"`
+	ID          int    `json:"id,omitempty"`
 	Content     string `json:"content"`
 	Created     string `json:"created"`
-	RecipientID int    `json:"recipientID"`
-	SenderID    int    `json:"senderID"`
+	RecipientID int    `json:"from"`
+	SenderID    int    `json:"to"`
 }

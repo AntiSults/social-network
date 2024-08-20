@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/sqlite3"
+	sqlitemigration "github.com/golang-migrate/migrate/v4/database/sqlite3"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	_ "github.com/mattn/go-sqlite3"
+	sqlite3 "github.com/mattn/go-sqlite3"
 )
 
 var (
@@ -35,7 +35,7 @@ func ConnectAndMigrateDb(migrationsPath string) (*Database, error) {
 	}
 
 	// Create a new SQLite driver instance
-	driver, err := sqlite3.WithInstance(db.db, &sqlite3.Config{})
+	driver, err := sqlitemigration.WithInstance(db.db, &sqlitemigration.Config{})
 	if err != nil {
 		db.Close() // Close the db if driver creation fails
 		return nil, fmt.Errorf("failed to create SQLite driver: %w", err)
@@ -236,4 +236,24 @@ func (d *Database) SaveSession(userID int, token string, exp time.Time) error {
 	}
 
 	return nil
+}
+func (d *Database) SaveMessage(message *structs.Message) (*structs.Message, error) {
+
+	res, err := d.db.Exec("INSERT INTO Messages (time_created, content, foruser, fromuser) VALUES(?,?,?,?)", message.Created, message.Content, message.RecipientID, message.SenderID)
+	if err != nil {
+
+		var sqliteErr sqlite3.Error
+		if errors.As(err, &sqliteErr) {
+			if errors.Is(sqliteErr.ExtendedCode, sqlite3.ErrConstraintUnique) {
+				return nil, ErrDuplicate
+			}
+		}
+		return nil, err
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	message.ID = int(id)
+	return message, nil
 }
