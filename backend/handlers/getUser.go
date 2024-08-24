@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"social-network/db/sqlite"
@@ -24,6 +25,7 @@ func GetUserData(w http.ResponseWriter, r *http.Request) {
 		}
 
 		user, err := sqlite.Db.GetUser(userID)
+		fmt.Println(user)
 
 		if err != nil {
 			middleware.SendErrorResponse(w, "Error querying user data to struct"+err.Error(), http.StatusInternalServerError)
