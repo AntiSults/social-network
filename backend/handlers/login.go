@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 	"social-network/db/sqlite"
 	"social-network/middleware"
@@ -18,9 +19,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		email := r.FormValue("email")
 		password := r.FormValue("password")
 
-		user, err := sqlite.Db.GetUser_By_email(email)
+		user, err := sqlite.Db.GetUserByEmail(email)
 		if err != nil {
-			if err == sql.ErrNoRows {
+			if errors.Is(err, sql.ErrNoRows) {
 				middleware.SendErrorResponse(w, "User email not found", http.StatusBadRequest)
 				return
 			}

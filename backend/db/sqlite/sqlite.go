@@ -152,7 +152,7 @@ func (d *Database) GetUser(userID int) (*structs.User, error) {
 	return &user, nil
 }
 
-func (d *Database) GetUser_By_email(email string) (*structs.User, error) {
+func (d *Database) GetUserByEmail(email string) (*structs.User, error) {
 	var user structs.User
 	var nickName sql.NullString
 	var aboutMe sql.NullString
