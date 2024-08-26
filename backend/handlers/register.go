@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"social-network/db/sqlite"
+	"social-network/middleware"
 	"social-network/security"
 	"social-network/structs"
 	"time"
@@ -30,25 +31,37 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 
 		user := structs.User{
-			Email:     r.FormValue("email"),
-			FirstName: r.FormValue("firstName"),
-			LastName:  r.FormValue("lastName"),
-			NickName:  r.FormValue("nickname"),
-			AboutMe:   r.FormValue("aboutMe"),
+			Email:             r.FormValue("email"),
+			FirstName:         r.FormValue("firstName"),
+			LastName:          r.FormValue("lastName"),
+			NickName:          r.FormValue("nickname"),
+			AboutMe:           r.FormValue("aboutMe"),
+			ProfileVisibility: "public",
+		}
+
+		if !security.IsValidEmail(user.Email) {
+			middleware.SendErrorResponse(w, "Entered e-mail is not valid", http.StatusBadRequest)
+			return
 		}
 
 		dob := r.FormValue("dob")
 
 		parsedDob, err := time.Parse("2006-01-02", dob)
 		if err != nil {
-			http.Error(w, "Failed to parse date", http.StatusBadRequest)
+			middleware.SendErrorResponse(w, "Failed to parse date", http.StatusBadRequest)
 			return
 		}
-		user.DOB = parsedDob
+		user.DOB = parsedDob.Format("2006-01-02")
 
-		hashedPw, err := security.HashPassword(r.FormValue("password"))
+		password := r.FormValue("password")
+
+		if len(password) < 4 {
+			middleware.SendErrorResponse(w, "Password too short!", http.StatusBadRequest)
+		}
+
+		hashedPw, err := security.HashPassword(password)
 		if err != nil {
-			http.Error(w, "Failed to hash password", http.StatusInternalServerError)
+			middleware.SendErrorResponse(w, "Failed to hash password", http.StatusInternalServerError)
 			return
 		}
 		user.Password = string(hashedPw)
@@ -56,7 +69,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		avatarPath, err := saveImage(r)
 		if err != nil {
 			if !errors.Is(err, errNoFile) {
-				http.Error(w, "Failed to save image file", http.StatusInternalServerError)
+				middleware.SendErrorResponse(w, "Failed to save image file", http.StatusInternalServerError)
 				return
 			}
 		} else {
@@ -65,12 +78,13 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 		err = sqlite.Db.InsertUserToDatabase(user)
 		if err != nil {
-			http.Error(w, "Failed to insert into Users table", http.StatusInternalServerError)
+			middleware.SendErrorResponse(w, "Failed to insert into Users table"+err.Error(), http.StatusInternalServerError)
 			return
 		}
 		w.WriteHeader(http.StatusOK)
 	} else {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
 	}
 }
 
