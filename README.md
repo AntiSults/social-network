@@ -103,6 +103,13 @@ Right now holds avatar images for users
 Holds middleware functions between server and frontend  
 So far validates if user is logged in, handles CORS, handles server errors
 
+#### `socket/manager`
+
+Add new handler (method) here for establishing new kind of connection.
+Each handler will need corresponding map in the 'setupEventHandlers()' method.
+This map will have the key(string with name of event) - the constant in the event.go file.
+
+
 ## Default readme
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
