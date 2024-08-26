@@ -1,6 +1,7 @@
 package structs
 
 type User struct {
+	ID                int    `json:"ID,omitempty"`
 	Email             string `json:"email"`
 	Password          string `json:"password"`
 	FirstName         string `json:"firstName"`
@@ -14,4 +15,12 @@ type User struct {
 
 type ErrorResponse struct {
 	Message string `json:"message"`
+}
+
+type Message struct {
+	ID          int    `json:"id,omitempty"`
+	Content     string `json:"content"`
+	Created     string `json:"created"`
+	RecipientID int    `json:"from"`
+	SenderID    int    `json:"to"`
 }
