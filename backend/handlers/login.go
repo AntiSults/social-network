@@ -7,10 +7,9 @@ import (
 	"social-network/db/sqlite"
 	"social-network/middleware"
 	"social-network/security"
-	"social-network/structs"
 )
 
-var UserMap = map[string]structs.User{}
+//var UserMap = map[string]structs.User{}
 
 func Login(w http.ResponseWriter, r *http.Request) {
 
@@ -28,7 +27,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Database error", http.StatusInternalServerError)
 			return
 		}
-		UserMap[email] = *user
+		//UserMap[email] = *user
 		// Compare passwords
 		err = security.CheckPassword([]byte(user.Password), []byte(password))
 		if err != nil {
