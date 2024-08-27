@@ -227,9 +227,10 @@ func (d *Database) InsertUserToDatabase(user structs.User) error {
 }
 
 func (d *Database) SaveSession(userID int, token string, exp time.Time) error {
+	formattedExp := exp.UTC().Format("2006-01-02 15:04:05")
 	_, err := d.db.Exec(`
 		INSERT INTO Sessions (UserID, SessionToken, ExpiresAt) VALUES (?, ?, ?)
-	`, userID, token, exp)
+	`, userID, token, formattedExp)
 	if err != nil {
 		// Wrap the error with additional context
 		return fmt.Errorf("failed to save session for user %d: %w", userID, err)

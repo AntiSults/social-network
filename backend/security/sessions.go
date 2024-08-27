@@ -10,7 +10,7 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-const sessionLength int = 1800 // seconds
+const sessionLength int = 180 // seconds
 
 var (
 	dbSessions  = map[string]Session{}

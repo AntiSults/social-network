@@ -12,14 +12,14 @@ const ChatMessage = () => {
     class Payload {
         id: number;
         content: string;
-        from: number;
-        to: number;
+        fromUserID: number;
+        toUserID: number;
         created: string;
-        constructor(id: number, content: string, from: number, to: number) {
+        constructor(id: number, content: string, fromUserID: number, toUserID: number) {
             this.id = id;
             this.content = content;
-            this.from = from;
-            this.to = to;
+            this.fromUserID = fromUserID;
+            this.toUserID = toUserID;
             this.created = new Date().toISOString();
         }
     }
@@ -64,12 +64,12 @@ const ChatMessage = () => {
 
     const sendChatMessage = (e: React.FormEvent) => {
         const messageId: number = 1;
-        const messageFrom: number = 2;
-        const messageTo: number = 5;
+        const messageFromID: number = 2;
+        const messageToID: number = 5;
 
         e.preventDefault();
         if (socket && message.trim() !== "") {
-            const payload = new Payload(messageId, message, messageFrom, messageTo);
+            const payload = new Payload(messageId, message, messageFromID, messageToID);
             const event = new Event('chat_message', payload);
             socket.send(JSON.stringify(event));
             setMessage(""); // Clear the input field after sending

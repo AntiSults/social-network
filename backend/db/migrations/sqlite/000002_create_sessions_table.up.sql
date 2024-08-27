@@ -5,3 +5,9 @@ CREATE TABLE Sessions (
     ExpiresAt DATETIME NOT NULL,
     FOREIGN KEY(UserID) REFERENCES Users(ID)
 );
+
+CREATE TRIGGER IF NOT EXISTS DeleteExpiredSessions
+AFTER INSERT ON Sessions
+BEGIN
+    DELETE FROM Sessions WHERE ExpiresAt <= datetime('now');
+END;
