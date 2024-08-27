@@ -26,6 +26,7 @@ Able to logout
 Changes homescreen based on if logged in or not  
 Fetches avatar and displays it (also has a default avatar)
 Checks email against regex, password has to be atleast 4 characters
+Websockets connection established, handler in backend. Sends and returns the same message for checking the connection - may be seen in browser devtools and backend terminal.
 
 ## Directories
 
@@ -103,7 +104,7 @@ Right now holds avatar images for users
 Holds middleware functions between server and frontend  
 So far validates if user is logged in, handles CORS, handles server errors
 
-#### `socket/manager`
+#### `/sockets/manager`
 
 Add new handler (method) here for establishing new kind of connection.
 Each handler will need corresponding map in the 'setupEventHandlers()' method.
