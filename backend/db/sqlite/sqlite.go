@@ -125,7 +125,7 @@ func (d *Database) GetUser(userID int) (*structs.User, error) {
 
 	// Execute the query
 	err := d.db.QueryRow(`
-		SELECT Email, FirstName, LastName, DOB, NickName, AboutMe, AvatarPath 
+		SELECT Email, FirstName, LastName, DOB, NickName, AboutMe, AvatarPath, Profile_visibility
 		FROM Users 
 		WHERE ID = ?
 	`, userID).Scan(
@@ -136,6 +136,7 @@ func (d *Database) GetUser(userID int) (*structs.User, error) {
 		&nickName,
 		&aboutMe,
 		&avatarPath,
+		&user.ProfileVisibility,
 	)
 
 	if err != nil {
@@ -160,7 +161,7 @@ func (d *Database) GetUserByEmail(email string) (*structs.User, error) {
 
 	// Execute the query
 	err := d.db.QueryRow(`
-		SELECT ID, Email, Password, FirstName, LastName, DOB, NickName, AboutMe, AvatarPath 
+		SELECT ID, Email, Password, FirstName, LastName, DOB, NickName, AboutMe, AvatarPath, Profile_visibility 
 		FROM Users 
 		WHERE Email = ?
 	`, email).Scan(
@@ -173,6 +174,7 @@ func (d *Database) GetUserByEmail(email string) (*structs.User, error) {
 		&nickName,
 		&aboutMe,
 		&avatarPath,
+		&user.ProfileVisibility,
 	)
 
 	if err != nil {

@@ -1,1 +1,0 @@
-ALTER TABLE Users ADD COLUMN profile_visibility VARCHAR(10) DEFAULT 'public';

@@ -7,5 +7,6 @@ CREATE TABLE Users (
     DOB DATE,
     NickName TEXT,
     AboutMe TEXT,
-    AvatarPath TEXT
+    AvatarPath TEXT,
+    Profile_visibility VARCHAR(10) DEFAULT 'public'
 );
