@@ -26,7 +26,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Database error", http.StatusInternalServerError)
 			return
 		}
-
+		//UserMap[email] = *user
+		// Compare passwords
 		err = security.CheckPassword([]byte(user.Password), []byte(password))
 		if err != nil {
 			middleware.SendErrorResponse(w, "Wrong password", http.StatusBadRequest)
