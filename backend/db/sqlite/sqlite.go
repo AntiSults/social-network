@@ -177,7 +177,7 @@ func (d *Database) GetUserByEmail(email string) (*structs.User, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("user with e-mail %v not found", email)
+			return nil, fmt.Errorf("user with e-mail %v not found: %w", email, err)
 		}
 		return nil, fmt.Errorf("failed to query user: %w", err)
 	}
