@@ -7,6 +7,7 @@ interface Props {
   required: boolean;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  className?: string; // Accept className as a prop
 }
 
 const FieldInput = ({
@@ -16,16 +17,17 @@ const FieldInput = ({
   required,
   value,
   onChange,
+  className = "", // Default to empty string
 }: Props) => {
   return (
-    <label className="input input-bordered flex items-center gap-2">
+    <label className={`input input-bordered flex items-center gap-2 ${className}`}> {/* Merge className with default */}
       {name}
       <input
         type={type}
         className={
-          type != "textarea"
-            ? "grow"
-            : "grow textarea textarea-ghost textarea-xs w-full max-w-xs"
+          type !== "textarea"
+            ? `grow ${className}`
+            : `grow textarea textarea-ghost textarea-xs w-full max-w-xs ${className}`
         }
         placeholder={placeholder}
         required={required}
@@ -37,3 +39,4 @@ const FieldInput = ({
 };
 
 export default FieldInput;
+

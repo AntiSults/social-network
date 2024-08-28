@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import FieldInput from "../components/FieldInput";
 import Button from "../components/Button";
 
-// Define types for message handling
 interface Payload {
     id: number;
     content: string;
@@ -32,10 +31,7 @@ const ChatMessage = () => {
         socketInstance.onmessage = (event) => {
             console.log("Received message:", event.data);
 
-            // Parse the incoming message as an Event object
             const incomingEvent: Event = JSON.parse(event.data);
-
-            // Add the new message to the messages state
             setMessages((prevMessages) => [...prevMessages, incomingEvent.payload]);
         };
 
@@ -74,24 +70,31 @@ const ChatMessage = () => {
             socket.send(JSON.stringify(event));
             setMessage(""); // Clear the input field after sending
 
-            // Add outgoing message to the messages state
             setMessages((prevMessages) => [...prevMessages, payload]);
         }
     };
 
     return (
-        <div>
-            <h1>Chat Component</h1>
-            <div className="chat-messages">
+        <div className="max-w-xl mx-auto p-4 bg-white shadow-md rounded-md">
+            <h1 className="text-xl font-bold mb-4">Chat Component</h1>
+            <div className="chat-messages mb-4 max-h-96 overflow-y-auto border border-gray-300 rounded-md p-2">
                 {/* Display all messages */}
                 {messages.map((msg, index) => (
-                    <div key={index} className={msg.fromUserID === 2 ? "my-message" : "other-message"}>
-                        <p>{msg.content}</p>
-                        <small>{new Date(msg.created).toLocaleTimeString()}</small>
+                    <div
+                        key={index}
+                        className={`p-2 my-1 rounded-md ${msg.fromUserID === 2
+                            ? "bg-blue-100 text-right self-end"
+                            : "bg-gray-100 text-left"
+                            }`}
+                    >
+                        <p className="text-sm">{msg.content}</p>
+                        <small className="text-xs text-gray-500">
+                            {new Date(msg.created).toLocaleTimeString()}
+                        </small>
                     </div>
                 ))}
             </div>
-            <form onSubmit={sendChatMessage}>
+            <form onSubmit={sendChatMessage} className="flex items-center space-x-2">
                 <FieldInput
                     name="Text:"
                     type="text"
@@ -99,8 +102,13 @@ const ChatMessage = () => {
                     required={true}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
+                    className="flex-grow p-2 border border-gray-300 rounded-md"
                 />
-                <Button type="submit" name="Submit Message" />
+                <Button
+                    type="submit"
+                    name="Submit Message"
+                    className="p-2 bg-blue-500 text-white rounded-md"
+                />
             </form>
         </div>
     );
