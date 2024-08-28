@@ -26,7 +26,7 @@ Able to logout
 Changes homescreen based on if logged in or not  
 Fetches avatar and displays it (also has a default avatar)
 Checks email against regex, password has to be atleast 4 characters
-Websockets connection established, handler in backend. Sends and returns the same message for checking the connection - may be seen in browser devtools and backend terminal.
+Websockets connection established, handler in backend. Sends and returns the same message for checking the connection.
 
 ## Directories
 
