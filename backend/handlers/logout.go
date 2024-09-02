@@ -26,7 +26,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		security.CleanSessions()
+		security.RemoveSession(cookie.Value)
 
 		w.WriteHeader(http.StatusOK)
 	} else {

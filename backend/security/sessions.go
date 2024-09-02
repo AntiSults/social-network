@@ -2,12 +2,11 @@ package security
 
 import (
 	"fmt"
+	"github.com/satori/go.uuid"
 	"net/http"
 	"social-network/db/sqlite"
 	"sync"
 	"time"
-
-	"github.com/satori/go.uuid"
 )
 
 const sessionLength int = 1800 // seconds
@@ -25,15 +24,10 @@ type Session struct {
 	ExpirationTime time.Time
 }
 
-func CleanSessions() {
+func RemoveSession(token string) {
 	sessionLock.Lock()
 	defer sessionLock.Unlock()
-
-	for k, v := range dbSessions {
-		if time.Since(v.LastActivity) > (time.Second * time.Duration(sessionLength)) {
-			delete(dbSessions, k)
-		}
-	}
+	delete(dbSessions, token)
 }
 
 func NewSession(userName string, userID int, w http.ResponseWriter) {
@@ -97,11 +91,11 @@ func ValidateSession(sessionToken string) bool {
 }
 
 // StartSessionCleaner periodically clean sessions
-func StartSessionCleaner() {
+func (s *Session) StartSessionCleaner() {
 	ticker := time.NewTicker(time.Duration(sessionLength) * time.Second)
 	go func() {
 		for range ticker.C {
-			CleanSessions()
+			RemoveSession(s.SessionToken)
 		}
 	}()
 }
