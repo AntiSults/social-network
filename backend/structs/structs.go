@@ -1,5 +1,9 @@
 package structs
 
+import (
+	"time"
+)
+
 type User struct {
 	ID                int    `json:"ID,omitempty"`
 	Email             string `json:"email"`
@@ -23,4 +27,14 @@ type Message struct {
 	Created     string `json:"created"`
 	RecipientID int    `json:"toUserID"`
 	SenderID    int    `json:"fromUserID"`
+}
+
+type Post struct {
+	ID              int       `json:"id"`
+	UserID          int       `json:"user_id"`
+	Content         string    `json:"content"`
+	Privacy         string    `json:"privacy"`
+	CreatedAt       time.Time `json:"created_at"`
+	AuthorFirstName string    `json:"author_first_name"`
+	AuthorLastName  string    `json:"author_last_name"`
 }

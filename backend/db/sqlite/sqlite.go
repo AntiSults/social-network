@@ -260,3 +260,57 @@ func (d *Database) SaveMessage(message *structs.Message) (*structs.Message, erro
 	message.ID = int(id)
 	return message, nil
 }
+
+func (d *Database) SavePost(post *structs.Post) error {
+	_, err := d.db.Exec(
+		"INSERT INTO posts (userID, content, created_at, privacy, author_first_name, author_last_name) VALUES (?, ?, ?, ?, ?, ?)",
+		post.UserID, post.Content, post.CreatedAt, post.Privacy, post.AuthorFirstName, post.AuthorLastName,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to save post: %w", err)
+	}
+	return nil
+}
+
+func (d *Database) GetUserNameByID(userID int) (string, string, error) {
+	var firstName, lastName string
+	err := d.db.QueryRow("SELECT FirstName, LastName FROM Users WHERE ID = ?", userID).Scan(&firstName, &lastName)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", "", ErrNotExists
+		}
+		return "", "", fmt.Errorf("failed to get user name by ID: %w", err)
+	}
+	return firstName, lastName, nil
+}
+
+func (d *Database) GetPosts(showAll bool) ([]structs.Post, error) {
+	var rows *sql.Rows
+	var err error
+
+	if showAll {
+		rows, err = d.db.Query("SELECT id, userID, content, created_at, privacy, author_first_name, author_last_name FROM posts ORDER BY created_at DESC")
+	} else {
+		rows, err = d.db.Query("SELECT id, userID, content, created_at, privacy, author_first_name, author_last_name FROM posts WHERE privacy = 'public' ORDER BY created_at DESC")
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch posts: %w", err)
+	}
+	defer rows.Close()
+
+	var posts []structs.Post
+	for rows.Next() {
+		var post structs.Post
+		if err := rows.Scan(&post.ID, &post.UserID, &post.Content, &post.CreatedAt, &post.Privacy, &post.AuthorFirstName, &post.AuthorLastName); err != nil {
+			return nil, fmt.Errorf("failed to scan post: %w", err)
+		}
+		posts = append(posts, post)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("failed to fetch posts: %w", err)
+	}
+
+	return posts, nil
+}
