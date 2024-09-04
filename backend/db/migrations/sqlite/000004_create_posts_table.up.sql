@@ -6,5 +6,6 @@ CREATE TABLE Posts (
     privacy TEXT DEFAULT 'public',
     author_first_name TEXT,
     author_last_name TEXT,
+    files TEXT,
     FOREIGN KEY (UserID) REFERENCES users(ID)
 );

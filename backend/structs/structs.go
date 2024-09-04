@@ -37,4 +37,5 @@ type Post struct {
 	CreatedAt       time.Time `json:"created_at"`
 	AuthorFirstName string    `json:"author_first_name"`
 	AuthorLastName  string    `json:"author_last_name"`
+	Files           []string  `json:"files"`
 }
