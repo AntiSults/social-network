@@ -25,9 +25,9 @@ const PostsPage = () => {
     }
   };
 
-  const handlePostCreated = async (content: string) => {
+  const handlePostCreated = async (content: string, privacy: string) => {
     try {
-      await createPost(content);
+      await createPost(content, privacy);
       fetchPosts();
     } catch (error) {
       console.error("Failed to create post:", error);

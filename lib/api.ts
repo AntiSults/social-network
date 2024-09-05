@@ -16,7 +16,7 @@ export const getPosts = async () => {
   }
 };
 
-export const createPost = async (content: string, privacy: string = 'public') => {
+export const createPost = async (content: string, privacy: string) => {
   try {
     // Send POST request to create a new post
     const response = await axios.post(`${API_URL}/create-posts`, { content, privacy }, {
