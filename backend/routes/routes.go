@@ -2,13 +2,12 @@ package routes
 
 import (
 	"net/http"
-	"social-network/db/sqlite"
 	"social-network/handlers"
 	"social-network/middleware"
 	"social-network/sockets"
 )
 
-func SetupRoutes(db *sqlite.Database) *http.ServeMux {
+func SetupRoutes() *http.ServeMux {
 
 	manager := sockets.NewManager() //need it here as instance of Manager struct (Serve_WS is method)
 	mux := http.NewServeMux()
@@ -19,7 +18,7 @@ func SetupRoutes(db *sqlite.Database) *http.ServeMux {
 	mux.HandleFunc("/getAvatarPath", handlers.GetAvatarPath)
 	mux.Handle("/getUserData", middleware.RequireLogin(http.HandlerFunc(handlers.GetUserData)))
 	mux.Handle("/testLoggedIn", middleware.RequireLogin(http.HandlerFunc(middleware.DummyCheck)))
-	mux.HandleFunc("/create-posts", handlers.CreatePost(db))
-	mux.HandleFunc("/posts", handlers.GetPosts(db))
+	mux.HandleFunc("/create-posts", handlers.CreatePost)
+	mux.HandleFunc("/posts", handlers.GetPosts)
 	return mux
 }

@@ -17,13 +17,13 @@ import (
 func main() {
 	migrationsPath := "./db/migrations/sqlite"
 
-	db, err := sqlite.ConnectAndMigrateDb(migrationsPath)
+	_, err := sqlite.ConnectAndMigrateDb(migrationsPath)
 	if err != nil {
 		log.Fatalf("Failed to connect or migrate the database: %v", err)
 	}
 	defer sqlite.Db.Close()
 
-	mux := routes.SetupRoutes(db)
+	mux := routes.SetupRoutes()
 
 	server := &http.Server{
 		Addr:    ":8080",
