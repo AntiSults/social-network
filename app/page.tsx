@@ -10,7 +10,7 @@ const Home = () => {
 
   useEffect(() => {
     setIsLoggedIn(checkLoginStatus());
-  });
+  }, []);
 
   return (
     <>

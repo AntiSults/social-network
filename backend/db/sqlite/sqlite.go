@@ -305,7 +305,7 @@ func (d *Database) GetPosts(showAll bool) ([]structs.Post, error) {
 
 func (d *Database) FetchMessages(sender int) ([]structs.Message, error) {
 	rows, err := d.db.Query(
-		`SELECT id, content, strftime('%d-%m-%Y, %H:%M', time_created) AS time_created, foruser, fromuser
+		`SELECT id, content, time_created, foruser, fromuser
 	FROM messages 
 	WHERE fromuser = ?`, sender)
 	if err != nil {

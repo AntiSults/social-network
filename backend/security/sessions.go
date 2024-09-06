@@ -13,7 +13,7 @@ const sessionLength int = 1800 // seconds
 
 var (
 	DbSessions  = map[string]Session{}
-	sessionLock sync.RWMutex
+	SessionLock sync.RWMutex
 )
 
 type Session struct {
@@ -25,8 +25,8 @@ type Session struct {
 }
 
 func RemoveSession(token string) {
-	sessionLock.Lock()
-	defer sessionLock.Unlock()
+	SessionLock.Lock()
+	defer SessionLock.Unlock()
 	delete(DbSessions, token)
 }
 
@@ -39,8 +39,8 @@ func NewSession(userName string, userID int, w http.ResponseWriter) {
 		LastActivity:   time.Now(),
 		ExpirationTime: time.Now().Add(time.Second * time.Duration(sessionLength)),
 	}
-	sessionLock.Lock()
-	defer sessionLock.Unlock()
+	SessionLock.Lock()
+	defer SessionLock.Unlock()
 
 	// Remove any existing session for the same user
 	for token, session := range DbSessions {
@@ -70,8 +70,8 @@ func (s *Session) setCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &cookie)
 }
 func ValidateSession(sessionToken string) bool {
-	sessionLock.Lock()
-	defer sessionLock.Unlock()
+	SessionLock.Lock()
+	defer SessionLock.Unlock()
 
 	session, exists := DbSessions[sessionToken]
 	if !exists {

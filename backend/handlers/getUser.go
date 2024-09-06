@@ -49,7 +49,13 @@ func GetUserData(w http.ResponseWriter, r *http.Request) {
 func GetUserId(token string) (int, error) {
 	userID := 0
 	var err error
-	if session, ok := security.DbSessions[token]; ok {
+
+	// Acquire a read lock before accessing the shared map
+	security.SessionLock.RLock()
+	session, ok := security.DbSessions[token]
+	security.SessionLock.RUnlock()
+
+	if ok {
 		userID = session.UserID
 	} else {
 		// Fall back to database lookup if not found in in-memory store
@@ -67,7 +73,11 @@ func GetUser(id int) (*structs.User, error) {
 		user *structs.User
 		err  error
 	)
-	if u, ok := UserMap[id]; ok {
+	UserMapLock.RLock()
+	u, ok := UserMap[id]
+	UserMapLock.RUnlock()
+
+	if ok {
 		user = &u
 	} else {
 		// Fall back to database lookup if not found in in-memory store

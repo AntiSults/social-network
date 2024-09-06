@@ -5,6 +5,7 @@ import (
 	"social-network/db/sqlite"
 	"social-network/middleware"
 	"social-network/security"
+	"time"
 )
 
 func Logout(w http.ResponseWriter, r *http.Request) {
@@ -29,12 +30,21 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		// Check if session exists in memory
 		if session, ok := security.DbSessions[cookie.Value]; ok {
 			// Protect UserMap with write lock before deletion
-			userMapLock.Lock()
+			UserMapLock.Lock()
 			delete(UserMap, session.UserID)
-			userMapLock.Unlock()
+			UserMapLock.Unlock()
 		}
 
 		security.RemoveSession(cookie.Value)
+
+		// Delete cookie from the client side
+		http.SetCookie(w, &http.Cookie{
+			Name:    "session_token",
+			Path:    "/",
+			Value:   "",
+			Expires: time.Unix(0, 0), // Set expiry to a time in the past
+			MaxAge:  -1,              // Also use MaxAge=-1 to ensure deletion
+		})
 
 		w.WriteHeader(http.StatusOK)
 	} else {

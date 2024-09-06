@@ -131,7 +131,7 @@ const ChatMessage = () => {
                         >
                             <p className="text-sm">{msg.content}</p>
                             <small className="text-xs text-gray-500">
-                                {new Date(msg.created).toLocaleTimeString()}
+                                {new Date(msg.created).toLocaleString()}
                             </small>
                         </div>
                     ))}

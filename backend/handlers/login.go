@@ -14,7 +14,7 @@ import (
 // Creating local variable for storing users online.
 var (
 	UserMap     = make(map[int]structs.User)
-	userMapLock sync.RWMutex // Mutex to protect UserMap
+	UserMapLock sync.RWMutex // Mutex to protect UserMap
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -42,9 +42,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		security.NewSession("session_token", user.ID, w)
 
 		// Protect UserMap with write lock
-		userMapLock.Lock()
+		UserMapLock.Lock()
 		UserMap[user.ID] = *user
-		userMapLock.Unlock()
+		UserMapLock.Unlock()
 
 		w.WriteHeader(http.StatusOK)
 	} else {
