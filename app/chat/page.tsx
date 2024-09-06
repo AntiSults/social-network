@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import FieldInput from "../components/FieldInput";
 import Button from "../components/Button";
+import { clientCookieToken } from "../utils/auth"; // Utility function to get the token from the cookie
 
 interface Payload {
     id: number;
@@ -13,7 +14,8 @@ interface Payload {
 
 interface Event {
     type: string;
-    payload: Payload;
+    payload: Payload | Payload[]; // Can be a single message or an array of messages
+    token: string;
 }
 
 const ChatMessage = () => {
@@ -22,17 +24,38 @@ const ChatMessage = () => {
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
     useEffect(() => {
+        // Get the token directly from client-side cookie
+        const clientToken = clientCookieToken();
+
         const socketInstance = new WebSocket("ws://localhost:8080/ws");
 
         socketInstance.onopen = () => {
             console.log("Connected to WebSocket server");
+            if (clientToken) {
+                // Prepare and send the initial upload request with token
+                const uploadRequest = {
+                    type: 'initial_upload',
+                    payload: {}, // No specific payload needed, just token for identification
+                    sessionToken: clientToken,
+                };
+                socketInstance.send(JSON.stringify(uploadRequest));
+
+            }
         };
 
         socketInstance.onmessage = (event) => {
             console.log("Received message:", event.data);
 
             const incomingEvent: Event = JSON.parse(event.data);
-            setMessages((prevMessages) => [...prevMessages, incomingEvent.payload]);
+
+            // Check if the incoming event is the initial messages load
+            if (incomingEvent.type === 'initial_upload_response' && Array.isArray(incomingEvent.payload)) {
+                // Set all messages received from the server
+                setMessages(incomingEvent.payload);
+            } else if (incomingEvent.type === 'chat_message') {
+                // Handle individual incoming chat messages
+                setMessages((prevMessages) => [...prevMessages, incomingEvent.payload as Payload]);
+            }
         };
 
         socketInstance.onerror = (error) => {
@@ -52,11 +75,19 @@ const ChatMessage = () => {
     }, []);
 
     const sendChatMessage = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const clientToken = clientCookieToken(); // Read the token directly from the cookie
+
+        if (!clientToken) {
+            console.error("No session token found.");
+            return;
+        }
+
         const messageId: number = 1; // Example message ID
         const messageFromID: number = 2; // Example sender ID
         const messageToID: number = 5; // Example receiver ID
 
-        e.preventDefault();
         if (socket && message.trim() !== "") {
             const payload: Payload = {
                 id: messageId,
@@ -66,7 +97,12 @@ const ChatMessage = () => {
                 created: new Date().toISOString(),
             };
 
-            const event: Event = { type: "chat_message", payload };
+            const event: Event = {
+                type: "chat_message",
+                payload,
+                token: clientToken,
+            };
+
             socket.send(JSON.stringify(event));
             setMessage(""); // Clear the input field after sending
 

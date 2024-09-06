@@ -12,8 +12,8 @@ import (
 const sessionLength int = 1800 // seconds
 
 var (
-	dbSessions  = map[string]Session{}
-	sessionLock sync.Mutex
+	DbSessions  = map[string]Session{}
+	sessionLock sync.RWMutex
 )
 
 type Session struct {
@@ -27,7 +27,7 @@ type Session struct {
 func RemoveSession(token string) {
 	sessionLock.Lock()
 	defer sessionLock.Unlock()
-	delete(dbSessions, token)
+	delete(DbSessions, token)
 }
 
 func NewSession(userName string, userID int, w http.ResponseWriter) {
@@ -43,12 +43,12 @@ func NewSession(userName string, userID int, w http.ResponseWriter) {
 	defer sessionLock.Unlock()
 
 	// Remove any existing session for the same user
-	for token, session := range dbSessions {
+	for token, session := range DbSessions {
 		if session.UserID == userID {
-			delete(dbSessions, token)
+			delete(DbSessions, token)
 		}
 	}
-	dbSessions[token] = session
+	DbSessions[token] = session
 	session.setCookie(w)
 	err := sqlite.Db.SaveSession(userID, token, session.ExpirationTime)
 
@@ -73,20 +73,20 @@ func ValidateSession(sessionToken string) bool {
 	sessionLock.Lock()
 	defer sessionLock.Unlock()
 
-	session, exists := dbSessions[sessionToken]
+	session, exists := DbSessions[sessionToken]
 	if !exists {
 		return false
 	}
 
 	// Check if the session is expired
 	if session.ExpirationTime.Before(time.Now()) {
-		delete(dbSessions, sessionToken)
+		delete(DbSessions, sessionToken)
 		return false
 	}
 
 	// Update last activity
 	session.LastActivity = time.Now()
-	dbSessions[sessionToken] = session
+	DbSessions[sessionToken] = session
 	return true
 }
 

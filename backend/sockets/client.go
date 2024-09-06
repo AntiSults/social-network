@@ -15,7 +15,7 @@ type Client struct {
 	connection *websocket.Conn
 	manager    *Manager
 	egress     chan Event
-	//nickname   string
+	clientId   int
 }
 
 func NewClient(conn *websocket.Conn, manager *Manager) *Client {

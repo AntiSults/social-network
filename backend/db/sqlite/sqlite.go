@@ -314,3 +314,24 @@ func (d *Database) GetPosts(showAll bool) ([]structs.Post, error) {
 
 	return posts, nil
 }
+
+func (d *Database) FetchMessages(sender int) ([]structs.Message, error) {
+	rows, err := d.db.Query(
+		`SELECT id, content, strftime('%d-%m-%Y, %H:%M', time_created) AS time_created, foruser, fromuser
+	FROM messages 
+	WHERE fromuser = ?`, sender)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var messages []structs.Message
+	for rows.Next() {
+		var message structs.Message
+		if err := rows.Scan(&message.ID, &message.Content, &message.Created, &message.RecipientID, &message.SenderID); err != nil {
+			return nil, err
+		}
+		messages = append(messages, message)
+	}
+	return messages, nil
+}

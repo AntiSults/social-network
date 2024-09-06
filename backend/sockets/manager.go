@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"social-network/db/sqlite"
+	"social-network/handlers"
+	"social-network/middleware"
 	"social-network/structs"
 	"sync"
 
@@ -44,6 +46,49 @@ func (m *Manager) setupEventHandlers() {
 
 	// may add different events e.g. for sending posts, comments, notifications in future
 	m.handlers[EventMessage] = m.handleMessages
+	m.handlers[EventUpload] = m.handleUpload
+}
+
+func (m *Manager) handleUpload(e Event, c *Client) error {
+
+	if e.Type != "initial_upload" {
+		return fmt.Errorf("unexpected event type: %s", e.Type)
+	}
+	token := e.SessionToken
+	if token == "" {
+		return fmt.Errorf("session token is missing")
+	}
+	// Attempt to get the userID from in-memory session store
+	userID, err := handlers.GetUserId(token)
+	if err != nil {
+		return fmt.Errorf("error getting ID from session token: %w", err)
+	}
+
+	// Fetch messages for the user
+	messages, err := sqlite.Db.FetchMessages(userID)
+	if err != nil {
+		return fmt.Errorf("error fetching messages for user ID %d: %w", userID, err)
+	}
+
+	// Marshal messages to JSON
+	dataJSON, err := json.Marshal(&messages)
+	if err != nil {
+		log.Println("error marshaling messages: ", err)
+		return err
+	}
+
+	// Create the response event
+	updateEvent := newEvent("initial_upload_response", dataJSON, "")
+
+	// Send the response to the correct client
+	for client := range m.Clients {
+		if userID == c.clientId {
+			client.egress <- *updateEvent
+			break // Exit the loop once the correct client is found
+		}
+	}
+
+	return nil
 }
 
 // handleMessages takes care of sent messages, save later to DB here
@@ -65,7 +110,7 @@ func (m *Manager) handleMessages(e Event, c *Client) error {
 		log.Println("error saving PM into db: ", err)
 	}
 	// redirecting to Front for testing (for all clients for a while)
-	updateEvent := newEvent("message_received", e.Payload)
+	updateEvent := newEvent("message_received", e.Payload, "")
 	for client := range m.Clients {
 		client.egress <- *updateEvent
 	}
@@ -90,6 +135,16 @@ func (m *Manager) routeEvent(event Event, c *Client) error {
 
 // Serve_WS upgrading regular http connection into websocket
 func (m *Manager) Serve_WS(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		middleware.SendErrorResponse(w, "Error getting token: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	userID, err := handlers.GetUserId(cookie.Value)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Error getting user ID: "+err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	// Begin by upgrading the HTTP request
 	conn, err := WebsocketUpgrader.Upgrade(w, r, nil)
@@ -101,6 +156,7 @@ func (m *Manager) Serve_WS(w http.ResponseWriter, r *http.Request) {
 	client := NewClient(conn, m)
 	// Add the newly created client to the manager
 	m.addClient(client)
+	client.clientId = userID
 
 	go client.readMessages()
 	go client.writeMessages()

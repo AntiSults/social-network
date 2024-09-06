@@ -30,7 +30,7 @@ type Message struct {
 }
 
 type Post struct {
-	ID              int       `json:"id"`
+	ID              int       `json:"id,omitempty"`
 	UserID          int       `json:"user_id"`
 	Content         string    `json:"content"`
 	Privacy         string    `json:"privacy"`

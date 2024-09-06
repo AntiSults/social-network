@@ -7,9 +7,15 @@ import (
 	"social-network/db/sqlite"
 	"social-network/middleware"
 	"social-network/security"
+	"social-network/structs"
+	"sync"
 )
 
-//var UserMap = map[string]structs.User{}
+// Creating local variable for storing users online.
+var (
+	UserMap     = make(map[int]structs.User)
+	userMapLock sync.RWMutex // Mutex to protect UserMap
+)
 
 func Login(w http.ResponseWriter, r *http.Request) {
 
@@ -26,7 +32,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Database error", http.StatusInternalServerError)
 			return
 		}
-		//UserMap[email] = *user
 		// Compare passwords
 		err = security.CheckPassword([]byte(user.Password), []byte(password))
 		if err != nil {
@@ -35,6 +40,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 
 		security.NewSession("session_token", user.ID, w)
+
+		// Protect UserMap with write lock
+		userMapLock.Lock()
+		UserMap[user.ID] = *user
+		userMapLock.Unlock()
 
 		w.WriteHeader(http.StatusOK)
 	} else {

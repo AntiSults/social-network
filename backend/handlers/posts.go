@@ -24,7 +24,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		userID, err := sqlite.Db.GetUserIdFromToken(cookie.Value)
+		userID, err := GetUserId(cookie.Value)
 		if err != nil {
 			middleware.SendErrorResponse(w, "Error getting ID from session token", http.StatusInternalServerError)
 			return
@@ -70,7 +70,7 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 			middleware.SendErrorResponse(w, "Error getting token"+err.Error(), http.StatusBadRequest)
 			return
 		}
-		_, err = sqlite.Db.GetUserIdFromToken(cookie.Value)
+		_, err = GetUserId(cookie.Value)
 
 		if err != nil {
 			// If user is not authenticated then show only public posts

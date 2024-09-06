@@ -7,6 +7,7 @@ import (
 
 	"social-network/db/sqlite"
 	"social-network/middleware"
+	"social-network/security"
 )
 
 func GetUserData(w http.ResponseWriter, r *http.Request) {
@@ -18,7 +19,7 @@ func GetUserData(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		userID, err := sqlite.Db.GetUserIdFromToken(cookie.Value)
+		userID, err := GetUserId(cookie.Value)
 		if err != nil {
 			middleware.SendErrorResponse(w, "Error getting ID from session token", http.StatusInternalServerError)
 			return
@@ -43,4 +44,19 @@ func GetUserData(w http.ResponseWriter, r *http.Request) {
 	} else {
 		middleware.SendErrorResponse(w, "Method not allowed!", http.StatusMethodNotAllowed)
 	}
+}
+
+func GetUserId(token string) (int, error) {
+	userID := 0
+	var err error
+	if session, ok := security.DbSessions[token]; ok {
+		userID = session.UserID
+	} else {
+		// Fall back to database lookup if not found in in-memory store
+		userID, err = sqlite.Db.GetUserIdFromToken(token)
+		if err != nil {
+			return -1, fmt.Errorf("error getting ID from session token: %w", err)
+		}
+	}
+	return userID, err
 }
