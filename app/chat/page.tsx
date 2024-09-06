@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import FieldInput from "../components/FieldInput";
 import Button from "../components/Button";
-import { clientCookieToken } from "../utils/auth"; // Utility function to get the token from the cookie
+import { clientCookieToken } from "../utils/auth";
 
 interface Payload {
     id: number;
@@ -14,13 +14,13 @@ interface Payload {
 
 interface Event {
     type: string;
-    payload: Payload | Payload[]; // Can be a single message or an array of messages
+    payload: Payload | Payload[];
     token: string;
 }
 
 const ChatMessage = () => {
     const [message, setMessage] = useState("");
-    const [messages, setMessages] = useState<Payload[]>([]); // State to hold messages
+    const [messages, setMessages] = useState<Payload[]>([]);
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
     useEffect(() => {
@@ -35,11 +35,10 @@ const ChatMessage = () => {
                 // Prepare and send the initial upload request with token
                 const uploadRequest = {
                     type: 'initial_upload',
-                    payload: {}, // No specific payload needed, just token for identification
+                    payload: {}, // Sending just token
                     sessionToken: clientToken,
                 };
                 socketInstance.send(JSON.stringify(uploadRequest));
-
             }
         };
 
