@@ -191,7 +191,7 @@ func (d *Database) GetUserByEmail(email string) (*structs.User, error) {
 	return &user, nil
 }
 
-func (d *Database) InsertUserToDatabase(user structs.User) error {
+func (d *Database) SaveUser(user structs.User) error {
 	if d == nil || d.db == nil {
 		fmt.Println("No database")
 		return errors.New("database is not initialized")
@@ -270,18 +270,6 @@ func (d *Database) SavePost(post *structs.Post) error {
 		return fmt.Errorf("failed to save post: %w", err)
 	}
 	return nil
-}
-
-func (d *Database) GetUserNameByID(userID int) (string, string, error) {
-	var firstName, lastName string
-	err := d.db.QueryRow("SELECT FirstName, LastName FROM Users WHERE ID = ?", userID).Scan(&firstName, &lastName)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return "", "", ErrNotExists
-		}
-		return "", "", fmt.Errorf("failed to get user name by ID: %w", err)
-	}
-	return firstName, lastName, nil
 }
 
 func (d *Database) GetPosts(showAll bool) ([]structs.Post, error) {

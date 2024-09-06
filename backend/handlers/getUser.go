@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
 	"social-network/db/sqlite"
 	"social-network/middleware"
 	"social-network/security"
+	"social-network/structs"
 )
 
 func GetUserData(w http.ResponseWriter, r *http.Request) {
@@ -25,8 +25,7 @@ func GetUserData(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		user, err := sqlite.Db.GetUser(userID)
-		fmt.Println(user)
+		user, err := GetUser(userID)
 
 		if err != nil {
 			middleware.SendErrorResponse(w, "Error querying user data to struct"+err.Error(), http.StatusInternalServerError)
@@ -46,6 +45,7 @@ func GetUserData(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetUserId is getting user ID with token, either from sessions map or from DB
 func GetUserId(token string) (int, error) {
 	userID := 0
 	var err error
@@ -59,4 +59,22 @@ func GetUserId(token string) (int, error) {
 		}
 	}
 	return userID, err
+}
+
+// GetUser is getting user with user ID, either from User map or from DB
+func GetUser(id int) (*structs.User, error) {
+	var (
+		user *structs.User
+		err  error
+	)
+	if u, ok := UserMap[id]; ok {
+		user = &u
+	} else {
+		// Fall back to database lookup if not found in in-memory store
+		user, err = sqlite.Db.GetUser(id)
+		if err != nil {
+			return nil, fmt.Errorf("error querying user data to struct:  %w", err)
+		}
+	}
+	return user, nil
 }

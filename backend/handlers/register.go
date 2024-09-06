@@ -68,7 +68,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 			user.AvatarPath = avatarPath
 		}
 
-		err = sqlite.Db.InsertUserToDatabase(user)
+		err = sqlite.Db.SaveUser(user)
 		if err != nil {
 			middleware.SendErrorResponse(w, "Failed to insert into Users table"+err.Error(), http.StatusInternalServerError)
 			return

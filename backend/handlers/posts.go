@@ -10,6 +10,7 @@ import (
 )
 
 func CreatePost(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method == http.MethodPost {
 		var post structs.Post
 
@@ -31,17 +32,17 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Searching for post creators name
-		firstName, lastName, err := sqlite.Db.GetUserNameByID(userID)
+		user, err := GetUser(userID)
 		if err != nil {
-			middleware.SendErrorResponse(w, "Failed to retrieve user details", http.StatusInternalServerError)
+			middleware.SendErrorResponse(w, "Failed to retrieve user", http.StatusInternalServerError)
 			return
 
 		}
 
 		post.UserID = userID
 		post.CreatedAt = time.Now()
-		post.AuthorFirstName = firstName
-		post.AuthorLastName = lastName
+		post.AuthorFirstName = user.FirstName
+		post.AuthorLastName = user.LastName
 
 		if post.Privacy == "" {
 			post.Privacy = "public"
