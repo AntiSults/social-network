@@ -33,7 +33,6 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		// Searching for post creators name
 		firstName, lastName, err := sqlite.Db.GetUserNameByID(userID)
 		if err != nil {
-
 			middleware.SendErrorResponse(w, "Failed to retrieve user details", http.StatusInternalServerError)
 			return
 
