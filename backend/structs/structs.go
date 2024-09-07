@@ -29,6 +29,11 @@ type Message struct {
 	SenderID    int    `json:"fromUserID"`
 }
 
+type ChatMessage struct {
+	Message []Message
+	User    []User
+}
+
 type Post struct {
 	ID              int       `json:"id,omitempty"`
 	UserID          int       `json:"user_id"`

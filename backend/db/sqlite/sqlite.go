@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"social-network/structs"
+	"strings"
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -98,6 +99,7 @@ func (d *Database) GetAvatarFromID(id int) (string, error) {
 	return avatarPath, nil
 }
 
+// DeleteSessionFromDB is clearing sessions from DB
 func (d *Database) DeleteSessionFromDB(session string) error {
 	stmt, err := d.db.Prepare("DELETE FROM Sessions WHERE SessionToken = ?")
 	if err != nil {
@@ -117,6 +119,7 @@ func (d *Database) DeleteSessionFromDB(session string) error {
 	return nil
 }
 
+// GetUser is returning single user for user ID
 func (d *Database) GetUser(userID int) (*structs.User, error) {
 	var user structs.User
 	var nickName sql.NullString
@@ -151,6 +154,66 @@ func (d *Database) GetUser(userID int) (*structs.User, error) {
 	user.AvatarPath = avatarPath.String
 
 	return &user, nil
+}
+
+// GetUsersByIDs is returning slice of users for slice of ID-s
+func (d *Database) GetUsersByIDs(userIDs []int) ([]structs.User, error) {
+	if len(userIDs) == 0 {
+		return nil, fmt.Errorf("no user IDs provided")
+	}
+
+	// Prepare a slice of interface{} to hold the IDs
+	args := make([]interface{}, len(userIDs))
+	for i, id := range userIDs {
+		args[i] = id
+	}
+
+	// Dynamically build the query with the appropriate number of placeholders
+	query := `
+		SELECT ID, Email, FirstName, LastName, DOB, NickName, AboutMe, AvatarPath, Profile_visibility
+		FROM Users 
+		WHERE ID IN (?` + strings.Repeat(",?", len(userIDs)-1) + `)
+	`
+
+	// Execute the query
+	rows, err := d.db.Query(query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query users: %w", err)
+	}
+	defer rows.Close()
+
+	var users []structs.User
+	for rows.Next() {
+		var user structs.User
+		var nickName, aboutMe, avatarPath sql.NullString
+
+		err := rows.Scan(
+			&user.ID,
+			&user.Email,
+			&user.FirstName,
+			&user.LastName,
+			&user.DOB,
+			&nickName,
+			&aboutMe,
+			&avatarPath,
+			&user.ProfileVisibility,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan user row: %w", err)
+		}
+
+		user.NickName = nickName.String
+		user.AboutMe = aboutMe.String
+		user.AvatarPath = avatarPath.String
+
+		users = append(users, user)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred while fetching users: %w", err)
+	}
+
+	return users, nil
 }
 
 func (d *Database) GetUserByEmail(email string) (*structs.User, error) {
@@ -303,6 +366,7 @@ func (d *Database) GetPosts(showAll bool) ([]structs.Post, error) {
 	return posts, nil
 }
 
+// FetchMessages is returning messages for user ID
 func (d *Database) FetchMessages(sender int) ([]structs.Message, error) {
 	rows, err := d.db.Query(
 		`SELECT id, content, time_created, foruser, fromuser
@@ -322,4 +386,40 @@ func (d *Database) FetchMessages(sender int) ([]structs.Message, error) {
 		messages = append(messages, message)
 	}
 	return messages, nil
+}
+
+// ChatCommon is returning messages and correspondent recipients users
+func (d *Database) ChatCommon(senderID int) (structs.ChatMessage, error) {
+
+	// Step 1: Fetch messages sent by the sender
+	messages, err := d.FetchMessages(senderID)
+	if err != nil {
+		return structs.ChatMessage{}, err
+	}
+
+	// Step 2: Extract unique recipient user IDs from messages
+	recipientUserIDs := make(map[int]struct{})
+	for _, message := range messages {
+		recipientUserIDs[message.RecipientID] = struct{}{}
+	}
+
+	// Step 3: Convert map keys to a slice for querying
+	var userIDs []int
+	for id := range recipientUserIDs {
+		userIDs = append(userIDs, id)
+	}
+
+	// Step 4: Fetch user details for the recipient user IDs
+	users, err := d.GetUsersByIDs(userIDs)
+	if err != nil {
+		return structs.ChatMessage{}, err
+	}
+
+	// Step 5: Construct and return the combined ChatMessage struct
+	data := structs.ChatMessage{
+		Message: messages,
+		User:    users,
+	}
+
+	return data, nil
 }

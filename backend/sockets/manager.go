@@ -64,14 +64,14 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 		return fmt.Errorf("error getting ID from session token: %w", err)
 	}
 
-	// Fetch messages for the user
-	messages, err := sqlite.Db.FetchMessages(userID)
+	// Fetch messages and recepient users
+	common, err := sqlite.Db.ChatCommon(userID)
 	if err != nil {
 		return fmt.Errorf("error fetching messages for user ID %d: %w", userID, err)
 	}
 
 	// Marshal messages to JSON
-	dataJSON, err := json.Marshal(&messages)
+	dataJSON, err := json.Marshal(&common)
 	if err != nil {
 		log.Println("error marshaling messages: ", err)
 		return err
