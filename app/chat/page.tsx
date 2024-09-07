@@ -7,7 +7,7 @@ import NavBar from "../components/NavBar";
 import checkLoginStatus from "../utils/checkLoginStatus";
 import { clientCookieToken } from "../utils/auth";
 
-interface Payload {
+interface Message {
     id: number;
     content: string;
     fromUserID: number;
@@ -15,32 +15,42 @@ interface Payload {
     created: string;
 }
 
+interface User {
+    ID: number;
+    firstName: string;
+    lastName: string;
+}
+
+interface Payload {
+    Message: Message[];
+    User: User[];
+}
+
 interface Event {
     type: string;
-    payload: Payload | Payload[];
+    payload: Payload;
     token: string;
 }
 
 const ChatMessage = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [message, setMessage] = useState("");
-    const [messages, setMessages] = useState<Payload[]>([]);
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [users, setUsers] = useState<Record<number, User>>({});
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
     useEffect(() => {
         setIsLoggedIn(checkLoginStatus());
-        // Get the token directly from client-side cookie
-        const clientToken = clientCookieToken();
 
+        const clientToken = clientCookieToken();
         const socketInstance = new WebSocket("ws://localhost:8080/ws");
 
         socketInstance.onopen = () => {
             console.log("Connected to WebSocket server");
             if (clientToken) {
-                // Prepare and send the initial upload request with token
                 const uploadRequest = {
-                    type: 'initial_upload',
-                    payload: {}, // Sending just token
+                    type: "initial_upload",
+                    payload: {},
                     sessionToken: clientToken,
                 };
                 socketInstance.send(JSON.stringify(uploadRequest));
@@ -52,13 +62,25 @@ const ChatMessage = () => {
 
             const incomingEvent: Event = JSON.parse(event.data);
 
-            // Check if the incoming event is the initial messages load
-            if (incomingEvent.type === 'initial_upload_response' && Array.isArray(incomingEvent.payload)) {
+            if (
+                incomingEvent.type === "initial_upload_response" &&
+                incomingEvent.payload &&
+                Array.isArray(incomingEvent.payload.Message) &&
+                Array.isArray(incomingEvent.payload.User)
+            ) {
                 // Set all messages received from the server
-                setMessages(incomingEvent.payload);
-            } else if (incomingEvent.type === 'chat_message') {
+                setMessages(incomingEvent.payload.Message);
+
+                // Create a mapping of user ID to user details for quick lookup
+                const usersById = incomingEvent.payload.User.reduce((acc, user) => {
+                    acc[user.ID] = user;
+                    return acc;
+                }, {} as Record<number, User>);
+
+                setUsers(usersById);
+            } else if (incomingEvent.type === "chat_message" && incomingEvent.payload.Message) {
                 // Handle individual incoming chat messages
-                setMessages((prevMessages) => [...prevMessages, incomingEvent.payload as Payload]);
+                setMessages((prevMessages) => [...prevMessages, ...incomingEvent.payload.Message]);
             }
         };
 
@@ -72,7 +94,6 @@ const ChatMessage = () => {
 
         setSocket(socketInstance);
 
-        // Cleanup on component unmount
         return () => {
             socketInstance.close();
         };
@@ -88,12 +109,12 @@ const ChatMessage = () => {
             return;
         }
 
-        const messageId: number = 1; // Example message ID
-        const messageFromID: number = 1; // Example sender ID
-        const messageToID: number = 3; // Example receiver ID
-
         if (socket && message.trim() !== "") {
-            const payload: Payload = {
+            const messageId: number = 1; // Example message ID
+            const messageFromID: number = 1; // Example sender ID
+            const messageToID: number = 3; // Example receiver ID
+
+            const payload: Message = {
                 id: messageId,
                 content: message,
                 fromUserID: messageFromID,
@@ -103,13 +124,12 @@ const ChatMessage = () => {
 
             const event: Event = {
                 type: "chat_message",
-                payload,
+                payload: { Message: [payload], User: [] },
                 token: clientToken,
             };
 
             socket.send(JSON.stringify(event));
             setMessage(""); // Clear the input field after sending
-
             setMessages((prevMessages) => [...prevMessages, payload]);
         }
     };
@@ -121,20 +141,25 @@ const ChatMessage = () => {
                 <h1 className="text-xl font-bold mb-4">Chat Component</h1>
                 <div className="chat-messages mb-4 max-h-96 overflow-y-auto border border-gray-300 rounded-md p-2">
                     {/* Display all messages */}
-                    {messages.map((msg, index) => (
-                        <div
-                            key={index}
-                            className={`p-2 my-1 rounded-md ${msg.fromUserID === 2
-                                ? "bg-blue-100 text-right self-end"
-                                : "bg-gray-100 text-left"
-                                }`}
-                        >
-                            <p className="text-sm">{msg.content}</p>
-                            <small className="text-xs text-gray-500">
-                                {new Date(msg.created).toLocaleString()}
-                            </small>
-                        </div>
-                    ))}
+                    {messages.map((msg, index) => {
+                        const sender = users[msg.fromUserID];
+                        const senderName = sender ? `${sender.firstName} ${sender.lastName}` : "Unknown User";
+                        return (
+                            <div
+                                key={index}
+                                className={`p-2 my-1 rounded-md ${msg.fromUserID === 2
+                                    ? "bg-blue-100 text-right self-end"
+                                    : "bg-gray-100 text-left"
+                                    }`}
+                            >
+                                <p className="text-sm font-bold">{senderName}</p>
+                                <p className="text-sm">{msg.content}</p>
+                                <small className="text-xs text-gray-500">
+                                    {new Date(msg.created).toLocaleString()}
+                                </small>
+                            </div>
+                        );
+                    })}
                 </div>
                 <form onSubmit={sendChatMessage} className="flex items-center space-x-2">
                     <FieldInput

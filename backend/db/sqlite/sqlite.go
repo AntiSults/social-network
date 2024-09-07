@@ -367,11 +367,11 @@ func (d *Database) GetPosts(showAll bool) ([]structs.Post, error) {
 }
 
 // FetchMessages is returning messages for user ID
-func (d *Database) FetchMessages(sender int) ([]structs.Message, error) {
+func (d *Database) FetchMessages(recipient int) ([]structs.Message, error) {
 	rows, err := d.db.Query(
 		`SELECT id, content, time_created, foruser, fromuser
 	FROM messages 
-	WHERE fromuser = ?`, sender)
+	WHERE foruser = ?`, recipient)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch messages: %w", err)
 	}
@@ -389,23 +389,23 @@ func (d *Database) FetchMessages(sender int) ([]structs.Message, error) {
 }
 
 // ChatCommon is returning messages and correspondent recipients users
-func (d *Database) ChatCommon(senderID int) (structs.ChatMessage, error) {
+func (d *Database) ChatCommon(recipientID int) (structs.ChatMessage, error) {
 
-	// Step 1: Fetch messages sent by the sender
-	messages, err := d.FetchMessages(senderID)
+	// Step 1: Fetch messages sent to the recipient
+	messages, err := d.FetchMessages(recipientID)
 	if err != nil {
 		return structs.ChatMessage{}, err
 	}
 
-	// Step 2: Extract unique recipient user IDs from messages
-	recipientUserIDs := make(map[int]struct{})
+	// Step 2: Extract unique sender user IDs from messages
+	senderIDs := make(map[int]struct{})
 	for _, message := range messages {
-		recipientUserIDs[message.RecipientID] = struct{}{}
+		senderIDs[message.SenderID] = struct{}{}
 	}
 
 	// Step 3: Convert map keys to a slice for querying
 	var userIDs []int
-	for id := range recipientUserIDs {
+	for id := range senderIDs {
 		userIDs = append(userIDs, id)
 	}
 
