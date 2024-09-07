@@ -309,7 +309,7 @@ func (d *Database) FetchMessages(sender int) ([]structs.Message, error) {
 	FROM messages 
 	WHERE fromuser = ?`, sender)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch messages: %w", err)
 	}
 	defer rows.Close()
 
@@ -317,7 +317,7 @@ func (d *Database) FetchMessages(sender int) ([]structs.Message, error) {
 	for rows.Next() {
 		var message structs.Message
 		if err := rows.Scan(&message.ID, &message.Content, &message.Created, &message.RecipientID, &message.SenderID); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to fetch messages: %w", err)
 		}
 		messages = append(messages, message)
 	}

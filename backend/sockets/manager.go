@@ -58,7 +58,7 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 	if token == "" {
 		return fmt.Errorf("session token is missing")
 	}
-	// Attempt to get the userID from in-memory session store
+	// Attempt to get the userID from in-memory session store, then DB
 	userID, err := handlers.GetUserId(token)
 	if err != nil {
 		return fmt.Errorf("error getting ID from session token: %w", err)

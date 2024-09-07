@@ -89,8 +89,8 @@ const ChatMessage = () => {
         }
 
         const messageId: number = 1; // Example message ID
-        const messageFromID: number = 2; // Example sender ID
-        const messageToID: number = 5; // Example receiver ID
+        const messageFromID: number = 1; // Example sender ID
+        const messageToID: number = 3; // Example receiver ID
 
         if (socket && message.trim() !== "") {
             const payload: Payload = {
