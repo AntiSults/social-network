@@ -147,7 +147,7 @@ const ChatMessage = () => {
                         return (
                             <div
                                 key={index}
-                                className={`p-2 my-1 rounded-md ${msg.fromUserID === 2
+                                className={`p-2 my-1 rounded-md ${msg.fromUserID % 2 === 0
                                     ? "bg-blue-100 text-right self-end"
                                     : "bg-gray-100 text-left"
                                     }`}

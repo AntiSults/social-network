@@ -1,33 +1,27 @@
 "use client";
-//TEST FUNCTION DELETE LATER
-import { useEffect, useState } from "react";
+
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "../context/UserContext"; // Import the custom hook to access user context
 
 const TestLoggingIn = () => {
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user } = useUser(); // Access user from context
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const response = await fetch("http://localhost:8080/testLoggedIn", {
-        method: "GET",
-        credentials: "include", // Ensure cookies are sent with the request
-      });
+    // If user is not available, redirect to the login page
+    if (!user) {
+      router.push("/login");
+    }
+  }, [user, router]);
 
-      if (!response.ok) {
-        router.push("/login");
-      } else {
-        setIsLoggedIn(true);
-      }
-    };
-    checkAuth();
-  }, [router]);
-
-  if (!isLoggedIn) {
+  // Display loading state until the user context is loaded
+  if (!user) {
     return <div>Loading...</div>;
-  } else {
-    return <div>Protected Data</div>;
   }
+
+  return <div>Protected Data</div>;
 };
 
 export default TestLoggingIn;
+

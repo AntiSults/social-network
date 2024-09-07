@@ -1,30 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useUser } from "../context/UserContext"; // Import the custom hook to access user context
 
 const Profile = () => {
-  const [user, setUser] = useState(Object);
-  useEffect(() => {
-    const getUserData = async () => {
-      const response = await fetch("http://localhost:8080/getUserData", {
-        method: "GET",
-        credentials: "include",
-      });
-      if (response.ok) {
-        const userData = await response.json();
-        console.log(userData);
-        const regex = /\/uploads\/.*/;
-        const paths = userData.avatarPath.match(regex);
-        const avatarUrl = paths ? paths[0] : null;
-        userData.avatarPath = avatarUrl;
-        console.log(userData.profileVisibility);
-        setUser(userData);
-      } else {
-        console.log("Failed to retrieve user data");
-      }
-    };
-    getUserData();
-  }, []);
+  const { user } = useUser(); // Access user from context
+
+  // If user data is not yet loaded, display a loading message
+  if (!user) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
@@ -32,6 +17,9 @@ const Profile = () => {
         <div className="flex flex-col bg-base-300 rounded-box w-fit">
           <div className="topWrapper flex flex-row">
             <div className="basis-2/3 flex flex-col p-8">
+              {user.ID && (
+                <div className="basis-1/4">{user.ID}</div>
+              )}
               {user.nickname && (
                 <div className="basis-1/4">{user.nickname}</div>
               )}
