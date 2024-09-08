@@ -1,14 +1,16 @@
-import React, { useState } from "react";
+"use client";
 
-// Gets a function which sends file to backend
+import React, { useState } from "react";
+import { useUser } from "../context/UserContext";
+
 interface Props {
   onFileSelect: (file: File) => void;
 }
 
 const AvatarUploadField = ({ onFileSelect }: Props) => {
   const [preview, setPreview] = useState<string | null>(null);
+  const { user } = useUser();
 
-  // Calls the function from Props and gives preview
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -26,17 +28,23 @@ const AvatarUploadField = ({ onFileSelect }: Props) => {
         <input
           className="file-input file-input-bordered w-full"
           type="file"
-          accept="image"
+          accept="image/*"
           onChange={handleFileChange}
         />
 
-        {preview && (
+        {preview ? (
           <div className="avatar">
             <div className="w-24 rounded">
               <img src={preview} alt="Avatar Preview" />
             </div>
           </div>
-        )}
+        ) : user && user.avatarPath ? (
+          <div className="avatar">
+            <div className="w-24 rounded">
+              <img src={user.avatarPath} alt="Current Avatar" />
+            </div>
+          </div>
+        ) : null}
       </label>
     </>
   );

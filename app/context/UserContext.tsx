@@ -1,29 +1,30 @@
+// UserContext.tsx
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface User {
     ID: number;
+    email: string;
     firstName: string;
     lastName: string;
-    email: string;
     dob: string;
     nickname?: string;
-    avatarPath?: string;
-    profileVisibility?: string;
     aboutMe?: string;
+    avatarPath?: string | null;
+    profileVisibility?: "public" | "private";
 }
 
-// Define the context value type
-interface UserContextType {
+// Define the context shape
+interface UserContextProps {
     user: User | null;
     setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
-// Create the UserContext
-const UserContext = createContext<UserContextType | undefined>(undefined);
+// Create the context
+const UserContext = createContext<UserContextProps | undefined>(undefined);
 
-// Custom hook to use the UserContext
+// Hook to use the user context
 export const useUser = () => {
     const context = useContext(UserContext);
     if (!context) {
@@ -32,28 +33,33 @@ export const useUser = () => {
     return context;
 };
 
-// UserProvider component to provide the context
-export const UserProvider = ({ children }: { children: ReactNode }) => {
+// Provider component
+export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
 
-    // Example: Fetch user data on component mount
     useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const response = await fetch("http://localhost:8080/getUserData", {
-                    method: "GET",
-                    credentials: "include",
-                });
-                if (response.ok) {
-                    const userData = await response.json();
-                    setUser(userData); // Update the user state
-                }
-            } catch (error) {
-                console.error("Failed to fetch user data", error);
+        const getUserData = async () => {
+            const response = await fetch("http://localhost:8080/getUserData", {
+                method: "GET",
+                credentials: "include",
+            });
+
+            if (response.ok) {
+                const userData: User = await response.json();
+
+                // Process avatar path with regex
+                const regex = /\/uploads\/.*/;
+                const paths = userData.avatarPath?.match(regex);
+                const avatarUrl = paths ? paths[0] : undefined;
+                userData.avatarPath = avatarUrl;
+
+                setUser(userData);
+            } else {
+                console.log("Failed to retrieve user data");
             }
         };
 
-        fetchUser();
+        getUserData();
     }, []);
 
     return (
