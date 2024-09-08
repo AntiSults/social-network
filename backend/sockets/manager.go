@@ -94,8 +94,8 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 // handleMessages takes care of sent messages, save later to DB here
 func (m *Manager) handleMessages(e Event, c *Client) error {
 
-	var message structs.Message
-	fmt.Printf("Handling %v event\n", e.Type)
+	var message structs.ChatMessage
+	fmt.Printf("Handling %v\n event\n", string(e.Type))
 
 	err := json.Unmarshal(e.Payload, &message)
 	if err != nil {
@@ -104,7 +104,7 @@ func (m *Manager) handleMessages(e Event, c *Client) error {
 	fmt.Println("New message:", &message)
 
 	// saving message into DB
-	_, err = sqlite.Db.SaveMessage(&message)
+	_, err = sqlite.Db.SaveMessage(&message.Message[0])
 
 	if err != nil {
 		log.Println("error saving PM into db: ", err)

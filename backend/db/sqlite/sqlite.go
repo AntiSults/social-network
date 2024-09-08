@@ -367,11 +367,11 @@ func (d *Database) GetPosts(showAll bool) ([]structs.Post, error) {
 }
 
 // FetchMessages is returning messages for user ID
-func (d *Database) FetchMessages(recipient int) ([]structs.Message, error) {
+func (d *Database) FetchMessages(userID int) ([]structs.Message, error) {
 	rows, err := d.db.Query(
 		`SELECT id, content, time_created, foruser, fromuser
-	FROM messages 
-	WHERE foruser = ?`, recipient)
+		FROM messages 
+		WHERE foruser = ? OR fromuser = ?`, userID, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch messages: %w", err)
 	}
@@ -408,7 +408,7 @@ func (d *Database) ChatCommon(recipientID int) (structs.ChatMessage, error) {
 	for id := range senderIDs {
 		userIDs = append(userIDs, id)
 	}
-
+	userIDs = append(userIDs, recipientID)
 	// Step 4: Fetch user details for the recipient user IDs
 	users, err := d.GetUsersByIDs(userIDs)
 	if err != nil {

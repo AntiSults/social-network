@@ -6,6 +6,7 @@ import Button from "../components/Button";
 import NavBar from "../components/NavBar";
 import checkLoginStatus from "../utils/checkLoginStatus";
 import { clientCookieToken } from "../utils/auth";
+import { useUser } from "../context/UserContext";
 
 interface Message {
     id: number;
@@ -38,10 +39,10 @@ const ChatMessage = () => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [users, setUsers] = useState<Record<number, User>>({});
     const [socket, setSocket] = useState<WebSocket | null>(null);
+    const { user: currentUser } = useUser();
 
     useEffect(() => {
         setIsLoggedIn(checkLoginStatus());
-
         const clientToken = clientCookieToken();
         const socketInstance = new WebSocket("ws://localhost:8080/ws");
 
@@ -109,11 +110,10 @@ const ChatMessage = () => {
             return;
         }
 
-        if (socket && message.trim() !== "") {
-            const messageId: number = 1; // Example message ID
-            const messageFromID: number = 1; // Example sender ID
-            const messageToID: number = 3; // Example receiver ID
-
+        if (socket && message.trim() !== "" && currentUser) {
+            const messageId: number = 1;
+            const messageFromID: number = currentUser.ID
+            const messageToID: number = 3;
             const payload: Message = {
                 id: messageId,
                 content: message,
@@ -147,10 +147,11 @@ const ChatMessage = () => {
                         return (
                             <div
                                 key={index}
-                                className={`p-2 my-1 rounded-md ${msg.fromUserID % 2 === 0
+                                className={`p-2 my-1 rounded-md ${currentUser && msg.fromUserID === currentUser.ID
                                     ? "bg-blue-100 text-right self-end"
                                     : "bg-gray-100 text-left"
                                     }`}
+
                             >
                                 <p className="text-sm font-bold">{senderName}</p>
                                 <p className="text-sm">{msg.content}</p>
