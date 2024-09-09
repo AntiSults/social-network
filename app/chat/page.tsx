@@ -16,10 +16,17 @@ const ChatMessage = () => {
             <NavBar logged={isLoggedIn} />
             <div className="max-w-xl mx-auto p-4 bg-white shadow-md rounded-md">
                 <h1 className="text-xl font-bold mb-4">Chat Component</h1>
-                <ChatMessages messages={messages} users={users} currentUser={currentUser} />
-                <ChatInput message={message} setMessage={setMessage} onSubmit={sendChatMessage} />
+                {isLoggedIn ? (
+                    <>
+                        <ChatMessages messages={messages} users={users} currentUser={currentUser} />
+                        <ChatInput message={message} setMessage={setMessage} onSubmit={sendChatMessage} />
+                    </>
+                ) : (
+                    <p className="text-center text-gray-600">Please login for chatting!</p>
+                )}
             </div>
         </>
+
     );
 };
 

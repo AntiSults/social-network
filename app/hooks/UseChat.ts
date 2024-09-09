@@ -4,7 +4,7 @@ import checkLoginStatus from "../utils/checkLoginStatus";
 import { useUser } from "../context/UserContext";
 
 interface Message {
-  id: number;
+  id?: number;
   content: string;
   fromUserID: number;
   toUserID: number;
@@ -32,7 +32,6 @@ const useChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [users, setUsers] = useState<Record<number, User>>({});
   const [socket, setSocket] = useState<WebSocket | null>(null);
-
   const { user: currentUser } = useUser();
 
   useEffect(() => {
@@ -101,7 +100,7 @@ const useChat = () => {
 
     if (socket && message.trim() !== "" && currentUser) {
       const payload: Message = {
-        id: 1,
+        // id: 1,
         content: message,
         fromUserID: currentUser.ID,
         toUserID: 3, // Example toUserID

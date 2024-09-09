@@ -1,7 +1,7 @@
 import React from "react";
 
 interface Message {
-    id: number;
+    id?: number;
     content: string;
     fromUserID: number;
     toUserID: number;
@@ -30,8 +30,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, users, currentUse
                     <div
                         key={index}
                         className={`p-2 my-1 rounded-md ${currentUser && msg.fromUserID === currentUser.ID
-                                ? "bg-blue-100 text-right self-end"
-                                : "bg-gray-100 text-left"
+                            ? "bg-blue-100 text-right self-end"
+                            : "bg-gray-100 text-left"
                             }`}
                     >
                         <p className="text-sm font-bold">{senderName}</p>
