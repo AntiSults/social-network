@@ -366,7 +366,7 @@ func (d *Database) GetPosts(showAll bool) ([]structs.Post, error) {
 	return posts, nil
 }
 
-// FetchMessages is returning messages for user ID
+// FetchMessages is returning all messages sent and received with userID
 func (d *Database) FetchMessages(userID int) ([]structs.Message, error) {
 	rows, err := d.db.Query(
 		`SELECT id, content, time_created, foruser, fromuser
@@ -391,7 +391,7 @@ func (d *Database) FetchMessages(userID int) ([]structs.Message, error) {
 // ChatCommon is returning messages and correspondent recipients users
 func (d *Database) ChatCommon(recipientID int) (structs.ChatMessage, error) {
 
-	// Step 1: Fetch messages sent to the recipient
+	// Step 1: Fetch messages sent to and from the recipient
 	messages, err := d.FetchMessages(recipientID)
 	if err != nil {
 		return structs.ChatMessage{}, err
@@ -409,7 +409,7 @@ func (d *Database) ChatCommon(recipientID int) (structs.ChatMessage, error) {
 		userIDs = append(userIDs, id)
 	}
 	userIDs = append(userIDs, recipientID)
-	// Step 4: Fetch user details for the recipient user IDs
+	// Step 4: Fetch user details for all fetched messages
 	users, err := d.GetUsersByIDs(userIDs)
 	if err != nil {
 		return structs.ChatMessage{}, err
