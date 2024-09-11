@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useUser } from "../context/UserContext"; // Import the useUser hook
 
 interface Props {
   logged: boolean;
@@ -6,36 +7,7 @@ interface Props {
 }
 
 const NavBar = ({ logged, logpage = false }: Props) => {
-  const [avatarPath, setAvatarPath] = useState("");
-
-  useEffect(() => {
-    const fetchAvatar = async () => {
-      const response = await fetch("http://localhost:8080/getAvatarPath", {
-        method: "GET",
-        credentials: "include",
-      });
-      if (response.ok) {
-        const data = await response.json();
-        const regex = /\/uploads\/.*/;
-        const paths = data.avatarPath.match(regex);
-        const avatarUrl = paths ? paths[0] : null;
-
-        if (avatarUrl) {
-          const img = new Image();
-          img.onload = () => setAvatarPath(avatarUrl);
-          img.onerror = () => setAvatarPath("/default_avatar.jpg");
-          img.src = avatarUrl;
-        } else {
-          setAvatarPath("/default_avatar.jpg");
-        }
-      } else {
-        console.log("failed to fetch avatar");
-      }
-    };
-    if (logged) {
-      fetchAvatar();
-    }
-  }, [logged]);
+  const { user } = useUser(); // Get user from context
 
   const handleLogOut = async () => {
     const response = await fetch("http://localhost:8080/logout", {
@@ -71,28 +43,31 @@ const NavBar = ({ logged, logpage = false }: Props) => {
                 Login
               </a>
             )}
-            <div className="dropdown dropdown-end">
-              <div tabIndex={0} role="button">
-                {logged && (
+            {logged && user && (
+              <div className="dropdown dropdown-end">
+                <div tabIndex={0} role="button">
                   <div className="avatar">
                     <div className="w-12 rounded-full">
-                      <img src={avatarPath} />
+                      <img
+                        src={user.avatarPath ? user.avatarPath : "/default_avatar.jpg"}
+                        alt="User Avatar"
+                      />
                     </div>
                   </div>
-                )}
+                </div>
+                <ul
+                  tabIndex={0}
+                  className="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow"
+                >
+                  <li>
+                    <a href="/profile">My Profile</a>
+                  </li>
+                  <li>
+                    <a onClick={handleLogOut}>Log out</a>
+                  </li>
+                </ul>
               </div>
-              <ul
-                tabIndex={0}
-                className="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow"
-              >
-                <li>
-                  <a href="/profile">My Profile</a>
-                </li>
-                <li>
-                  <a onClick={handleLogOut}>Log out</a>
-                </li>
-              </ul>
-            </div>
+            )}
           </div>
         </div>
       </div>
