@@ -6,6 +6,7 @@ export interface Post {
     created_at: string;
     author_first_name: string;
     author_last_name: string;
+    files: string | null;
 }
 
 interface PostsListProps {
@@ -24,6 +25,19 @@ const PostsList: React.FC<PostsListProps> = ({ posts }) => {
                         {post.author_first_name} {post.author_last_name}:
                     </p>
                     <p className="mt-2">{post.content}</p>
+                    {post.files && (
+                        <div className="mt-4">
+                            <img 
+                                src={post.files.replace("../public", "")} 
+                                alt="Attachment" 
+                                className="mt-2 max-w-full rounded"
+                                onError={(e) => { 
+                                    const target = e.target as HTMLImageElement;
+                            }}
+                            />
+
+                        </div>
+                    )}
                     <small className="block mt-4 text-gray-500">
                         {new Date(post.created_at).toLocaleString()}
                     </small>

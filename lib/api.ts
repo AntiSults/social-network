@@ -16,11 +16,22 @@ export const getPosts = async () => {
   }
 };
 
-export const createPost = async (content: string, privacy: string) => {
+export const createPost = async (content: string, privacy: string, file: File | null) => {
   try {
+    const formData = new FormData();
+    formData.append("content", content);
+    formData.append("privacy", privacy);
+
+    if (file) {
+      formData.append("files", file);
+    }
+
     // Send POST request to create a new post
-    const response = await axios.post(`${API_URL}/create-posts`, { content, privacy }, {
+    const response = await axios.post(`${API_URL}/create-posts`, formData, {
       withCredentials: true,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
     return response.data;
   } catch (error) {

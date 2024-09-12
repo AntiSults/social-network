@@ -24,10 +24,11 @@ const PostsPage = () => {
       console.error("Failed to fetch posts:", error);
     }
   };
+  
 
-  const handlePostCreated = async (content: string, privacy: string) => {
+  const handlePostCreated = async (content: string, privacy: string, file?: File | null) => {
     try {
-      await createPost(content, privacy);
+      await createPost(content, privacy, file || null);
       fetchPosts();
     } catch (error) {
       console.error("Failed to create post:", error);

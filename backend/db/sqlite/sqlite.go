@@ -325,42 +325,54 @@ func (d *Database) SaveMessage(message *structs.Message) (*structs.Message, erro
 }
 
 func (d *Database) SavePost(post *structs.Post) error {
+	files := sql.NullString{String: post.Files, Valid: post.Files != ""}
+
 	_, err := d.db.Exec(
-		"INSERT INTO posts (userID, content, created_at, privacy, author_first_name, author_last_name) VALUES (?, ?, ?, ?, ?, ?)",
-		post.UserID, post.Content, post.CreatedAt, post.Privacy, post.AuthorFirstName, post.AuthorLastName,
+		"INSERT INTO posts (userID, content, created_at, privacy, author_first_name, author_last_name, files) VALUES (?, ?, ?, ?, ?, ?, ?)",
+		post.UserID, post.Content, post.CreatedAt, post.Privacy, post.AuthorFirstName, post.AuthorLastName, files,
 	)
+
 	if err != nil {
 		return fmt.Errorf("failed to save post: %w", err)
 	}
+	fmt.Println("Post successfully inserted to db!")
 	return nil
 }
 
-func (d *Database) GetPosts(showAll bool) ([]structs.Post, error) {
-	var rows *sql.Rows
-	var err error
-
-	if showAll {
-		rows, err = d.db.Query("SELECT id, userID, content, created_at, privacy, author_first_name, author_last_name FROM posts ORDER BY created_at DESC")
+func (d *Database) GetPosts(authenticated bool) ([]structs.Post, error) {
+	var query string
+	if authenticated {
+		query = `SELECT ID, UserID, Content, Privacy, created_at, author_first_name, author_last_name, files FROM Posts ORDER BY created_at DESC`
 	} else {
-		rows, err = d.db.Query("SELECT id, userID, content, created_at, privacy, author_first_name, author_last_name FROM posts WHERE privacy = 'public' ORDER BY created_at DESC")
+		query = `SELECT ID, UserID, Content, Privacy, created_at, author_first_name, author_last_name, files FROM Posts WHERE Privacy = 'public' ORDER BY created_at DESC`
 	}
 
+	rows, err := d.db.Query(query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch posts: %w", err)
+		return nil, err
 	}
 	defer rows.Close()
 
 	var posts []structs.Post
 	for rows.Next() {
 		var post structs.Post
-		if err := rows.Scan(&post.ID, &post.UserID, &post.Content, &post.CreatedAt, &post.Privacy, &post.AuthorFirstName, &post.AuthorLastName); err != nil {
-			return nil, fmt.Errorf("failed to scan post: %w", err)
+		var files sql.NullString
+
+		if err := rows.Scan(&post.ID, &post.UserID, &post.Content, &post.Privacy, &post.CreatedAt, &post.AuthorFirstName, &post.AuthorLastName, &files); err != nil {
+			return nil, err
 		}
+
+		if files.Valid {
+			post.Files = files.String
+		} else {
+			post.Files = ""
+		}
+
 		posts = append(posts, post)
 	}
 
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("failed to fetch posts: %w", err)
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return posts, nil
