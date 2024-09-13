@@ -87,36 +87,28 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 		var posts []structs.Post
 		var err error
 
-		// Attempt to retrieve the session cookie
 		cookie, err := r.Cookie("session_token")
 
 		if err != nil || cookie.Value == "" {
-			// If there is no valid cookie, show only public posts
 			posts, err = sqlite.Db.GetPosts(false)
 		} else {
-			// If a cookie exists, check user authentication
 			_, err = GetUserId(cookie.Value)
 			if err != nil {
-				// If user is not authenticated, show only public posts
 				posts, err = sqlite.Db.GetPosts(false)
 			} else {
-				// If user is authenticated, show all posts
 				posts, err = sqlite.Db.GetPosts(true)
 			}
 		}
 
-		// Handle potential error from database query
 		if err != nil {
 			middleware.SendErrorResponse(w, "Failed to fetch posts", http.StatusInternalServerError)
 			return
 		}
 
-		// Set response header and encode posts as JSON
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(posts)
 
 	} else {
-		// Method not allowed error for non-GET requests
 		middleware.SendErrorResponse(w, "Method not allowed!", http.StatusMethodNotAllowed)
 	}
 }

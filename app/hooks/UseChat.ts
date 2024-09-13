@@ -7,7 +7,7 @@ interface Message {
   id?: number;
   content: string;
   fromUserID: number;
-  toUserID: number;
+  toUserID: number | number[];
   created: string;
 }
 
@@ -15,6 +15,12 @@ interface User {
   ID: number;
   firstName: string;
   lastName: string;
+}
+
+interface Recipient {
+  id: number;
+  name: string;
+  type: "user" | "group";
 }
 
 interface Event {
@@ -33,6 +39,9 @@ const useChat = () => {
   const [users, setUsers] = useState<Record<number, User>>({});
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const { user: currentUser } = useUser();
+
+  const [recipients, setRecipients] = useState<Recipient[]>([]);
+  const [selectedRecipient, setSelectedRecipient] = useState<number | number[]>([]);
 
   useEffect(() => {
     setIsLoggedIn(checkLoginStatus());
@@ -69,6 +78,15 @@ const useChat = () => {
         }, {} as Record<number, User>);
 
         setUsers(usersById);
+
+        // Transform users into recipients format
+        const formattedRecipients: Recipient[] = incomingEvent.payload.User.map(user => ({
+          id: user.ID,
+          name: `${user.firstName} ${user.lastName}`,
+          type: "user"
+        }));
+
+        setRecipients(formattedRecipients); // Set the recipients
       } else if (incomingEvent.type === "chat_message" && incomingEvent.payload.Message) {
         setMessages((prevMessages) => [...prevMessages, ...incomingEvent.payload.Message]);
       }
@@ -100,10 +118,9 @@ const useChat = () => {
 
     if (socket && message.trim() !== "" && currentUser) {
       const payload: Message = {
-        // id: 1,
         content: message,
         fromUserID: currentUser.ID,
-        toUserID: 3, // Example toUserID
+        toUserID: selectedRecipient,
         created: new Date().toISOString(),
       };
 
@@ -119,7 +136,17 @@ const useChat = () => {
     }
   };
 
-  return { isLoggedIn, messages, sendChatMessage, message, setMessage, users };
+  return {
+    isLoggedIn,
+    messages,
+    sendChatMessage,
+    message,
+    setMessage,
+    users,
+    recipients,
+    selectedRecipient,
+    setSelectedRecipient
+  };
 };
 
 export default useChat;

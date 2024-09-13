@@ -8,7 +8,17 @@ import useChat from "../hooks/UseChat";
 import { useUser } from "../context/UserContext";
 
 const ChatMessage = () => {
-    const { isLoggedIn, messages, sendChatMessage, message, setMessage, users } = useChat();
+    const {
+        isLoggedIn,
+        messages,
+        sendChatMessage,
+        message,
+        setMessage,
+        users,
+        recipients,
+        selectedRecipient,
+        setSelectedRecipient,
+    } = useChat();
     const { user: currentUser } = useUser();
 
     return (
@@ -19,14 +29,20 @@ const ChatMessage = () => {
                 {isLoggedIn ? (
                     <>
                         <ChatMessages messages={messages} users={users} currentUser={currentUser} />
-                        <ChatInput message={message} setMessage={setMessage} onSubmit={sendChatMessage} />
+                        <ChatInput
+                            message={message}
+                            setMessage={setMessage}
+                            onSubmit={sendChatMessage}
+                            recipients={recipients}
+                            selectedRecipient={selectedRecipient}
+                            setSelectedRecipient={setSelectedRecipient}
+                        />
                     </>
                 ) : (
                     <p className="text-center text-gray-600">Please login for chatting!</p>
                 )}
             </div>
         </>
-
     );
 };
 

@@ -4,7 +4,7 @@ interface Message {
     id?: number;
     content: string;
     fromUserID: number;
-    toUserID: number;
+    toUserID: number | number[];
     created: string;
 }
 
