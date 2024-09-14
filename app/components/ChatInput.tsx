@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import FieldInput from "./FieldInput";
 import Button from "./Button";
-import EmojiPicker, { EmojiClickData } from "emoji-picker-react"; // Import EmojiClickData
+import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+import { getOptionStyle } from "../utils/getOptionStyle";
 
 interface Recipient {
     id: number;
@@ -28,14 +29,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
 }) => {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-    // Correct the function to use the right signature
     const onEmojiClick = (emojiObject: EmojiClickData) => {
-        setMessage(message + emojiObject.emoji); // Append the selected emoji to the message
-        setShowEmojiPicker(false); // Close the emoji picker after selecting an emoji
-    };
-
-    const getOptionStyle = (type: "user" | "group") => {
-        return type === "user" ? { color: "blue" } : { color: "green" };
+        setMessage(message + emojiObject.emoji);
+        setShowEmojiPicker(false);
     };
 
     return (
@@ -57,7 +53,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 ))}
             </select>
 
-            {/* Text Input */}
             <div className="relative flex items-center">
                 <FieldInput
                     name="Text:"
@@ -68,7 +63,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     onChange={(e) => setMessage(e.target.value)}
                     className="p-2 border border-gray-300 rounded-md flex-grow"
                 />
-                {/* Emoji Button */}
                 <button
                     type="button"
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
@@ -85,7 +79,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 </div>
             )}
 
-            {/* Submit Button */}
             <Button type="submit" name="Submit Message" className="p-2 bg-blue-500 text-white rounded-md" />
         </form>
     );
