@@ -63,11 +63,29 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 	if err != nil {
 		return fmt.Errorf("error getting ID from session token: %w", err)
 	}
+	//Getting user either from map or db
+	user, err := handlers.GetUser(userID)
+	if err != nil {
+		return fmt.Errorf("error querying user data: %w", err)
+	}
+	//combining followers and followed into single slice
+	usersID := combineUnique(user.FollowingUserIDs, user.GotFollowedUserIDs)
 
-	// Fetch messages and recepient users
-	common, err := sqlite.Db.ChatCommon(userID)
+	//getting users from db
+	usersInfo, err := sqlite.Db.GetUsersByIDs(usersID)
+	if err != nil {
+		return fmt.Errorf("error querying usersInfo: %w", err)
+	}
+
+	// Fetch messages
+	messages, err := sqlite.Db.FetchMessages(userID)
 	if err != nil {
 		return fmt.Errorf("error fetching messages for user ID %d: %w", userID, err)
+	}
+
+	common := structs.ChatMessage{
+		Message: messages,
+		User:    usersInfo,
 	}
 
 	// Marshal messages to JSON
@@ -78,7 +96,7 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 	}
 
 	// Create the response event
-	updateEvent := newEvent("initial_upload_response", dataJSON, "")
+	updateEvent := newEvent("initial_upload_response", dataJSON, token)
 
 	// Send the response to the correct client
 	for client := range m.Clients {
@@ -93,7 +111,7 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 // handleMessages takes care of sent messages, save later to DB here
 func (m *Manager) handleMessages(e Event, c *Client) error {
 
-	var message structs.ChatMessage
+	var message structs.Message
 	fmt.Printf("Handling %v\n event\n", string(e.Type))
 
 	err := json.Unmarshal(e.Payload, &message)
@@ -102,17 +120,20 @@ func (m *Manager) handleMessages(e Event, c *Client) error {
 	}
 	fmt.Println("New message:", &message)
 
-	_, err = sqlite.Db.SaveMessage(&message.Message[0])
+	_, err = sqlite.Db.SaveMessage(&message)
 
 	if err != nil {
 		log.Println("error saving PM into db: ", err)
 	}
-	// redirecting to Front for testing (for all clients for a while)
+	// finding user or users to send message to
 	updateEvent := newEvent("message_received", e.Payload, "")
 	for client := range m.Clients {
-		client.egress <- *updateEvent
+		for recipient := range message.RecipientID {
+			if recipient == c.clientId {
+				client.egress <- *updateEvent
+			}
+		}
 	}
-
 	return nil
 }
 
@@ -194,4 +215,22 @@ func checkOrigin(r *http.Request) bool {
 	default:
 		return false
 	}
+}
+
+func combineUnique(slice1, slice2 []int) []int {
+	uniqueMap := make(map[int]bool)
+	var result []int
+	for _, v := range slice1 {
+		if !uniqueMap[v] {
+			uniqueMap[v] = true
+			result = append(result, v)
+		}
+	}
+	for _, v := range slice2 {
+		if !uniqueMap[v] {
+			uniqueMap[v] = true
+			result = append(result, v)
+		}
+	}
+	return result
 }
