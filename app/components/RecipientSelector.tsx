@@ -9,8 +9,8 @@ interface Recipient {
 
 interface RecipientSelectorProps {
     recipients: Recipient[];
-    selectedRecipient: number | number[];
-    setSelectedRecipient: React.Dispatch<React.SetStateAction<number | number[]>>;
+    selectedRecipient: number[];
+    setSelectedRecipient: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 const RecipientSelector: React.FC<RecipientSelectorProps> = ({
@@ -20,12 +20,12 @@ const RecipientSelector: React.FC<RecipientSelectorProps> = ({
 }) => {
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedValue = parseInt(e.target.value, 10);
-        setSelectedRecipient(selectedValue);
+        setSelectedRecipient([selectedValue]); // Wrap in array
     };
 
     return (
         <select
-            value={Array.isArray(selectedRecipient) ? selectedRecipient[0] : selectedRecipient}
+            value={selectedRecipient.length > 0 ? selectedRecipient[0] : ""}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded-md"
         >

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"social-network/structs"
+	"strconv"
 	"strings"
 	"time"
 
@@ -303,26 +304,6 @@ func (d *Database) SaveSession(userID int, token string, exp time.Time) error {
 
 	return nil
 }
-func (d *Database) SaveMessage(message *structs.Message) (*structs.Message, error) {
-
-	res, err := d.db.Exec("INSERT INTO Messages (time_created, content, foruser, fromuser) VALUES(?,?,?,?)", message.Created, message.Content, message.RecipientID, message.SenderID)
-	if err != nil {
-
-		var sqliteErr sqlite3.Error
-		if errors.As(err, &sqliteErr) {
-			if errors.Is(sqliteErr.ExtendedCode, sqlite3.ErrConstraintUnique) {
-				return nil, ErrDuplicate
-			}
-		}
-		return nil, err
-	}
-	id, err := res.LastInsertId()
-	if err != nil {
-		return nil, err
-	}
-	message.ID = int(id)
-	return message, nil
-}
 
 func (d *Database) SavePost(post *structs.Post) error {
 	files := sql.NullString{String: post.Files, Valid: post.Files != ""}
@@ -378,60 +359,150 @@ func (d *Database) GetPosts(authenticated bool) ([]structs.Post, error) {
 	return posts, nil
 }
 
+func (d *Database) SaveMessage(message *structs.Message) (*structs.Message, error) {
+	// Step 1: Insert the message into the Messages table
+	res, err := d.db.Exec(
+		"INSERT INTO Messages (time_created, content, fromuser) VALUES(?,?,?)",
+		message.Created, message.Content, message.SenderID,
+	)
+	if err != nil {
+		var sqliteErr sqlite3.Error
+		if errors.As(err, &sqliteErr) {
+			if errors.Is(sqliteErr.ExtendedCode, sqlite3.ErrConstraintUnique) {
+				return nil, ErrDuplicate
+			}
+		}
+		return nil, err
+	}
+	// Get the last inserted message ID
+	id, err := res.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	message.ID = int(id)
+	// Step 2: Insert recipients into MessageRecipients table
+	for _, recipientID := range message.RecipientID {
+		_, err := d.db.Exec(
+			"INSERT INTO MessageRecipients (message_id, recipient_id) VALUES(?,?)",
+			message.ID, recipientID,
+		)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return message, nil
+}
+
 // FetchMessages is returning all messages sent and received with userID
 func (d *Database) FetchMessages(userID int) ([]structs.Message, error) {
-	rows, err := d.db.Query(
-		`SELECT id, content, time_created, foruser, fromuser
-		FROM messages 
-		WHERE foruser = ? OR fromuser = ?`, userID, userID)
+	// Fetch messages where the user is a participant
+	rows, err := d.db.Query(`
+        SELECT m.id, m.content, m.time_created, m.fromuser, GROUP_CONCAT(r.recipient_id) AS recipients
+        FROM Messages m
+        JOIN MessageParticipants p ON m.id = p.message_id
+        LEFT JOIN MessageRecipients r ON m.id = r.message_id
+        WHERE p.user_id = ?
+        GROUP BY m.id
+    `, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch messages: %w", err)
 	}
 	defer rows.Close()
 
 	var messages []structs.Message
+
 	for rows.Next() {
 		var message structs.Message
-		if err := rows.Scan(&message.ID, &message.Content, &message.Created, &message.RecipientID, &message.SenderID); err != nil {
-			return nil, fmt.Errorf("failed to fetch messages: %w", err)
+		var recipientIDs sql.NullString // Use sql.NullString to handle NULL values
+
+		if err := rows.Scan(&message.ID, &message.Content, &message.Created, &message.SenderID, &recipientIDs); err != nil {
+			return nil, fmt.Errorf("failed to scan message: %w", err)
 		}
+
+		// Initialize the RecipientID slice
+		message.RecipientID = []int{}
+
+		// If recipientIDs is not NULL or empty, split and convert to []int
+		if recipientIDs.Valid && recipientIDs.String != "" {
+			recipientIDStrings := strings.Split(recipientIDs.String, ",")
+			for _, idStr := range recipientIDStrings {
+				id, err := strconv.Atoi(idStr)
+				if err != nil {
+					return nil, fmt.Errorf("failed to parse recipient ID: %w", err)
+				}
+				message.RecipientID = append(message.RecipientID, id)
+			}
+		}
+
 		messages = append(messages, message)
 	}
+
 	return messages, nil
 }
 
-// ChatCommon is returning messages and correspondent recipients users
-func (d *Database) ChatCommon(recipientID int) (structs.ChatMessage, error) {
+func (d *Database) FetchParticipantUserIDs(messageIDs []int) ([]int, error) {
+	// Prepare query for fetching participant user IDs
+	query := `
+		SELECT DISTINCT user_id
+		FROM MessageParticipants
+		WHERE message_id IN (?` + strings.Repeat(",?", len(messageIDs)-1) + `)`
 
-	// Step 1: Fetch messages sent to and from the recipient
-	messages, err := d.FetchMessages(recipientID)
+	// Convert messageIDs to []interface{} for the query arguments
+	args := make([]interface{}, len(messageIDs))
+	for i, id := range messageIDs {
+		args[i] = id
+	}
+
+	rows, err := d.db.Query(query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch participant user IDs: %w", err)
+	}
+	defer rows.Close()
+
+	var userIDs []int
+	for rows.Next() {
+		var userID int
+		if err := rows.Scan(&userID); err != nil {
+			return nil, fmt.Errorf("failed to scan user ID: %w", err)
+		}
+		userIDs = append(userIDs, userID)
+	}
+
+	return userIDs, nil
+}
+
+// ChatCommon is returning messages and correspondent recipients users
+func (d *Database) ChatCommon(userID int) (structs.ChatMessage, error) {
+	// Step 1: Fetch messages where userID is a participant
+	messages, err := d.FetchMessages(userID)
 	if err != nil {
 		return structs.ChatMessage{}, err
 	}
 
-	// Step 2: Extract unique sender user IDs from messages
-	senderIDs := make(map[int]struct{})
+	// Step 2: Extract message IDs from the fetched messages
+	var messageIDs []int
 	for _, message := range messages {
-		senderIDs[message.SenderID] = struct{}{}
+		messageIDs = append(messageIDs, message.ID)
 	}
 
-	// Step 3: Convert map keys to a slice for querying
-	var userIDs []int
-	for id := range senderIDs {
-		userIDs = append(userIDs, id)
+	// Step 3: Fetch all unique userIDs from MessageParticipants
+	userIDs, err := d.FetchParticipantUserIDs(messageIDs)
+	if err != nil {
+		return structs.ChatMessage{}, err
 	}
-	userIDs = append(userIDs, recipientID)
-	// Step 4: Fetch user details for all fetched messages
+
+	// Include the current userID (to ensure their details are fetched as well)
+	userIDs = append(userIDs, userID)
+
+	// Step 4: Fetch user details for all users involved in the messages
 	users, err := d.GetUsersByIDs(userIDs)
 	if err != nil {
 		return structs.ChatMessage{}, err
 	}
 
-	// Step 5: Construct and return the combined ChatMessage struct
-	data := structs.ChatMessage{
+	// Step 5: Return the combined ChatMessage result
+	return structs.ChatMessage{
 		Message: messages,
 		User:    users,
-	}
-
-	return data, nil
+	}, nil
 }

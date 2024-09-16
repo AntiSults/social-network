@@ -39,11 +39,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
             {/* Recipient Selector */}
             <select
                 value={Array.isArray(selectedRecipient) ? selectedRecipient[0] : selectedRecipient}
-                onChange={(e) =>
-                    setSelectedRecipient(
-                        recipients.find((r) => r.id === parseInt(e.target.value))?.id || 0
-                    )
-                }
+                onChange={(e) => {
+                    const selectedID = parseInt(e.target.value);
+                    setSelectedRecipient([selectedID]); // Always wrap in an array
+                }}
                 className="p-2 border border-gray-300 rounded-md"
             >
                 {recipients.map((recipient) => (

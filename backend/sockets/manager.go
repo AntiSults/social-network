@@ -87,7 +87,6 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 			break // Exit the loop once the correct client is found
 		}
 	}
-
 	return nil
 }
 
@@ -103,7 +102,6 @@ func (m *Manager) handleMessages(e Event, c *Client) error {
 	}
 	fmt.Println("New message:", &message)
 
-	// saving message into DB
 	_, err = sqlite.Db.SaveMessage(&message.Message[0])
 
 	if err != nil {
