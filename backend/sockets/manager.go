@@ -70,24 +70,22 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 	}
 	//combining followers and followed into single slice
 	usersID := combineUnique(user.FollowingUserIDs, user.GotFollowedUserIDs)
-
+	//including current user
+	usersID = append(usersID, userID)
 	//getting users from db
 	usersInfo, err := sqlite.Db.GetUsersByIDs(usersID)
 	if err != nil {
 		return fmt.Errorf("error querying usersInfo: %w", err)
 	}
-
 	// Fetch messages
 	messages, err := sqlite.Db.FetchMessages(userID)
 	if err != nil {
 		return fmt.Errorf("error fetching messages for user ID %d: %w", userID, err)
 	}
-
 	common := structs.ChatMessage{
 		Message: messages,
 		User:    usersInfo,
 	}
-
 	// Marshal messages to JSON
 	dataJSON, err := json.Marshal(&common)
 	if err != nil {

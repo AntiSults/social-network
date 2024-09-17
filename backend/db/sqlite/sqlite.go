@@ -32,14 +32,12 @@ func ConnectAndMigrateDb(migrationsPath string) (*Database, error) {
 		return nil, err
 	}
 
-	if db != nil {
-		fmt.Println("Database opened successfully")
-	}
+	fmt.Println("Database opened successfully")
 
 	// Create a new SQLite driver instance
 	driver, err := sqlitemigration.WithInstance(db.db, &sqlitemigration.Config{})
 	if err != nil {
-		db.Close() // Close the db if driver creation fails
+		db.db.Close() // Close the db if driver creation fails
 		return nil, fmt.Errorf("failed to create SQLite driver: %w", err)
 	}
 
@@ -50,13 +48,13 @@ func ConnectAndMigrateDb(migrationsPath string) (*Database, error) {
 		driver,
 	)
 	if err != nil {
-		db.Close() // Close the db if migration instance creation fails
+		db.db.Close() // Close the db if migration instance creation fails
 		return nil, fmt.Errorf("failed to create migration instance: %w", err)
 	}
 
 	// Apply all migrations
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		db.Close() // Close the db if migration fails
+		db.db.Close() // Close the db if migration fails
 		return nil, fmt.Errorf("failed to apply migrations: %w", err)
 	}
 
