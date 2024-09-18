@@ -82,7 +82,7 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 	if err != nil {
 		return fmt.Errorf("error querying usersInfo: %w", err)
 	}
-	// This is appending followers and groups into usersInfo, which in turn is send
+	// This is appending followers into usersInfo, which in turn is send
 	//with messages to frontend as initial upload response. But it is not used there for now
 	for i := range usersInfo {
 		if usersInfo[i].ID == userID {
