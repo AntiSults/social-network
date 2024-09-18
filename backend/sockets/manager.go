@@ -68,14 +68,39 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 	if err != nil {
 		return fmt.Errorf("error querying user data: %w", err)
 	}
+	//hardcoding followers, as not yet implimented
+	user.FollowingUserIDs = []int{2, 3, 5}
+	user.GotFollowedUserIDs = []int{3, 4}
+	user.Groups = []structs.Groups{
+		{
+			ID:     1,
+			Name:   "Go Developers",
+			UserID: []int{2, 3},
+		},
+		{
+			ID:     2,
+			Name:   "Backend Engineers",
+			UserID: []int{5, 6},
+		},
+	}
+
 	//combining followers and followed into single slice
 	usersID := combineUnique(user.FollowingUserIDs, user.GotFollowedUserIDs)
 	//including current user
 	usersID = append(usersID, userID)
+
 	//getting users from db
 	usersInfo, err := sqlite.Db.GetUsersByIDs(usersID)
 	if err != nil {
 		return fmt.Errorf("error querying usersInfo: %w", err)
+	}
+
+	for i := range usersInfo {
+		if usersInfo[i].ID == userID {
+			usersInfo[i].FollowingUserIDs = user.FollowingUserIDs
+			usersInfo[i].GotFollowedUserIDs = user.GotFollowedUserIDs
+			usersInfo[i].Groups = user.Groups
+		}
 	}
 	// Fetch messages
 	messages, err := sqlite.Db.FetchMessages(userID)
@@ -109,16 +134,16 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 // handleMessages takes care of sent messages, save later to DB here
 func (m *Manager) handleMessages(e Event, c *Client) error {
 
-	var message structs.Message
-	fmt.Printf("Handling %v\n event\n", string(e.Type))
+	var common structs.ChatMessage
+	fmt.Printf("Handling %v event\n", string(e.Type))
 
-	err := json.Unmarshal(e.Payload, &message)
+	err := json.Unmarshal(e.Payload, &common)
 	if err != nil {
 		return fmt.Errorf("error unmarshalling the payload: %w", err)
 	}
-	fmt.Println("New message:", &message)
+	fmt.Println("New message:", &common.Message[0])
 
-	_, err = sqlite.Db.SaveMessage(&message)
+	_, err = sqlite.Db.SaveMessage(&common.Message[0])
 
 	if err != nil {
 		log.Println("error saving PM into db: ", err)
@@ -126,7 +151,7 @@ func (m *Manager) handleMessages(e Event, c *Client) error {
 	// finding user or users to send message to
 	updateEvent := newEvent("message_received", e.Payload, "")
 	for client := range m.Clients {
-		for recipient := range message.RecipientID {
+		for recipient := range common.Message[0].RecipientID {
 			if recipient == c.clientId {
 				client.egress <- *updateEvent
 			}

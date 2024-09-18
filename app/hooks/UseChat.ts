@@ -64,30 +64,33 @@ const useChat = () => {
       console.log("Received message:", event.data);
       const incomingEvent: Event = JSON.parse(event.data);
 
-      if (
-        incomingEvent.type === "initial_upload_response" &&
-        incomingEvent.payload &&
-        Array.isArray(incomingEvent.payload.Message) &&
-        Array.isArray(incomingEvent.payload.User)
-      ) {
-        setMessages(incomingEvent.payload.Message);
+      if (incomingEvent.type === "initial_upload_response" && incomingEvent.payload) {
+        // Set messages from initial upload response
+        if (Array.isArray(incomingEvent.payload.Message)) {
+          setMessages(incomingEvent.payload.Message);
+        }
 
-        const usersById = incomingEvent.payload.User.reduce((acc, user) => {
-          acc[user.ID] = user;
-          return acc;
-        }, {} as Record<number, User>);
+        // Set users from initial upload response
+        if (Array.isArray(incomingEvent.payload.User)) {
+          const usersById = incomingEvent.payload.User.reduce((acc, user) => {
+            acc[user.ID] = user;
+            return acc;
+          }, {} as Record<number, User>);
 
-        setUsers(usersById);
+          setUsers(usersById);
 
-        // Transform users into recipients format
-        const formattedRecipients: Recipient[] = incomingEvent.payload.User.map(user => ({
-          id: user.ID,
-          name: `${user.firstName} ${user.lastName}`,
-          type: "user"
-        }));
+          // Transform users into recipients format
+          const formattedRecipients: Recipient[] = incomingEvent.payload.User.map(user => ({
+            id: user.ID,
+            name: `${user.firstName} ${user.lastName}`,
+            type: "user"
+          }));
 
-        setRecipients(formattedRecipients); // Set the recipients
-      } else if (incomingEvent.type === "chat_message" && incomingEvent.payload.Message) {
+          setRecipients(formattedRecipients); // Set recipients
+        }
+      }
+
+      if (incomingEvent.type === "chat_message" && incomingEvent.payload.Message) {
         setMessages((prevMessages) => [...prevMessages, ...incomingEvent.payload.Message]);
       }
     };
@@ -129,7 +132,7 @@ const useChat = () => {
         payload: { Message: [payload], User: [] },
         token: clientToken,
       };
-
+      console.log(event)
       socket.send(JSON.stringify(event));
       setMessage("");
       setMessages((prevMessages) => [...prevMessages, payload]);

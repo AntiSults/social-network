@@ -17,6 +17,7 @@ type User struct {
 	ProfileVisibility  string `json:"profileVisibility"`
 	FollowingUserIDs   []int  `json:"following"`
 	GotFollowedUserIDs []int  `json:"followed"`
+	Groups             []Groups
 }
 
 type Groups struct {
