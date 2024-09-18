@@ -17,13 +17,6 @@ type User struct {
 	ProfileVisibility  string `json:"profileVisibility"`
 	FollowingUserIDs   []int  `json:"following"`
 	GotFollowedUserIDs []int  `json:"followed"`
-	Groups             []Groups
-}
-
-type Groups struct {
-	ID     int    `json:"ID,omitempty"`
-	Name   string `json:"name"`
-	UserID []int  `json:"userID"`
 }
 
 type ErrorResponse struct {

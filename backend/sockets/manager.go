@@ -71,18 +71,6 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 	//hardcoding followers, as not yet implimented
 	user.FollowingUserIDs = []int{2, 3, 5}
 	user.GotFollowedUserIDs = []int{3, 4}
-	user.Groups = []structs.Groups{
-		{
-			ID:     1,
-			Name:   "Go Developers",
-			UserID: []int{2, 3},
-		},
-		{
-			ID:     2,
-			Name:   "Backend Engineers",
-			UserID: []int{5, 6},
-		},
-	}
 
 	//combining followers and followed into single slice
 	usersID := combineUnique(user.FollowingUserIDs, user.GotFollowedUserIDs)
@@ -100,7 +88,6 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 		if usersInfo[i].ID == userID {
 			usersInfo[i].FollowingUserIDs = user.FollowingUserIDs
 			usersInfo[i].GotFollowedUserIDs = user.GotFollowedUserIDs
-			usersInfo[i].Groups = user.Groups
 		}
 	}
 	// Fetch messages
