@@ -357,6 +357,7 @@ func (d *Database) GetPosts(authenticated bool) ([]structs.Post, error) {
 	return posts, nil
 }
 
+// SaveMessage is sasving chat messages into Messages table and filling MessageRecipients table.
 func (d *Database) SaveMessage(message *structs.Message) (*structs.Message, error) {
 	// Step 1: Insert the message into the Messages table
 	res, err := d.db.Exec(
