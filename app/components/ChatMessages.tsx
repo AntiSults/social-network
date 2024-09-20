@@ -4,7 +4,7 @@ interface Message {
     id?: number;
     content: string;
     fromUserID: number;
-    toUserID: number[];
+    toUserID: number | number[];
     created: string;
 }
 
@@ -27,7 +27,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, users, currentUse
                 const sender = users[msg.fromUserID];
                 const senderName = currentUser && msg.fromUserID === currentUser.ID ? "Me" : `${sender?.firstName || 'Unknown'} ${sender?.lastName || 'User'}`;
                 // Handle individual vs group message logic (for future use if needed)
-                const isGroupMessage = msg.toUserID.length > 1;
+                const isGroupMessage = Array.isArray(msg.toUserID) && msg.toUserID.length > 1;
+
 
                 return (
                     <div

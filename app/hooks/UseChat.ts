@@ -7,7 +7,7 @@ interface Message {
   id?: number;
   content: string;
   fromUserID: number;
-  toUserID: number[];
+  toUserID: number | number[];
   created: string;
 }
 
@@ -41,7 +41,7 @@ const useChat = () => {
   const { user: currentUser } = useUser();
 
   const [recipients, setRecipients] = useState<Recipient[]>([]);
-  const [selectedRecipient, setSelectedRecipient] = useState<number[]>([]); // Always an array
+  const [selectedRecipient, setSelectedRecipient] = useState<number | number[]>([]); // Always an array
 
   useEffect(() => {
     setIsLoggedIn(checkLoginStatus());
