@@ -16,7 +16,10 @@ interface PostsListProps {
 const PostsList: React.FC<PostsListProps> = ({ posts }) => {
     return (
         <div className="mt-10 flex flex-col items-center">
-            {posts.map(post => (
+            {!posts || posts.length === 0 ? (
+                <p className="text-center text-gray-600"> Empty database </p>
+            ) : (
+                posts.map(post => (
                 <div 
                   key={post.id} 
                   className="w-full max-w-lg p-6 bg-white shadow-md rounded-lg mb-6"
@@ -42,7 +45,8 @@ const PostsList: React.FC<PostsListProps> = ({ posts }) => {
                         {new Date(post.created_at).toLocaleString()}
                     </small>
                 </div>
-            ))}
+                ))
+            )}
         </div>
     );
 };
