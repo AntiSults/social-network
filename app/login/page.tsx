@@ -5,13 +5,14 @@ import FieldInput from "../components/FieldInput";
 import { useRouter } from "next/navigation";
 import Button from "../components/Button";
 import NavBar from "../components/NavBar";
+import { useUser } from "../context/UserContext";
 
 const LoginPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
+  const { setUser } = useUser(); // Access setUser to update context
   //GOTTA USE USEEFFECT TO RECOGNISE ERRORS FROM MIDDLEWARE
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -35,7 +36,9 @@ const LoginPage = () => {
       });
 
       if (response.ok) {
-        router.push("/");
+        const userData = await response.json();
+        setUser(userData);  // Set logged-in user in context
+        router.push(`/users/${userData.ID}`);
       } else {
         // Handle errors by reading the error message from the response
         const data = await response.json();

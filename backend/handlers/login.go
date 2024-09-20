@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"social-network/db/sqlite"
@@ -46,7 +47,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		UserMap[user.ID] = *user
 		UserMapLock.Unlock()
 
+		jsonData, err := json.Marshal(user)
+		if err != nil {
+			middleware.SendErrorResponse(w, "Error marshalling user data to JSON", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
+		w.Write(jsonData)
 	} else {
 		w.WriteHeader(http.StatusOK)
 		return

@@ -61,6 +61,7 @@ const NavBar = ({ logged, logpage = false }: Props) => {
                 >
                   <li>
                     <a href="/profile">My Profile</a>
+                    <a href={`/users/${user?.ID}`}>User Page</a>
                   </li>
                   <li>
                     <a onClick={handleLogOut}>Log out</a>
