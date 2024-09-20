@@ -1,11 +1,24 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useUser } from "../../context/UserContext";
 import NavBar from "../../components/NavBar";
 
 const ProfilePage = () => {
     const { user } = useUser();
+
+    const [searchQuery, setSearchQuery] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
+
+    const handleSearch = async () => {
+        const response = await fetch(`http://localhost:8080/search?query=${searchQuery}`);
+        if (response.ok) {
+            const users = await response.json();
+            setSearchResults(users);
+        } else {
+            console.log("Search failed");
+        }
+    };
 
     if (!user) {
         return <p>Loading...</p>;
@@ -22,6 +35,25 @@ const ProfilePage = () => {
                 />
                 <p>About Me: {user.aboutMe || "No details provided"}</p>
             </div>
+            {/* Search Bar */}
+            <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search for other users..."
+            />
+            <button onClick={handleSearch}>Search</button>
+
+            {/* Search Results */}
+            {searchResults.length > 0 && (
+                <ul>
+                    {searchResults.map((result) => (
+                        <li key={result.id}>
+                            {result.firstName} {result.lastName} ({result.email})
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
     );
 };

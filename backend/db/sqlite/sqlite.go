@@ -436,3 +436,31 @@ func (d *Database) FetchMessages(userID int) ([]structs.Message, error) {
 	}
 	return messages, nil
 }
+
+// Search function to query SQLite for matching users
+func (d *Database) SearchUsersInDB(query string) ([]structs.User, error) {
+	// SQL query to search users by name or email
+	stmt := `
+        SELECT id, first_name, last_name, email, nickname, aboutMe, avatarPath, profileVisibility 
+        FROM Users 
+        WHERE first_name LIKE ? OR last_name LIKE ? OR email LIKE ?`
+
+	// Run the query with search term placeholders
+	rows, err := d.db.Query(stmt, "%"+query+"%", "%"+query+"%", "%"+query+"%")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []structs.User
+	for rows.Next() {
+		var user structs.User
+		// Scan the additional fields into the User struct
+		if err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.NickName, &user.AboutMe, &user.AvatarPath, &user.ProfileVisibility); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
