@@ -1,9 +1,8 @@
-// app/components/SearchBar.tsx
 "use client";
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "../context/UserContext"; // Import useUser
+import { useUser } from "../context/UserContext";
 
 interface SearchResult {
     ID: number;
@@ -21,7 +20,7 @@ const SearchBar: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const router = useRouter();
-    const { setSelectedUser } = useUser(); // Access setSelectedUser
+    const { setSelectedUser } = useUser();
 
     const handleSearch = async () => {
         try {
@@ -37,10 +36,9 @@ const SearchBar: React.FC = () => {
         }
     };
 
-    // Navigate to the selected user's profile and set the selected user in context
     const goToUserProfile = (user: SearchResult) => {
-        setSelectedUser(user); // Set the selected user
-        router.push(`/users/${user.ID}`); // Navigate to user profile
+        setSelectedUser(user);
+        router.push(`/users/${user.ID}`);
     };
 
     return (

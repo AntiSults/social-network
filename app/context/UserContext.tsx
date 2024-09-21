@@ -1,4 +1,3 @@
-// UserContext.tsx
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
@@ -16,10 +15,10 @@ interface User {
 }
 
 interface UserContextProps {
-    user: User | null; // Current user
-    selectedUser: User | null; // Selected user from search results
+    user: User | null;
+    selectedUser: User | null;
     setUser: React.Dispatch<React.SetStateAction<User | null>>;
-    setSelectedUser: React.Dispatch<React.SetStateAction<User | null>>; // New setter for selected user
+    setSelectedUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
 
@@ -38,7 +37,7 @@ export const useUser = () => {
 // Provider component
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
-    const [selectedUser, setSelectedUser] = useState<User | null>(null); // New state for selected user
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
     useEffect(() => {
         const getUserData = async () => {
