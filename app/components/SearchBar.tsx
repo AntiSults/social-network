@@ -1,25 +1,31 @@
+// app/components/SearchBar.tsx
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "../context/UserContext"; // Import useUser
 
 interface SearchResult {
-    id: number;
+    ID: number;
+    email: string;
     firstName: string;
     lastName: string;
-    email: string;
+    dob: string;
     nickname?: string;
     aboutMe?: string;
-    avatarPath?: string;
+    avatarPath?: string | null;
+    profileVisibility?: "public" | "private";
 }
 
 const SearchBar: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+    const router = useRouter();
+    const { setSelectedUser } = useUser(); // Access setSelectedUser
 
     const handleSearch = async () => {
         try {
             const response = await fetch(`http://localhost:8080/search?query=${encodeURIComponent(searchQuery)}`);
-
             if (response.ok) {
                 const users = await response.json();
                 setSearchResults(users);
@@ -29,6 +35,12 @@ const SearchBar: React.FC = () => {
         } catch (error) {
             console.error("Error during search:", error);
         }
+    };
+
+    // Navigate to the selected user's profile and set the selected user in context
+    const goToUserProfile = (user: SearchResult) => {
+        setSelectedUser(user); // Set the selected user
+        router.push(`/users/${user.ID}`); // Navigate to user profile
     };
 
     return (
@@ -44,7 +56,7 @@ const SearchBar: React.FC = () => {
             {searchResults.length > 0 && (
                 <ul>
                     {searchResults.map((result: SearchResult) => (
-                        <li key={result.id}>
+                        <li key={result.ID} onClick={() => goToUserProfile(result)}>
                             {result.firstName} {result.lastName} ({result.email})
                         </li>
                     ))}

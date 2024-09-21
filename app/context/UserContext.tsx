@@ -15,11 +15,13 @@ interface User {
     profileVisibility?: "public" | "private";
 }
 
-// Define the context shape
 interface UserContextProps {
-    user: User | null;
+    user: User | null; // Current user
+    selectedUser: User | null; // Selected user from search results
     setUser: React.Dispatch<React.SetStateAction<User | null>>;
+    setSelectedUser: React.Dispatch<React.SetStateAction<User | null>>; // New setter for selected user
 }
+
 
 // Create the context
 const UserContext = createContext<UserContextProps | undefined>(undefined);
@@ -36,6 +38,7 @@ export const useUser = () => {
 // Provider component
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null); // New state for selected user
 
     useEffect(() => {
         const getUserData = async () => {
@@ -63,7 +66,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }, []);
 
     return (
-        <UserContext.Provider value={{ user, setUser }}>
+        <UserContext.Provider value={{ user, setUser, selectedUser, setSelectedUser }}>
             {children}
         </UserContext.Provider>
     );
