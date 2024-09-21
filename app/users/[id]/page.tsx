@@ -4,21 +4,36 @@ import React, { useState } from "react";
 import { useUser } from "../../context/UserContext";
 import NavBar from "../../components/NavBar";
 
+interface SearchResult {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    nickname?: string;
+    aboutMe?: string;
+    avatarPath?: string;
+}
+
 const ProfilePage = () => {
     const { user } = useUser();
-
     const [searchQuery, setSearchQuery] = useState("");
-    const [searchResults, setSearchResults] = useState([]);
+    const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
     const handleSearch = async () => {
-        const response = await fetch(`http://localhost:8080/search?query=${searchQuery}`);
-        if (response.ok) {
-            const users = await response.json();
-            setSearchResults(users);
-        } else {
-            console.log("Search failed");
+        try {
+            const response = await fetch(`http://localhost:8080/search?query=${encodeURIComponent(searchQuery)}`);
+
+            if (response.ok) {
+                const users = await response.json();
+                setSearchResults(users);
+            } else {
+                console.log("Search failed");
+            }
+        } catch (error) {
+            console.error("Error during search:", error);
         }
     };
+
 
     if (!user) {
         return <p>Loading...</p>;
@@ -47,7 +62,7 @@ const ProfilePage = () => {
             {/* Search Results */}
             {searchResults.length > 0 && (
                 <ul>
-                    {searchResults.map((result) => (
+                    {searchResults.map((result: SearchResult) => (
                         <li key={result.id}>
                             {result.firstName} {result.lastName} ({result.email})
                         </li>

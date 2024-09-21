@@ -441,10 +441,9 @@ func (d *Database) FetchMessages(userID int) ([]structs.Message, error) {
 func (d *Database) SearchUsersInDB(query string) ([]structs.User, error) {
 	// SQL query to search users by name or email
 	stmt := `
-        SELECT id, first_name, last_name, email, nickname, aboutMe, avatarPath, profileVisibility 
+        SELECT ID, Email, FirstName, LastName, NickName, AboutMe, AvatarPath, Profile_visibility 
         FROM Users 
-        WHERE first_name LIKE ? OR last_name LIKE ? OR email LIKE ?`
-
+        WHERE FirstName LIKE ? OR LastName LIKE ? OR Email LIKE ?`
 	// Run the query with search term placeholders
 	rows, err := d.db.Query(stmt, "%"+query+"%", "%"+query+"%", "%"+query+"%")
 	if err != nil {
@@ -455,10 +454,20 @@ func (d *Database) SearchUsersInDB(query string) ([]structs.User, error) {
 	var users []structs.User
 	for rows.Next() {
 		var user structs.User
+		var nickname sql.NullString
+		var aboutMe sql.NullString
+		var avatarPath sql.NullString
+
 		// Scan the additional fields into the User struct
-		if err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.NickName, &user.AboutMe, &user.AvatarPath, &user.ProfileVisibility); err != nil {
+		if err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &nickname, &aboutMe, &avatarPath, &user.ProfileVisibility); err != nil {
 			return nil, err
 		}
+
+		// Assign scanned fields to the User struct
+		user.NickName = nickname.String
+		user.AboutMe = aboutMe.String
+		user.AvatarPath = avatarPath.String
+
 		users = append(users, user)
 	}
 
