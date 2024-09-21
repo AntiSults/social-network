@@ -459,7 +459,7 @@ func (d *Database) SearchUsersInDB(query string) ([]structs.User, error) {
 		var avatarPath sql.NullString
 
 		// Scan the additional fields into the User struct
-		if err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &nickname, &aboutMe, &avatarPath, &user.ProfileVisibility); err != nil {
+		if err := rows.Scan(&user.ID, &user.Email, &user.FirstName, &user.LastName, &nickname, &aboutMe, &avatarPath, &user.ProfileVisibility); err != nil {
 			return nil, err
 		}
 

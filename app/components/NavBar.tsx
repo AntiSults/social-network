@@ -29,6 +29,9 @@ const NavBar = ({ logged, logpage = false }: Props) => {
           <a href="/" className="text-lg font-bold">
             Home
           </a>
+          <a href={`/users/${user?.ID}`} className="ml-4 text-lg font-bold">
+            User Page
+          </a>
           <a href="/posts" className="ml-4 text-lg font-bold">
             Posts
           </a>
@@ -61,7 +64,6 @@ const NavBar = ({ logged, logpage = false }: Props) => {
                 >
                   <li>
                     <a href="/profile">My Profile</a>
-                    <a href={`/users/${user?.ID}`}>User Page</a>
                   </li>
                   <li>
                     <a onClick={handleLogOut}>Log out</a>
