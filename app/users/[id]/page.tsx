@@ -33,12 +33,9 @@ const ProfilePage = () => {
             console.error("Error during search:", error);
         }
     };
-
-
     if (!user) {
         return <p>Loading...</p>;
     }
-
     return (
         <div>
             <NavBar logged={true} /> {/* Add the NavBar */}
