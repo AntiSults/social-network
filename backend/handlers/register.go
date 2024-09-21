@@ -20,64 +20,64 @@ var errNoFile = fmt.Errorf("no file")
 
 func Register(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method == http.MethodPost {
-
-		user := structs.User{
-			Email:             r.FormValue("email"),
-			FirstName:         r.FormValue("firstName"),
-			LastName:          r.FormValue("lastName"),
-			NickName:          r.FormValue("nickname"),
-			AboutMe:           r.FormValue("aboutMe"),
-			ProfileVisibility: "public",
-		}
-
-		if !security.IsValidEmail(user.Email) {
-			middleware.SendErrorResponse(w, "Entered e-mail is not valid", http.StatusBadRequest)
-			return
-		}
-
-		dob := r.FormValue("dob")
-
-		parsedDob, err := time.Parse("2006-01-02", dob)
-		if err != nil {
-			middleware.SendErrorResponse(w, "Failed to parse date", http.StatusBadRequest)
-			return
-		}
-		user.DOB = parsedDob.Format("2006-01-02")
-
-		password := r.FormValue("password")
-
-		if len(password) < 4 {
-			middleware.SendErrorResponse(w, "Password too short!", http.StatusBadRequest)
-		}
-
-		hashedPw, err := security.HashPassword(password)
-		if err != nil {
-			middleware.SendErrorResponse(w, "Failed to hash password", http.StatusInternalServerError)
-			return
-		}
-		user.Password = string(hashedPw)
-
-		avatarPath, err := saveImage(r)
-		if err != nil {
-			if !errors.Is(err, errNoFile) {
-				middleware.SendErrorResponse(w, "Failed to save image file", http.StatusInternalServerError)
-				return
-			}
-		} else {
-			user.AvatarPath = avatarPath
-		}
-
-		err = sqlite.Db.SaveUser(user)
-		if err != nil {
-			middleware.SendErrorResponse(w, "Failed to insert into Users table"+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-	} else {
-		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
+	if r.Method != http.MethodPost {
+		middleware.SendErrorResponse(w, "Method not allowed!", http.StatusMethodNotAllowed)
 		return
 	}
+
+	user := structs.User{
+		Email:             r.FormValue("email"),
+		FirstName:         r.FormValue("firstName"),
+		LastName:          r.FormValue("lastName"),
+		NickName:          r.FormValue("nickname"),
+		AboutMe:           r.FormValue("aboutMe"),
+		ProfileVisibility: "public",
+	}
+
+	if !security.IsValidEmail(user.Email) {
+		middleware.SendErrorResponse(w, "Entered e-mail is not valid", http.StatusBadRequest)
+		return
+	}
+
+	dob := r.FormValue("dob")
+
+	parsedDob, err := time.Parse("2006-01-02", dob)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Failed to parse date", http.StatusBadRequest)
+		return
+	}
+	user.DOB = parsedDob.Format("2006-01-02")
+
+	password := r.FormValue("password")
+
+	if len(password) < 4 {
+		middleware.SendErrorResponse(w, "Password too short!", http.StatusBadRequest)
+	}
+
+	hashedPw, err := security.HashPassword(password)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Failed to hash password", http.StatusInternalServerError)
+		return
+	}
+	user.Password = string(hashedPw)
+
+	avatarPath, err := saveImage(r)
+	if err != nil {
+		if !errors.Is(err, errNoFile) {
+			middleware.SendErrorResponse(w, "Failed to save image file", http.StatusInternalServerError)
+			return
+		}
+	} else {
+		user.AvatarPath = avatarPath
+	}
+
+	err = sqlite.Db.SaveUser(user)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Failed to insert into Users table"+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+
 }
 
 func saveImage(r *http.Request) (string, error) {
