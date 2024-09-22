@@ -35,7 +35,7 @@ const NavBar = ({ logged, logpage = false }: Props) => {
           <a href="/posts" className="ml-4 text-lg font-bold">
             Posts
           </a>
-          <a href="/chat" className="ml-4 text-lg font-bold">
+          <a href={`/users/${user?.ID}/chat`} className="ml-4 text-lg font-bold">
             Chat
           </a>
         </div>

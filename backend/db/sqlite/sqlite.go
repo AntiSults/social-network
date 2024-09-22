@@ -412,13 +412,12 @@ func (d *Database) FetchMessages(userID int) ([]structs.Message, error) {
 
 	for rows.Next() {
 		var message structs.Message
-		var recipientIDs sql.NullString // Use sql.NullString to handle NULL values
+		var recipientIDs sql.NullString
 
 		if err := rows.Scan(&message.ID, &message.Content, &message.Created, &message.SenderID, &recipientIDs); err != nil {
 			return nil, fmt.Errorf("failed to scan message: %w", err)
 		}
 
-		// Initialize the RecipientID slice
 		message.RecipientID = []int{}
 
 		// If recipientIDs is not NULL or empty, split and convert to []int
