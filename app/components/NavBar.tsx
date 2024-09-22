@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import React from "react";
 import { useUser } from "../context/UserContext"; // Import the useUser hook
 
@@ -50,10 +51,12 @@ const NavBar = ({ logged, logpage = false }: Props) => {
               <div className="dropdown dropdown-end">
                 <div tabIndex={0} role="button">
                   <div className="avatar">
-                    <div className="w-12 rounded-full">
-                      <img
+                    <div className="w-14 rounded-full">
+                      <Image
                         src={user.avatarPath ? user.avatarPath : "/default_avatar.jpg"}
                         alt="User Avatar"
+                        width={150}
+                        height={150}
                       />
                     </div>
                   </div>

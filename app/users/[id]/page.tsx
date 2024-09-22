@@ -1,5 +1,5 @@
 "use client";
-
+import Image from 'next/image';
 import React from "react";
 import { useUser } from "../../context/UserContext";
 import NavBar from "../../components/NavBar";
@@ -19,9 +19,11 @@ const ProfilePage = () => {
             <NavBar logged={true} />
             <h1>{`${profileUser.firstName} ${profileUser.lastName}'s Profile`}</h1>
             <div>
-                <img
+                <Image
                     src={profileUser.avatarPath || "/default_avatar.jpg"}
                     alt={`${profileUser.firstName}'s Avatar`}
+                    width={250}
+                    height={250}
                 />
                 <p>About Me: {profileUser.aboutMe || "No details provided"}</p>
             </div>
