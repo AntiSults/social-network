@@ -33,7 +33,7 @@ const NavBar = ({ logged, logpage = false }: Props) => {
           <a href={`/users/${user?.ID}`} className="ml-4 text-lg font-bold">
             User Page
           </a>
-          <a href="/posts" className="ml-4 text-lg font-bold">
+          <a href={!logged && !user ? "/posts" : `/users/${user?.ID}/posts`} className="ml-4 text-lg font-bold">
             Posts
           </a>
           <a href={`/users/${user?.ID}/chat`} className="ml-4 text-lg font-bold">
