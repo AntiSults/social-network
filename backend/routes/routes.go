@@ -9,7 +9,7 @@ import (
 
 func SetupRoutes() *http.ServeMux {
 
-	manager := sockets.NewManager() //need it here as instance of Manager struct (Serve_WS is method)
+	manager := sockets.NewManager()
 	mux := http.NewServeMux()
 	mux.HandleFunc("/register", handlers.Register)
 	mux.HandleFunc("/login", handlers.Login)
@@ -21,5 +21,18 @@ func SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/create-posts", handlers.CreatePost)
 	mux.HandleFunc("/posts", handlers.GetPosts)
 	mux.HandleFunc("/search", handlers.SearchUser)
+	mux.HandleFunc("/followers", HandleFollowers)
 	return mux
+}
+func HandleFollowers(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodPost:
+		// Follow a user
+		handlers.FollowUser(w, r)
+	case http.MethodDelete:
+		// Unfollow a user
+		handlers.UnfollowUser(w, r)
+	default:
+		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
 }

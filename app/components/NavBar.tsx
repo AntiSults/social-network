@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import React from "react";
-import { useUser } from "../context/UserContext"; // Import the useUser hook
+import { useUser } from "../context/UserContext";
 
 interface Props {
   logged: boolean;
@@ -8,7 +8,7 @@ interface Props {
 }
 
 const NavBar = ({ logged, logpage = false }: Props) => {
-  const { user } = useUser(); // Get user from context
+  const { user } = useUser();
 
   const handleLogOut = async () => {
     const response = await fetch("http://localhost:8080/logout", {
