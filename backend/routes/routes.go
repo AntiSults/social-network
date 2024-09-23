@@ -22,9 +22,14 @@ func SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/posts", handlers.GetPosts)
 	mux.HandleFunc("/search", handlers.SearchUser)
 	mux.HandleFunc("/followers", HandleFollowers)
+	mux.HandleFunc("/followers/status", HandleFollowers)
 	return mux
 }
 func HandleFollowers(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet && r.URL.Path == "/followers/status" {
+		handlers.GetFollowStatus(w, r)
+		return
+	}
 	switch r.Method {
 	case http.MethodPost:
 		// Follow a user

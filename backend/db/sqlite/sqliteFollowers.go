@@ -1,6 +1,7 @@
 package sqlite
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 )
@@ -32,4 +33,30 @@ func (d *Database) UnfollowUser(userID int, followerID int) error {
 		return fmt.Errorf("failed to unfollow user: %v", err)
 	}
 	return nil
+}
+
+func (d *Database) CheckFollowStatus(userID, followerID int) (bool, bool, error) {
+	var status string
+	query := `
+        SELECT status 
+        FROM followers 
+        WHERE user_id = ? AND follower_id = ?
+    `
+
+	err := d.db.QueryRow(query, userID, followerID).Scan(&status)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, false, nil // Not following
+		}
+		return false, false, err // Some other error
+	}
+
+	// Return the follow status
+	if status == "accepted" {
+		return true, false, nil // Following
+	} else if status == "pending" {
+		return false, true, nil // Follow request pending
+	}
+
+	return false, false, nil // Default case
 }

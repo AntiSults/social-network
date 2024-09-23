@@ -14,7 +14,7 @@ const ProfilePage = () => {
 
     useEffect(() => {
         if (profileUser && user) {
-            // Check if already following
+            // Fetch follow status from backend
             fetch(`http://localhost:8080/followers/status?userId=${profileUser.ID}&followerId=${user.ID}`)
                 .then((res) => res.json())
                 .then((data) => {
@@ -23,6 +23,7 @@ const ProfilePage = () => {
                 });
         }
     }, [profileUser, user]);
+
 
     const handleFollow = async () => {
         const response = await fetch("http://localhost:8080/followers", {

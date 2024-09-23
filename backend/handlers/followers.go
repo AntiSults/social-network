@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"social-network/db/sqlite"
 	"social-network/middleware"
@@ -74,4 +75,47 @@ func UnfollowUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+func GetFollowStatus(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	userIDStr := r.URL.Query().Get("userId")
+	followerIDStr := r.URL.Query().Get("followerId")
+	fmt.Println(userIDStr, followerIDStr)
+	if userIDStr == "" || followerIDStr == "" {
+		middleware.SendErrorResponse(w, "Invalid parameters", http.StatusBadRequest)
+		return
+	}
+
+	// Convert userID and followerID to integers
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Invalid userId parameter", http.StatusBadRequest)
+		return
+	}
+
+	followerID, err := strconv.Atoi(followerIDStr)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Invalid followerId parameter", http.StatusBadRequest)
+		return
+	}
+
+	// Call the DB function to get the follow status
+	isFollowing, isPending, err := sqlite.Db.CheckFollowStatus(userID, followerID)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Failed to retrieve follow status", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with the follow status as JSON
+	response := map[string]bool{
+		"isFollowing": isFollowing,
+		"isPending":   isPending,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }

@@ -13,7 +13,7 @@ interface SearchResult {
     nickname?: string;
     aboutMe?: string;
     avatarPath?: string | null;
-    profileVisibility: "public" | "private";
+    profileVisibility?: "public" | "private";
 }
 
 const SearchBar: React.FC = () => {
