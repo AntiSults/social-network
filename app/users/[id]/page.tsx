@@ -58,17 +58,32 @@ const ProfilePage = () => {
     }
 
     return (
-        <div>
+        <div className="min-h-screen bg-gray-50">
             <NavBar logged={true} />
-            <h1>{`${profileUser.firstName} ${profileUser.lastName}'s Profile`}</h1>
-            <div>
-                <Image
-                    src={profileUser.avatarPath || "/default_avatar.jpg"}
-                    alt={`${profileUser.firstName}'s Avatar`}
-                    width={250}
-                    height={250}
-                />
-                <p>About Me: {profileUser.aboutMe || "No details provided"}</p>
+
+            <div className="flex flex-col items-center mt-10">
+                <div className="w-full max-w-md mb-10">
+                    <SearchBar />
+                </div>
+
+                <div className="bg-white shadow-md rounded-lg p-8 max-w-lg w-full text-center">
+                    <h1 className="text-2xl font-bold mb-4">
+                        {`${profileUser.firstName} ${profileUser.lastName}'s Profile`}
+                    </h1>
+
+                    <div className="flex flex-col items-center">
+                        <Image
+                            src={profileUser.avatarPath || "/default_avatar.jpg"}
+                            alt={`${profileUser.firstName}'s Avatar`}
+                            width={250}
+                            height={250}
+                            className="rounded-full shadow-lg"
+                        />
+                        <p className="text-gray-600 mt-4">
+                            About Me: {profileUser.aboutMe || "No details provided"}
+                        </p>
+                    </div>
+                </div>
             </div>
 
             {/* Follow / Unfollow Button */}
