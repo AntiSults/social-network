@@ -5,6 +5,7 @@ import { useUser } from "../../context/UserContext";
 import NavBar from "../../components/NavBar";
 import SearchBar from "../../components/SearchBar";
 import Followers from "../../components/Followers";
+import PendingRequests from "../../components/PendingRequests"
 
 const ProfilePage = () => {
     const { user, selectedUser } = useUser();
@@ -42,7 +43,8 @@ const ProfilePage = () => {
                     </div>
                 </div>
             </div>
-
+            {/* Pending Follow Requests (Only if viewing own profile) */}
+            {profileUser?.ID === user?.ID && <PendingRequests user={user} />}
             {/* Follow / Unfollow Component */}
             {profileUser?.ID !== user?.ID && (
                 <Followers profileUser={profileUser} user={user} />

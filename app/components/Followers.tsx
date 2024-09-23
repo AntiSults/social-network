@@ -1,17 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-
-interface User {
-    ID: number;
-    email: string;
-    firstName: string;
-    lastName: string;
-    dob: string;
-    nickname?: string;
-    aboutMe?: string;
-    avatarPath?: string | null;
-    profileVisibility?: "public" | "private";
-}
+import { User } from "../utils/types"
 
 interface FollowersProps {
     profileUser: User | null;

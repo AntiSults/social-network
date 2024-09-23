@@ -1,18 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-
-interface User {
-    ID: number;
-    email: string;
-    firstName: string;
-    lastName: string;
-    dob: string;
-    nickname?: string;
-    aboutMe?: string;
-    avatarPath?: string | null;
-    profileVisibility?: "public" | "private";
-}
+import { User } from "../utils/types";
 
 interface UserContextProps {
     user: User | null;
@@ -20,7 +9,6 @@ interface UserContextProps {
     setUser: React.Dispatch<React.SetStateAction<User | null>>;
     setSelectedUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
-
 
 // Create the context
 const UserContext = createContext<UserContextProps | undefined>(undefined);
