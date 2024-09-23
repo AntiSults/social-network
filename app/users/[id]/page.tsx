@@ -1,58 +1,14 @@
 "use client";
 import Image from 'next/image';
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useUser } from "../../context/UserContext";
 import NavBar from "../../components/NavBar";
 import SearchBar from "../../components/SearchBar";
+import Followers from "../../components/Followers";
 
 const ProfilePage = () => {
     const { user, selectedUser } = useUser();
     const profileUser = selectedUser || user;
-
-    const [isFollowing, setIsFollowing] = useState(false);
-    const [isPending, setIsPending] = useState(false);
-
-    useEffect(() => {
-        if (profileUser && user) {
-            // Fetch follow status from backend
-            fetch(`http://localhost:8080/followers/status?userId=${profileUser.ID}&followerId=${user.ID}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    setIsFollowing(data.isFollowing);
-                    setIsPending(data.isPending);
-                });
-        }
-    }, [profileUser, user]);
-
-
-    const handleFollow = async () => {
-        const response = await fetch("http://localhost:8080/followers", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ userId: profileUser?.ID, followerId: user?.ID }),
-        });
-
-        if (response.ok) {
-            if (profileUser?.profileVisibility === "private") {
-                setIsPending(true);
-            } else {
-                setIsFollowing(true);
-            }
-        }
-    };
-
-    const handleUnfollow = async () => {
-        const response = await fetch(`http://localhost:8080/followers?userId=${profileUser?.ID}&followerId=${user?.ID}`, {
-            method: "DELETE",
-        });
-
-        if (response.ok) {
-            setIsFollowing(false);
-            setIsPending(false);
-        }
-    };
 
     if (!profileUser) {
         return <p>Loading...</p>;
@@ -87,17 +43,9 @@ const ProfilePage = () => {
                 </div>
             </div>
 
-            {/* Follow / Unfollow Button */}
+            {/* Follow / Unfollow Component */}
             {profileUser?.ID !== user?.ID && (
-                <div>
-                    {isFollowing ? (
-                        <button onClick={handleUnfollow}>Unfollow</button>
-                    ) : isPending ? (
-                        <p>Follow request pending...</p>
-                    ) : (
-                        <button onClick={handleFollow}>Follow</button>
-                    )}
-                </div>
+                <Followers profileUser={profileUser} user={user} />
             )}
 
             <SearchBar />
@@ -106,8 +54,3 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
-
-
-
-
-

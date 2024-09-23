@@ -1,5 +1,5 @@
 "use client";
-
+import Image from 'next/image';
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "../context/UserContext";
@@ -67,10 +67,12 @@ const SearchBar: React.FC = () => {
                             onClick={() => goToUserProfile(result)}
                             className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100 transition"
                         >
-                            <img
+                            <Image
                                 src={result.avatarPath || "/default_avatar.jpg"}
                                 alt={`${result.firstName}'s avatar`}
                                 className="w-10 h-10 rounded-full mr-3"
+                                width={250}
+                                height={250}
                             />
                             <div>
                                 <p className="font-semibold">
