@@ -47,8 +47,6 @@ const ProfilePage = () => {
             {profileUser?.ID !== user?.ID && (
                 <Followers profileUser={profileUser} user={user} />
             )}
-
-            <SearchBar />
         </div>
     );
 };
