@@ -68,13 +68,24 @@ const Followers: React.FC<FollowersProps> = ({ profileUser, user }) => {
     };
 
     return (
-        <div>
+        <div className="flex justify-center mt-6">
             {isFollowing ? (
-                <button onClick={handleUnfollow}>Unfollow</button>
+                <button 
+                onClick={handleUnfollow}
+                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out"
+
+                >
+                    Unfollow
+                </button>
             ) : isPending ? (
-                <p>Follow request pending...</p>
+                <p className="text-gray-500 text-center">Follow request pending...</p>
             ) : (
-                <button onClick={handleFollow}>Follow</button>
+                <button 
+                onClick={handleFollow}
+                className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out"
+                >
+                    Follow
+                </button>
             )}
         </div>
     );
