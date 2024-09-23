@@ -13,7 +13,6 @@ const Followers: React.FC<FollowersProps> = ({ profileUser, user }) => {
 
     useEffect(() => {
         if (profileUser && user) {
-            // Fetch follow status from backend
             fetch(`http://localhost:8080/followers/status?userId=${profileUser.ID}&followerId=${user.ID}`)
                 .then((res) => res.json())
                 .then((data) => {

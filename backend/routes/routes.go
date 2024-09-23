@@ -47,10 +47,8 @@ func HandleFollowers(w http.ResponseWriter, r *http.Request) {
 	}
 	switch r.Method {
 	case http.MethodPost:
-		// Follow a user
 		handlers.FollowUser(w, r)
 	case http.MethodDelete:
-		// Unfollow a user
 		handlers.UnfollowUser(w, r)
 	default:
 		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
