@@ -70,20 +70,38 @@ const PendingRequests: React.FC<PendingRequestsProps> = ({ user }) => {
     }
 
     return (
-        <div>
-            <h2>Pending Follow Requests</h2>
-            <ul>
+        <div className="flex flex-col items-center mt-10">
+            <h2 className="text-2xl font-bold mb-4">Pending Follow Requests</h2>
+            <ul className="w-full max-w-lg">
                 {pendingRequests.map((request) => (
-                    <li key={request.ID}>
-                        {request.firstName} {request.lastName}
-                        <button onClick={() => handleAccept(user.ID, request.ID)}>Accept</button>
-                        <button onClick={() => handleReject(user.ID, request.ID)}>Reject</button>
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
-
+                    <li 
+                        key={request.ID}
+                        className="flex justify-between items-center bg-white shadow-md rounded-lg p-4 mb-4"
+                    >
+                        <div>
+                        <p className="font-semibold">
+                            {request.firstName} {request.lastName}
+                        </p>
+                    </div>
+                    <div className="flex space-x-4">
+                        <button
+                            onClick={() => handleAccept(user.ID, request.ID)}
+                            className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition"
+                        >
+                            Accept
+                        </button>
+                        <button
+                            onClick={() => handleReject(user.ID, request.ID)}
+                            className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition"
+                        >
+                            Reject
+                        </button>
+                    </div>
+                </li>
+            ))}
+        </ul>
+    </div>
+);
 };
 
 export default PendingRequests;
