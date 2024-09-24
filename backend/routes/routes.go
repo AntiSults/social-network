@@ -23,19 +23,32 @@ func SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/search", handlers.SearchUser)
 	mux.HandleFunc("/followers", HandleFollowers)
 	mux.HandleFunc("/followers/status", HandleFollowers)
+	mux.HandleFunc("/followers/pending", HandleFollowers)
+	mux.HandleFunc("/followers/accept", HandleFollowers)
+	mux.HandleFunc("/followers/reject", HandleFollowers)
 	return mux
 }
 func HandleFollowers(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost && r.URL.Path == "/followers/accept" {
+		handlers.AcceptFollowRequest(w, r)
+		return
+	}
+	if r.Method == http.MethodPost && r.URL.Path == "/followers/reject" {
+		handlers.RejectFollowRequest(w, r)
+		return
+	}
 	if r.Method == http.MethodGet && r.URL.Path == "/followers/status" {
 		handlers.GetFollowStatus(w, r)
 		return
 	}
+	if r.Method == http.MethodGet && r.URL.Path == "/followers/pending" {
+		handlers.GetPendingFollowRequests(w, r)
+		return
+	}
 	switch r.Method {
 	case http.MethodPost:
-		// Follow a user
 		handlers.FollowUser(w, r)
 	case http.MethodDelete:
-		// Unfollow a user
 		handlers.UnfollowUser(w, r)
 	default:
 		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)

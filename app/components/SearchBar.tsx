@@ -3,18 +3,7 @@ import Image from 'next/image';
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "../context/UserContext";
-
-interface SearchResult {
-    ID: number;
-    email: string;
-    firstName: string;
-    lastName: string;
-    dob: string;
-    nickname?: string;
-    aboutMe?: string;
-    avatarPath?: string | null;
-    profileVisibility?: "public" | "private";
-}
+import { User as SearchResult } from "../utils/types";
 
 const SearchBar: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState("");

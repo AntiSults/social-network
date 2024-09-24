@@ -119,3 +119,68 @@ func GetFollowStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
+
+// GetPendingFollowRequests fetches pending follow requests for the logged-in user
+func GetPendingFollowRequests(w http.ResponseWriter, r *http.Request) {
+	userIDStr := r.URL.Query().Get("userId")
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil || userID <= 0 {
+		middleware.SendErrorResponse(w, "Invalid userId", http.StatusBadRequest)
+		return
+	}
+	pendingRequests, err := sqlite.Db.GetPendingFollowRequests(userID)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Error fetching pending requests", http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(pendingRequests)
+}
+
+func AcceptFollowRequest(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		UserID     int `json:"userId"`
+		FollowerID int `json:"followerId"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		middleware.SendErrorResponse(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
+	fmt.Println("checking", req.FollowerID, req.UserID)
+	if err := sqlite.Db.UpdateFollowRequestStatus(req.UserID, req.FollowerID, "accepted"); err != nil {
+		middleware.SendErrorResponse(w, "Failed to accept follow request", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func RejectFollowRequest(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		UserID     int `json:"userId"`
+		FollowerID int `json:"followerId"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		middleware.SendErrorResponse(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
+
+	if err := sqlite.Db.UpdateFollowRequestStatus(req.UserID, req.FollowerID, "rejected"); err != nil {
+		middleware.SendErrorResponse(w, "Failed to reject follow request", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}

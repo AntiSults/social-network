@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"social-network/structs"
 )
 
 // FollowUser allows a user to follow another user, with a specific status.
@@ -59,4 +60,95 @@ func (d *Database) CheckFollowStatus(userID, followerID int) (bool, bool, error)
 	}
 
 	return false, false, nil // Default case
+}
+
+func (d *Database) GetPendingFollowRequests(userID int) ([]structs.User, error) {
+	// Step 1: Query for all pending follower IDs
+	query := `
+        SELECT follower_id
+        FROM followers
+        WHERE user_id = ? AND status = 'pending'
+    `
+
+	rows, err := d.db.Query(query, userID)
+	if err != nil {
+		return nil, fmt.Errorf("error querying pending follow requests: %v", err)
+	}
+	defer rows.Close()
+
+	var followerIDs []int
+
+	for rows.Next() {
+		var followerID int
+		if err := rows.Scan(&followerID); err != nil {
+			log.Printf("Error scanning followerId: %v", err)
+			continue
+		}
+		followerIDs = append(followerIDs, followerID)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error processing rows: %v", err)
+	}
+
+	// Step 2: Use GetUsersByIDs to get user details for the pending followers
+	if len(followerIDs) == 0 {
+		// No pending followers, return an empty slice
+		return []structs.User{}, nil
+	}
+
+	users, err := d.GetUsersByIDs(followerIDs)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching users for pending follow requests: %v", err)
+	}
+
+	return users, nil
+}
+
+func (d *Database) UpdateFollowRequestStatus(followingID, followerID int, status string) error {
+	query := `UPDATE followers SET status = ? WHERE user_id = ? AND follower_id = ?`
+	_, err := d.db.Exec(query, status, followingID, followerID)
+	if err != nil {
+		return fmt.Errorf("failed to update follow request status: %v", err)
+	}
+	return nil
+}
+
+func (d *Database) GetFollowersSlice(userID int) ([]int, error) {
+	// Single query to get both followers and following, with duplicates automatically removed
+	query := `
+		SELECT follower_id AS user_id
+		FROM followers
+		WHERE user_id = ? AND status = 'accepted'
+		UNION
+		SELECT user_id
+		FROM followers
+		WHERE follower_id = ? AND status = 'accepted'
+		`
+
+	// Execute the query
+	rows, err := d.db.Query(query, userID, userID)
+	if err != nil {
+		return nil, fmt.Errorf("error querying followers and following: %v", err)
+	}
+	defer rows.Close()
+
+	var userIDs []int
+
+	// Process the result set
+	for rows.Next() {
+		var userID int
+		if err := rows.Scan(&userID); err != nil {
+			log.Printf("Error scanning userId: %v", err)
+			continue
+		}
+		userIDs = append(userIDs, userID)
+	}
+
+	// Check for errors after processing the rows
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error processing rows: %v", err)
+	}
+
+	return userIDs, nil
 }
