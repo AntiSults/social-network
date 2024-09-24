@@ -9,3 +9,9 @@ export interface User {
     avatarPath?: string | null;
     profileVisibility?: "public" | "private";
 }
+
+export interface Group {
+    id: number;
+    name: string;
+    description: string;
+}

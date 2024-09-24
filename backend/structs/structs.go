@@ -17,6 +17,14 @@ type User struct {
 	ProfileVisibility string `json:"profileVisibility"`
 }
 
+type Group struct {
+	ID          int       `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	CreatorID   int       `json:"creator_id"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
 type ErrorResponse struct {
 	Message string `json:"message"`
 }

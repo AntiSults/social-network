@@ -39,6 +39,9 @@ const NavBar = ({ logged, logpage = false }: Props) => {
           <a href={`/users/${user?.ID}/chat`} className="ml-4 text-lg font-bold">
             Chat
           </a>
+          <a href={`/users/${user?.ID}/groups`} className="ml-4 text-lg font-bold">
+            Groups
+          </a>
         </div>
         <div className="flex flex-1 justify-end px-2">
           <div className="flex items-stretch">
