@@ -64,33 +64,26 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 		return fmt.Errorf("error getting ID from session token: %w", err)
 	}
 	//Getting user either from map or db
-	user, err := handlers.GetUser(userID)
-	if err != nil {
-		return fmt.Errorf("error querying user data: %w", err)
-	}
-	//hardcoding followers, as not yet implimented
-	user.FollowingUserIDs = []int{2, 3, 5}
-	user.GotFollowedUserIDs = []int{3, 4}
+	// user, err := handlers.GetUser(userID)
+	// if err != nil {
+	// 	return fmt.Errorf("error querying user data: %w", err)
+	// }
 
-	//combining followers and followed into single slice
-	usersID := combineUnique(user.FollowingUserIDs, user.GotFollowedUserIDs)
+	// getting slice of followers
+	followerSlice, err := sqlite.Db.GetFollowersSlice(userID)
+	if err != nil {
+		return fmt.Errorf("error querying followers slice data: %w", err)
+	}
 	//including current user
-	usersID = append(usersID, userID)
+	followerSlice = append(followerSlice, userID)
 
 	//getting users from db
-	usersInfo, err := sqlite.Db.GetUsersByIDs(usersID)
+	usersInfo, err := sqlite.Db.GetUsersByIDs(followerSlice)
 	if err != nil {
 		return fmt.Errorf("error querying usersInfo: %w", err)
 	}
-	// This is appending followers into usersInfo, which in turn is send
-	//with messages to frontend as initial upload response. But it is not used there for now
-	for i := range usersInfo {
-		if usersInfo[i].ID == userID {
-			usersInfo[i].FollowingUserIDs = user.FollowingUserIDs
-			usersInfo[i].GotFollowedUserIDs = user.GotFollowedUserIDs
-		}
-	}
-	// Fetch messages
+
+	// Fetch messages for current User
 	messages, err := sqlite.Db.FetchMessages(userID)
 	if err != nil {
 		return fmt.Errorf("error fetching messages for user ID %d: %w", userID, err)
@@ -226,22 +219,4 @@ func checkOrigin(r *http.Request) bool {
 	default:
 		return false
 	}
-}
-
-func combineUnique(slice1, slice2 []int) []int {
-	uniqueMap := make(map[int]bool)
-	var result []int
-	for _, v := range slice1 {
-		if !uniqueMap[v] {
-			uniqueMap[v] = true
-			result = append(result, v)
-		}
-	}
-	for _, v := range slice2 {
-		if !uniqueMap[v] {
-			uniqueMap[v] = true
-			result = append(result, v)
-		}
-	}
-	return result
 }

@@ -113,3 +113,42 @@ func (d *Database) UpdateFollowRequestStatus(followingID, followerID int, status
 	}
 	return nil
 }
+
+func (d *Database) GetFollowersSlice(userID int) ([]int, error) {
+	// Single query to get both followers and following, with duplicates automatically removed
+	query := `
+		SELECT follower_id AS user_id
+		FROM followers
+		WHERE user_id = ? AND status = 'accepted'
+		UNION
+		SELECT user_id
+		FROM followers
+		WHERE follower_id = ? AND status = 'accepted'
+		`
+
+	// Execute the query
+	rows, err := d.db.Query(query, userID, userID)
+	if err != nil {
+		return nil, fmt.Errorf("error querying followers and following: %v", err)
+	}
+	defer rows.Close()
+
+	var userIDs []int
+
+	// Process the result set
+	for rows.Next() {
+		var userID int
+		if err := rows.Scan(&userID); err != nil {
+			log.Printf("Error scanning userId: %v", err)
+			continue
+		}
+		userIDs = append(userIDs, userID)
+	}
+
+	// Check for errors after processing the rows
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error processing rows: %v", err)
+	}
+
+	return userIDs, nil
+}
