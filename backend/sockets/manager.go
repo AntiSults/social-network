@@ -63,12 +63,6 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 	if err != nil {
 		return fmt.Errorf("error getting ID from session token: %w", err)
 	}
-	//Getting user either from map or db
-	// user, err := handlers.GetUser(userID)
-	// if err != nil {
-	// 	return fmt.Errorf("error querying user data: %w", err)
-	// }
-
 	// getting slice of followers
 	followerSlice, err := sqlite.Db.GetFollowersSlice(userID)
 	if err != nil {
