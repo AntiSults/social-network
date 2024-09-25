@@ -38,13 +38,12 @@ func CreateGroup(w http.ResponseWriter, r *http.Request) {
 
 func GetGroupsWithMembers(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
+		middleware.SendErrorResponse(w, "Method not allowed!", http.StatusMethodNotAllowed)
 	}
 
 	groups, err := sqlite.Db.GetGroupsWithMembers()
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to fetch groups: %v", err), http.StatusInternalServerError)
+		middleware.SendErrorResponse(w, "Failed to fetch groups", http.StatusInternalServerError)
 		return
 	}
 
@@ -54,8 +53,7 @@ func GetGroupsWithMembers(w http.ResponseWriter, r *http.Request) {
 
 func JoinGroupRequest(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
+		middleware.SendErrorResponse(w, "Method not allowed!", http.StatusMethodNotAllowed)
 	}
 
 	var req struct {
@@ -67,13 +65,39 @@ func JoinGroupRequest(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid input", http.StatusBadRequest)
 		return
 	}
-	fmt.Println("Joining member", req)
 	err := sqlite.Db.RequestToJoinGroup(req.GroupID, req.UserID)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to join group: %v", err), http.StatusInternalServerError)
+		middleware.SendErrorResponse(w, "Failed to insert Joining request into DB", http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Requested to join"})
+}
+func JoinRequestHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req struct {
+		GroupID int  `json:"groupId"`
+		UserID  int  `json:"userId"`
+		Accept  bool `json:"accept"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
+	}
+
+	err := sqlite.Db.HandleGroupRequest(req.GroupID, req.UserID, req.Accept)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Failed to insert respond to Join Request into DB", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Reacted fo join request"})
+
 }
