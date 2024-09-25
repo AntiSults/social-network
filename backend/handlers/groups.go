@@ -7,6 +7,7 @@ import (
 	"social-network/db/sqlite"
 	"social-network/middleware"
 	"social-network/structs"
+	"strconv"
 )
 
 func CreateGroup(w http.ResponseWriter, r *http.Request) {
@@ -99,5 +100,21 @@ func JoinRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Reacted fo join request"})
+}
 
+// GetPendingGroupJoin fetches pending group join requests for the group creator
+func GetPendingGroupJoin(w http.ResponseWriter, r *http.Request) {
+	groupIDStr := r.URL.Query().Get("userId")
+	groupID, err := strconv.Atoi(groupIDStr)
+	if err != nil || groupID <= 0 {
+		middleware.SendErrorResponse(w, "Invalid userId", http.StatusBadRequest)
+		return
+	}
+	pendingRequests, err := sqlite.Db.GetPendingGroupJoin(groupID)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Error fetching pending requests", http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(pendingRequests)
 }

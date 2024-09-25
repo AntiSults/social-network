@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"fmt"
+	"log"
 	"social-network/structs"
 	"strconv"
 	"strings"
@@ -19,25 +20,6 @@ func (d *Database) CreateGroup(name, description string, creator int) error {
 	}
 	return nil
 }
-
-// func (d *Database) GetAllGroups() ([]structs.Group, error) {
-// 	rows, err := d.db.Query("SELECT ID, Name, Description, CreatorID FROM Groups")
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
-
-// 	var groups []structs.Group
-// 	for rows.Next() {
-// 		var group structs.Group
-// 		if err := rows.Scan(&group.ID, &group.Name, &group.Description, &group.CreatorID); err != nil {
-// 			return nil, err
-// 		}
-// 		groups = append(groups, group)
-// 	}
-
-// 	return groups, nil
-// }
 
 func (d *Database) AddUserToGroup(GroupID, UserID int) error {
 	query := "INSERT INTO GroupUsers (GroupID, UserID) VALUES (?, ?)"
@@ -118,6 +100,49 @@ func (d *Database) HandleGroupRequest(GroupID, UserID int, accept bool) error {
 		return d.AddUserToGroup(GroupID, UserID)
 	}
 	return nil
+}
+
+func (d *Database) GetPendingGroupJoin(groupID int) ([]structs.User, error) {
+	// Step 1: Query for all pending follower IDs
+	query := `
+        SELECT UserID
+        FROM GroupJoinRequests
+        WHERE GroupID = ? AND status = 'pending'
+    `
+
+	rows, err := d.db.Query(query, groupID)
+	if err != nil {
+		return nil, fmt.Errorf("error querying pending follow requests: %v", err)
+	}
+	defer rows.Close()
+
+	var userIDs []int
+
+	for rows.Next() {
+		var userID int
+		if err := rows.Scan(&userID); err != nil {
+			log.Printf("Error scanning followerId: %v", err)
+			continue
+		}
+		userIDs = append(userIDs, userID)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error processing rows: %v", err)
+	}
+
+	// Step 2: Use GetUsersByIDs to get user details for the pending followers
+	if len(userIDs) == 0 {
+		// No pending followers, return an empty slice
+		return []structs.User{}, nil
+	}
+
+	users, err := d.GetUsersByIDs(userIDs)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching users for pending follow requests: %v", err)
+	}
+
+	return users, nil
 }
 
 func convertCSVToIntSlice(csv string) []int {
