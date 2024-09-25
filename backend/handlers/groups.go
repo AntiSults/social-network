@@ -35,24 +35,24 @@ func CreateGroup(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Group created successfully"})
 }
-func GetAllGroups(w http.ResponseWriter, r *http.Request) {
+
+func GetGroupsWithMembers(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	groups, err := sqlite.Db.GetAllGroups()
+	groups, err := sqlite.Db.GetGroupsWithMembers()
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to fetch groups: %v", err), http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("Groups", groups)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(groups)
 }
 
-func JoinGroupHandler(w http.ResponseWriter, r *http.Request) {
+func JoinGroupRequest(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -67,13 +67,13 @@ func JoinGroupHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid input", http.StatusBadRequest)
 		return
 	}
-
-	err := sqlite.Db.AddUserToGroup(req.GroupID, req.UserID)
+	fmt.Println("Joining member", req)
+	err := sqlite.Db.RequestToJoinGroup(req.GroupID, req.UserID)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to join group: %v", err), http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Successfully joined group"})
+	json.NewEncoder(w).Encode(map[string]string{"message": "Requested to join"})
 }

@@ -1,42 +1,38 @@
-"use client"
+"use client";
+import JoinGroup from './JoinGroup';
 import { useState, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
-import { Group } from "../utils/types"
+import { User, Group } from "../utils/types";
 
 const GroupList = () => {
     const { user } = useUser(); // Current logged-in user context
     const [groups, setGroups] = useState<Group[]>([]);
     const [error, setError] = useState<string | null>(null);
-    const currentUser = user
+    const currentUser = user;
+
     useEffect(() => {
         const fetchGroups = async () => {
             try {
                 const response = await fetch(`http://localhost:8080/groups`);
                 const data = await response.json();
-                console.log("Group Data", data)
                 setGroups(data);
             } catch (err) {
                 console.error('Failed to fetch groups', err);
-                setError('Failed to fetch groups');
+                //setError('Failed to fetch groups');
             }
         };
         fetchGroups();
     }, []);
 
-    const handleJoinGroup = async (groupId: number) => {
-        try {
-            await fetch(`http://localhost:8080/groups/join`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ groupId, userId: currentUser?.ID }),
-            });
-            // Optionally refresh the groups or show a success message
-        } catch (err) {
-            console.error('Failed to join group', err);
-        }
+    const isUserInGroup = (group: Group) => {
+        // Check if current user is in the members list
+        return group.members?.includes(currentUser?.ID ?? -1);
     };
+
+    const isGroupCreator = (group: Group) => {
+        return group.creator_id === currentUser?.ID;
+    };
+
     return (
         <div>
             <h2>All Groups</h2>
@@ -45,16 +41,23 @@ const GroupList = () => {
                 <p>No groups available.</p>
             ) : (
                 <ul>
-                    {groups.map(group => {
+                    {groups.map((group) => {
                         if (!group || !group.id) {
                             return null;
                         }
+                        const alreadyInGroup = isUserInGroup(group);
+                        const isCreator = isGroupCreator(group);
                         return (
                             <li key={`group-${group.id}`}>
                                 <div>
                                     <h3>{group.name}</h3>
                                     <p>{group.description}</p>
-                                    <button onClick={() => handleJoinGroup(group.id)}>Join Group</button>
+
+                                    {alreadyInGroup || isCreator ? (
+                                        <p>{isCreator ? 'You are the creator' : 'Already a member'}</p>
+                                    ) : (
+                                        <JoinGroup groupId={group.id} currentUser={user as User | null} />
+                                    )}
                                 </div>
                             </li>
                         );
@@ -63,8 +66,6 @@ const GroupList = () => {
             )}
         </div>
     );
-
-
 };
 
 export default GroupList;

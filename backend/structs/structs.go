@@ -23,6 +23,7 @@ type Group struct {
 	Description string    `json:"description"`
 	CreatorID   int       `json:"creator_id"`
 	CreatedAt   time.Time `json:"created_at"`
+	Members     []int     `json:"members"`
 }
 
 type ErrorResponse struct {

@@ -27,7 +27,7 @@ func SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/followers/accept", HandleFollowers)
 	mux.HandleFunc("/followers/reject", HandleFollowers)
 	mux.HandleFunc("/groups", HandleGroups)
-	mux.HandleFunc("/groups/join", HandleGroups)
+	mux.HandleFunc("/groups/join-request", HandleGroups)
 
 	return mux
 }
@@ -58,15 +58,15 @@ func HandleFollowers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func HandleGroups(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost && r.URL.Path == "/groups/join" {
-		handlers.JoinGroupHandler(w, r)
+	if r.Method == http.MethodPost && r.URL.Path == "/groups/join-request" {
+		handlers.JoinGroupRequest(w, r)
 		return
 	}
 	switch r.Method {
 	case http.MethodPost:
 		handlers.CreateGroup(w, r)
 	case http.MethodGet:
-		handlers.GetAllGroups(w, r)
+		handlers.GetGroupsWithMembers(w, r)
 	default:
 		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}

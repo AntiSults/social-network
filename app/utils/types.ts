@@ -14,4 +14,7 @@ export interface Group {
     id: number;
     name: string;
     description: string;
+    creator_id: number;
+    created_at: string;
+    members: number[];
 }
