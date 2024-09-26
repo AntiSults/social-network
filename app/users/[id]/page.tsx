@@ -1,11 +1,12 @@
 "use client";
 import Image from 'next/image';
 import React from "react";
-import { useUser } from "../../context/UserContext";
-import NavBar from "../../components/NavBar";
-import SearchBar from "../../components/SearchBar";
-import Followers from "../../components/Followers";
-import PendingRequests from "../../components/PendingRequests"
+import { useUser } from "@/app/context/UserContext";
+import NavBar from "@/app/components/NavBar";
+import SearchBar from "@/app/components/SearchBar";
+import Followers from "@/app/components/Followers";
+import PendingRequests from "@/app/components/PendingRequests";
+import PendingGroupRequests from "@/app/components/GroupRequestsPending";
 const ProfilePage = () => {
     const { user, selectedUser } = useUser();
     const profileUser = selectedUser || user;
@@ -37,6 +38,8 @@ const ProfilePage = () => {
                     </div>
                 </div>
             </div>
+            {/* Pending Group Join Requests (Only if viewing own profile) */}
+            {profileUser?.ID === user?.ID && <PendingGroupRequests />}
             {/* Pending Follow Requests (Only if viewing own profile) */}
             {profileUser?.ID === user?.ID && <PendingRequests user={user} />}
             {/* Follow / Unfollow Component */}

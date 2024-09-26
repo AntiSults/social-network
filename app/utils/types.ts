@@ -18,3 +18,13 @@ export interface Group {
     created_at: string;
     members: number[];
 }
+
+export interface GroupJoinRequest {
+    id: number;
+    group_id: number;
+    user_id: number;
+    status: string;
+    group_name: string;
+    first_name: string;
+    last_name: string;
+}

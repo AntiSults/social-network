@@ -2,7 +2,6 @@ package sqlite
 
 import (
 	"fmt"
-	"log"
 	"social-network/structs"
 	"strconv"
 	"strings"
@@ -77,12 +76,12 @@ func (d *Database) RequestToJoinGroup(GroupID, UserID int) error {
 	return err
 }
 
-func (d *Database) InviteUserToGroup(GroupID, UserID int) error {
-	_, err := d.db.Exec(`
-        INSERT INTO GroupJoinRequests (GroupID, UserID, Status, RequestType)
-        VALUES (?, ?, 'pending', 'invite')`, GroupID, UserID)
-	return err
-}
+// func (d *Database) InviteUserToGroup(GroupID, UserID int) error {
+// 	_, err := d.db.Exec(`
+//         INSERT INTO GroupJoinRequests (GroupID, UserID, Status, RequestType)
+//         VALUES (?, ?, 'pending', 'invite')`, GroupID, UserID)
+// 	return err
+// }
 
 func (d *Database) HandleGroupRequest(GroupID, UserID int, accept bool) error {
 	status := "rejected"
@@ -102,47 +101,32 @@ func (d *Database) HandleGroupRequest(GroupID, UserID int, accept bool) error {
 	return nil
 }
 
-func (d *Database) GetPendingGroupJoin(groupID int) ([]structs.User, error) {
-	// Step 1: Query for all pending follower IDs
-	query := `
-        SELECT UserID
-        FROM GroupJoinRequests
-        WHERE GroupID = ? AND status = 'pending'
-    `
+func (d *Database) GetPendingGroupRequests(creatorID int) ([]structs.GroupJoinRequest, error) {
+	rows, err := d.db.Query(`
+        SELECT 
+            g.Name, g.ID AS GroupID, u.ID AS UserID, u.FirstName, u.LastName, r.Status
+        FROM 
+            GroupJoinRequests r
+        JOIN Groups g ON r.GroupID = g.ID
+        JOIN Users u ON r.UserID = u.ID
+        WHERE 
+            g.CreatorID = ? AND r.Status = 'pending'`, creatorID)
 
-	rows, err := d.db.Query(query, groupID)
 	if err != nil {
-		return nil, fmt.Errorf("error querying pending follow requests: %v", err)
+		return nil, err
 	}
 	defer rows.Close()
 
-	var userIDs []int
-
+	var requests []structs.GroupJoinRequest
 	for rows.Next() {
-		var userID int
-		if err := rows.Scan(&userID); err != nil {
-			log.Printf("Error scanning followerId: %v", err)
-			continue
+		var request structs.GroupJoinRequest
+		if err := rows.Scan(&request.GroupName, &request.GroupID, &request.UserID, &request.FirstName, &request.LastName, &request.Status); err != nil {
+			return nil, err
 		}
-		userIDs = append(userIDs, userID)
+		requests = append(requests, request)
 	}
 
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("error processing rows: %v", err)
-	}
-
-	// Step 2: Use GetUsersByIDs to get user details for the pending followers
-	if len(userIDs) == 0 {
-		// No pending followers, return an empty slice
-		return []structs.User{}, nil
-	}
-
-	users, err := d.GetUsersByIDs(userIDs)
-	if err != nil {
-		return nil, fmt.Errorf("error fetching users for pending follow requests: %v", err)
-	}
-
-	return users, nil
+	return requests, nil
 }
 
 func convertCSVToIntSlice(csv string) []int {

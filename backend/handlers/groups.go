@@ -81,6 +81,7 @@ func JoinRequestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Define the expected request payload
 	var req struct {
 		GroupID int  `json:"groupId"`
 		UserID  int  `json:"userId"`
@@ -88,29 +89,39 @@ func JoinRequestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid input", http.StatusBadRequest)
+		middleware.SendErrorResponse(w, "Invalid input: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	err := sqlite.Db.HandleGroupRequest(req.GroupID, req.UserID, req.Accept)
 	if err != nil {
-		middleware.SendErrorResponse(w, "Failed to insert respond to Join Request into DB", http.StatusInternalServerError)
+		middleware.SendErrorResponse(w, "Failed to process the join request: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	status := "rejected"
+	if req.Accept {
+		status = "accepted"
+	}
+
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Reacted fo join request"})
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Request processed successfully",
+		"groupId": fmt.Sprintf("%d", req.GroupID),
+		"userId":  fmt.Sprintf("%d", req.UserID),
+		"status":  status,
+	})
 }
 
 // GetPendingGroupJoin fetches pending group join requests for the group creator
 func GetPendingGroupJoin(w http.ResponseWriter, r *http.Request) {
-	groupIDStr := r.URL.Query().Get("userId")
-	groupID, err := strconv.Atoi(groupIDStr)
-	if err != nil || groupID <= 0 {
+	creatorStr := r.URL.Query().Get("creatorID")
+	creatorID, err := strconv.Atoi(creatorStr)
+	if err != nil || creatorID <= 0 {
 		middleware.SendErrorResponse(w, "Invalid userId", http.StatusBadRequest)
 		return
 	}
-	pendingRequests, err := sqlite.Db.GetPendingGroupJoin(groupID)
+	pendingRequests, err := sqlite.Db.GetPendingGroupRequests(creatorID)
 	if err != nil {
 		middleware.SendErrorResponse(w, "Error fetching pending requests", http.StatusInternalServerError)
 		return
