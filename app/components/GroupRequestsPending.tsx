@@ -15,9 +15,10 @@ const PendingGroupRequests = () => {
                 const data = await response.json();
                 console.log("returned group join requests", data);
 
-                // Ensure the data is an array before setting it to state
-                if (Array.isArray(data)) {
+                if (data && Array.isArray(data)) {
                     setRequests(data);
+                } else if (data === null || data.length === 0) {
+                    setRequests([]);
                 } else {
                     setError('Unexpected response format: expected an array.');
                     console.error('Unexpected data format', data);

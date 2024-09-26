@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { clientCookieToken } from "../utils/auth";
 import checkLoginStatus from "../utils/checkLoginStatus";
 import { useUser } from "../context/UserContext";
+import { Recipient } from "../utils/types";
 
 interface Message {
   id?: number;
@@ -15,12 +16,6 @@ interface User {
   ID: number;
   firstName: string;
   lastName: string;
-}
-
-interface Recipient {
-  id: number;
-  name: string;
-  type: "user" | "group";
 }
 
 interface Event {

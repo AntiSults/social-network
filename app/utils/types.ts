@@ -7,7 +7,7 @@ export interface User {
     nickname?: string;
     aboutMe?: string;
     avatarPath?: string | null;
-    profileVisibility?: "public" | "private";
+    profileVisibility: "public" | "private";
 }
 
 export interface Group {
@@ -27,4 +27,18 @@ export interface GroupJoinRequest {
     group_name: string;
     first_name: string;
     last_name: string;
+}
+
+export interface Recipient {
+    id: number;
+    name: string;
+    type: "user" | "group";
+}
+
+export interface Message {
+    id?: number;
+    content: string;
+    fromUserID: number;
+    toUserID: number | number[];
+    created: string;
 }
