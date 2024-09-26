@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { useUser } from '../context/UserContext'; // For accessing currentUser
-import { User, Group } from "../utils/types"; // Import interfaces from types
+import { User } from "../utils/types";
 
 interface JoinGroupProps {
     groupId: number;
-    currentUser: User | null; // Use the User type from your utils/types
+    currentUser: User | null;
 }
 
 const JoinGroup: React.FC<JoinGroupProps> = ({ groupId, currentUser }) => {
     const [error, setError] = useState<string | null>(null);
+    const [requestSent, setRequestSent] = useState<boolean>(false); // State to track if the request was sent
 
     const handleJoinRequest = async () => {
         if (!currentUser) {
@@ -24,7 +24,9 @@ const JoinGroup: React.FC<JoinGroupProps> = ({ groupId, currentUser }) => {
                 },
                 body: JSON.stringify({ groupId, userId: currentUser.ID }),
             });
+
             console.log('Join request sent!');
+            setRequestSent(true); // Set state to true after successful request
         } catch (err) {
             console.error('Failed to send join request', err);
             setError('Failed to send join request');
@@ -34,11 +36,16 @@ const JoinGroup: React.FC<JoinGroupProps> = ({ groupId, currentUser }) => {
     return (
         <div>
             {error && <p>{error}</p>}
-            <button onClick={handleJoinRequest} disabled={!currentUser}>
-                Join Group Request
-            </button>
+            {!requestSent ? (
+                <button onClick={handleJoinRequest} disabled={!currentUser}>
+                    Join Group Request
+                </button>
+            ) : (
+                <p>Join request sent!</p> // Display confirmation text after the request is sent
+            )}
         </div>
     );
 };
 
 export default JoinGroup;
+
