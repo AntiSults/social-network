@@ -18,7 +18,7 @@ const GroupList = () => {
                 setGroups(data);
             } catch (err) {
                 console.error('Failed to fetch groups', err);
-                //setError('Failed to fetch groups');
+                setError('Failed to fetch groups');
             }
         };
         fetchGroups();

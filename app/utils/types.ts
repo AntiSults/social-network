@@ -42,3 +42,12 @@ export interface Message {
     toUserID: number | number[];
     created: string;
 }
+
+export interface Post {
+    id: number;
+    content: string;
+    created_at: string;
+    author_first_name: string;
+    author_last_name: string;
+    files: string | null;
+}
