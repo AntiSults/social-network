@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User } from "../utils/types";
+import { User } from "@/app/utils/types";
 
 interface JoinGroupProps {
     groupId: number;

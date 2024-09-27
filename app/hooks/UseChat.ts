@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { clientCookieToken } from "../utils/auth";
-import checkLoginStatus from "../utils/checkLoginStatus";
-import { useUser } from "../context/UserContext";
-import { Recipient } from "../utils/types";
+import { clientCookieToken } from "@/app/utils/auth";
+import checkLoginStatus from "@/app/utils/checkLoginStatus";
+import { useUser } from "@/app/context/UserContext";
+import { Recipient } from "@/app/utils/types";
 
 interface Message {
   id?: number;

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "../context/UserContext"; // Import the custom hook to access user context
+import { useUser } from "@/app/context/UserContext"; // Import the custom hook to access user context
 
 const TestLoggingIn = () => {
   const router = useRouter();

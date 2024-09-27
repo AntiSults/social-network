@@ -2,14 +2,14 @@
 
 import React, { useState } from "react";
 import styles from "./page.module.css";
-import FieldInput from "../components/FieldInput";
-import Button from "../components/Button";
+import FieldInput from "@/app/components/FieldInput";
+import Button from "@/app/components/Button";
 
 import { useRouter } from "next/navigation";
-import AvatarUploadField from "../components/AvatarUploadField";
-import NavBar from "../components/NavBar";
-import Error from "../components/Error";
-import ErrorMessage from "../components/Error";
+import AvatarUploadField from "@/app/components/AvatarUploadField";
+import NavBar from "@/app/components/NavBar";
+import Error from "@/app/components/Error";
+import ErrorMessage from "@/app/components/Error";
 
 const RegisterPage = () => {
   // Using useStates to be able to change the values later, also

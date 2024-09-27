@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import React from "react";
-import { useUser } from "../context/UserContext";
+import { useUser } from "@/app/context/UserContext";
 
 interface Props {
   logged: boolean;

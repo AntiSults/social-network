@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { User } from "../utils/types";
+import { User } from "@/app/utils/types";
 interface PendingRequestsProps {
     user: User;
 }

@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getPosts, createPost } from "../../lib/api";
-import NewPostForm from "../components/NewPostForm";
-import PostsList from "../components/PostsList";
-import checkLoginStatus from "../utils/checkLoginStatus";
-import NavBar from "../components/NavBar";
+import { getPosts, createPost } from "@/lib/api";
+import NewPostForm from "@/app/components/NewPostForm";
+import PostsList from "@/app/components/PostsList";
+import checkLoginStatus from "@/app/utils/checkLoginStatus";
+import NavBar from "@/app/components/NavBar";
 
 const PostsPage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -24,7 +24,7 @@ const PostsPage = () => {
       console.error("Failed to fetch posts:", error);
     }
   };
-  
+
 
   const handlePostCreated = async (content: string, privacy: string, file?: File | null) => {
     try {

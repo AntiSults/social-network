@@ -1,9 +1,9 @@
-"use client";
+import { useState } from 'react';
 import Image from 'next/image';
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useUser } from "../context/UserContext";
-import { User as SearchResult } from "../utils/types";
+import { useRouter } from 'next/navigation';
+import { useUser } from '@/app/context/UserContext';
+import { searchUsers } from '@/app/utils/searchUsers'; // Search logic moved to utility
+import { User as SearchResult } from "@/app/utils/types";
 
 const SearchBar: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState("");
@@ -12,17 +12,8 @@ const SearchBar: React.FC = () => {
     const { setSelectedUser } = useUser();
 
     const handleSearch = async () => {
-        try {
-            const response = await fetch(`http://localhost:8080/search?query=${encodeURIComponent(searchQuery)}`);
-            if (response.ok) {
-                const users = await response.json();
-                setSearchResults(users);
-            } else {
-                console.log("Search failed");
-            }
-        } catch (error) {
-            console.error("Error during search:", error);
-        }
+        const users = await searchUsers(searchQuery); // Reusable search logic
+        setSearchResults(users);
     };
 
     const goToUserProfile = (user: SearchResult) => {

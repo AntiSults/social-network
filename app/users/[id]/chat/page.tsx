@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import NavBar from "../../../components/NavBar";
-import ChatMessages from "../../../components/ChatMessages";
-import ChatInput from "../../../components/ChatInput";
-import useChat from "../../../hooks/UseChat";
-import { useUser } from "../../../context/UserContext";
+import NavBar from "@/app/components/NavBar";
+import ChatMessages from "@/app/components/ChatMessages";
+import ChatInput from "@/app/components/ChatInput";
+import useChat from "@/app/hooks/UseChat";
+import { useUser } from "@/app/context/UserContext";
 
 const ChatMessage = () => {
     const {

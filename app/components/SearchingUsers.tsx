@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { searchUsers } from '@/app/utils/searchUsers';
 import { User as SearchResult } from "@/app/utils/types";
-import FieldInput from "@/app/components/FieldInput";
-import Button from "@/app/components/Button";
+import FieldInput from "./FieldInput";
+import Button from "./Button";
 
 interface UserSearchProps {
     onSelectUser: (user: SearchResult) => void; // Callback function to handle the selected user
@@ -51,4 +51,3 @@ const UserSearch: React.FC<UserSearchProps> = ({ onSelectUser }) => {
 };
 
 export default UserSearch;
-

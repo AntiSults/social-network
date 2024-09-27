@@ -1,8 +1,8 @@
 "use client";
 import JoinGroup from './JoinGroup';
 import { useState, useEffect } from 'react';
-import { useUser } from '../context/UserContext';
-import { User, Group } from "../utils/types";
+import { useUser } from '@/app/context/UserContext';
+import { User, Group } from "@/app/utils/types";
 
 const GroupList = () => {
     const { user } = useUser(); // Current logged-in user context

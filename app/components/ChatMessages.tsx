@@ -1,5 +1,11 @@
 import React from "react";
-import { Message, User } from "../utils/types";
+import { Message } from "@/app/utils/types";
+
+interface User {
+    ID: number;
+    firstName: string;
+    lastName: string;
+}
 
 interface ChatMessagesProps {
     messages: Message[];

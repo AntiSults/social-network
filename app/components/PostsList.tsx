@@ -1,5 +1,5 @@
 import React from "react";
-import { Post } from "../utils/types";
+import { Post } from "@/app/utils/types";
 
 interface PostsListProps {
     posts: Post[];

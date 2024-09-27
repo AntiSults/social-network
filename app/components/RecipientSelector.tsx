@@ -1,6 +1,6 @@
 import React from "react";
-import { getOptionStyle } from "../utils/getOptionStyle";
-import { Recipient } from "../utils/types";
+import { getOptionStyle } from "@/app/utils/getOptionStyle";
+import { Recipient } from "@/app/utils/types";
 
 interface RecipientSelectorProps {
     recipients: Recipient[];

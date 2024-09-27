@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useUser } from '../context/UserContext';
+import { useUser } from '@/app/context/UserContext';
 
 const CreateGroupForm = () => {
     const [name, setName] = useState('');

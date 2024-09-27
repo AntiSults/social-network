@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useUser } from "../context/UserContext"; // Import the custom hook to access user context
+import { useUser } from "@/app/context/UserContext"; // Import the custom hook to access user context
 
 const Profile = () => {
   const { user } = useUser(); // Access user from context

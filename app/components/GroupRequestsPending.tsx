@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { GroupJoinRequest } from '../utils/types';
-import { useUser } from '../context/UserContext';
+import { GroupJoinRequest } from '@/app/utils/types';
+import { useUser } from '@/app/context/UserContext';
 
 const PendingGroupRequests = () => {
     const { user } = useUser();

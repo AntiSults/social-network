@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import FieldInput from "../components/FieldInput";
+import FieldInput from "@/app/components/FieldInput";
 import { useRouter } from "next/navigation";
-import Button from "../components/Button";
-import NavBar from "../components/NavBar";
-import { useUser } from "../context/UserContext";
+import Button from "@/app/components/Button";
+import NavBar from "@/app/components/NavBar";
+import { useUser } from "@/app/context/UserContext";
 
 const LoginPage = () => {
   const router = useRouter();
