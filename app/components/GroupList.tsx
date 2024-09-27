@@ -35,12 +35,13 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup }) => {
     const isGroupCreator = (group: Group) => {
         return group.creator_id === currentUser?.ID;
     };
+    const safeGroups = Array.isArray(groups) ? groups : [];
 
     return (
         <div>
             <h2>All Groups</h2>
             {error && <p>{error}</p>}
-            {groups.length === 0 ? (
+            {safeGroups.length === 0 ? (
                 <p>No groups available.</p>
             ) : (
                 <ul>

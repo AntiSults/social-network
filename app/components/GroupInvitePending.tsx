@@ -13,7 +13,7 @@ const PendingGroupInvites = () => {
             try {
                 const response = await fetch(`http://localhost:8080/groups/pending-invites?userID=${user?.ID}`);
                 const data = await response.json();
-                console.log("invite data", data)
+
                 if (data && Array.isArray(data)) {
                     setInvitations(data);
                 } else if (data === null || data.length === 0) {
