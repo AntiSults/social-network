@@ -19,15 +19,13 @@ const GroupsPage = () => {
 
             <div>
                 <h1>Groups</h1>
-                {/* 1. Display all groups with the option to join */}
-                <GroupList onSelectGroup={setSelectedGroup} /> {/* Pass selected group ID */}
-
-                {/* 2. Create a new group */}
+                {/* 1. Create a new group */}
                 <div>
                     <h2>Create New Group</h2>
                     <CreateGroupForm />
                 </div>
-
+                {/* 2. Display all groups with the option to join */}
+                <GroupList onSelectGroup={setSelectedGroup} /> {/* Pass selected group ID */}
                 {/* 3. Invite users to groups */}
                 <div>
                     <h2>Invite User to Group</h2>
