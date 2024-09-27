@@ -76,12 +76,12 @@ func (d *Database) RequestToJoinGroup(GroupID, UserID int) error {
 	return err
 }
 
-// func (d *Database) InviteUserToGroup(GroupID, UserID int) error {
-// 	_, err := d.db.Exec(`
-//         INSERT INTO GroupJoinRequests (GroupID, UserID, Status, RequestType)
-//         VALUES (?, ?, 'pending', 'invite')`, GroupID, UserID)
-// 	return err
-// }
+func (d *Database) InviteUserToGroup(GroupID, UserID, InviterID int) error {
+	_, err := d.db.Exec(`
+        INSERT INTO GroupJoinRequests (GroupID, UserID, InviterID, Status, RequestType)
+        VALUES (?, ?, ?, 'pending', 'invite')`, GroupID, UserID, InviterID)
+	return err
+}
 
 func (d *Database) HandleGroupRequest(GroupID, UserID int, accept bool) error {
 	status := "rejected"
@@ -127,6 +127,34 @@ func (d *Database) GetPendingGroupRequests(creatorID int) ([]structs.GroupJoinRe
 	}
 
 	return requests, nil
+}
+
+func (d *Database) GetPendingGroupInvites(userID int) ([]structs.GroupJoinRequest, error) {
+	rows, err := d.db.Query(`
+        SELECT 
+            g.Name AS GroupName, g.ID AS GroupID, u.ID AS UserID, u.FirstName AS InviterFirstName, u.LastName AS InviterLastName, r.Status
+        FROM 
+            GroupJoinRequests r
+        JOIN Groups g ON r.GroupID = g.ID
+        JOIN Users u ON r.InviterID = u.ID -- Get inviter's name
+        WHERE 
+            r.UserID = ? AND r.Status = 'pending' AND r.RequestType = 'invite'`, userID)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var invitations []structs.GroupJoinRequest
+	for rows.Next() {
+		var invite structs.GroupJoinRequest
+		if err := rows.Scan(&invite.GroupName, &invite.GroupID, &invite.UserID, &invite.FirstName, &invite.LastName, &invite.Status); err != nil {
+			return nil, err
+		}
+		invitations = append(invitations, invite)
+	}
+
+	return invitations, nil
 }
 
 func convertCSVToIntSlice(csv string) []int {

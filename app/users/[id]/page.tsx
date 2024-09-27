@@ -7,6 +7,8 @@ import SearchBar from "@/app/components/SearchBar";
 import Followers from "@/app/components/Followers";
 import PendingRequests from "@/app/components/PendingRequests";
 import PendingGroupRequests from "@/app/components/GroupRequestsPending";
+import PendingGroupInvites from '@/app/components/GroupInvitePending';
+
 const ProfilePage = () => {
     const { user, selectedUser } = useUser();
     const profileUser = selectedUser || user;
@@ -38,6 +40,8 @@ const ProfilePage = () => {
                     </div>
                 </div>
             </div>
+            {/* Pending Group Join Requests (Only if viewing own profile) */}
+            {profileUser?.ID === user?.ID && <PendingGroupInvites />}
             {/* Pending Group Join Requests (Only if viewing own profile) */}
             {profileUser?.ID === user?.ID && <PendingGroupRequests />}
             {/* Pending Follow Requests (Only if viewing own profile) */}

@@ -13,7 +13,6 @@ const PendingGroupRequests = () => {
             try {
                 const response = await fetch(`http://localhost:8080/groups/pending-requests?creatorID=${user?.ID}`);
                 const data = await response.json();
-                console.log("returned group join requests", data);
 
                 if (data && Array.isArray(data)) {
                     setRequests(data);

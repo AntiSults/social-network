@@ -2,6 +2,7 @@ CREATE TABLE GroupJoinRequests (
     ID INTEGER PRIMARY KEY AUTOINCREMENT,
     GroupID INTEGER NOT NULL,
     UserID INTEGER NOT NULL,
+    InviterID INTEGER,
     Status TEXT CHECK (Status IN ('pending', 'accepted', 'rejected')) DEFAULT 'pending',
     RequestType TEXT DEFAULT 'join', -- 'join' or 'invite'
     FOREIGN KEY (GroupID) REFERENCES Groups(ID),

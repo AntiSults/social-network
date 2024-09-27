@@ -4,7 +4,11 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@/app/context/UserContext';
 import { User, Group } from "@/app/utils/types";
 
-const GroupList = () => {
+interface GroupListProps {
+    onSelectGroup: (groupId: number) => void; // Prop to pass selected group for invitation
+}
+
+const GroupList: React.FC<GroupListProps> = ({ onSelectGroup }) => {
     const { user } = useUser(); // Current logged-in user context
     const [groups, setGroups] = useState<Group[]>([]);
     const [error, setError] = useState<string | null>(null);
@@ -25,7 +29,6 @@ const GroupList = () => {
     }, []);
 
     const isUserInGroup = (group: Group) => {
-        // Check if current user is in the members list
         return group.members?.includes(currentUser?.ID ?? -1);
     };
 
@@ -47,6 +50,7 @@ const GroupList = () => {
                         }
                         const alreadyInGroup = isUserInGroup(group);
                         const isCreator = isGroupCreator(group);
+
                         return (
                             <li key={`group-${group.id}`}>
                                 <div>
@@ -57,6 +61,16 @@ const GroupList = () => {
                                         <p>{isCreator ? 'You are the creator' : 'Already a member'}</p>
                                     ) : (
                                         <JoinGroup groupId={group.id} currentUser={user as User | null} />
+                                    )}
+
+                                    {/* Button to select group for inviting a user */}
+                                    {isCreator && (
+                                        <button
+                                            onClick={() => onSelectGroup(group.id)}
+                                            className="bg-blue-500 text-white px-4 py-2 mt-2"
+                                        >
+                                            Select Group for Invitation
+                                        </button>
                                     )}
                                 </div>
                             </li>

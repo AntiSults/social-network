@@ -28,8 +28,11 @@ func SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/followers/reject", HandleFollowers)
 	mux.HandleFunc("/groups", HandleGroups)
 	mux.HandleFunc("/groups/join-request", HandleGroups)
+	mux.HandleFunc("/groups/invite", HandleGroups)
 	mux.HandleFunc("/groups/handle-request", HandleGroups)
+	mux.HandleFunc("/groups/handle-invites", HandleGroups)
 	mux.HandleFunc("/groups/pending-requests", HandleGroups)
+	mux.HandleFunc("/groups/pending-invites", HandleGroups)
 
 	return mux
 }
@@ -60,13 +63,24 @@ func HandleFollowers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func HandleGroups(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet && r.URL.Path == "/groups/pending-invites" {
+		handlers.GetPendingGroupInvites(w, r)
+		return
+	}
 	if r.Method == http.MethodGet && r.URL.Path == "/groups/pending-requests" {
 		handlers.GetPendingGroupJoin(w, r)
 		return
 	}
-
 	if r.Method == http.MethodPost && r.URL.Path == "/groups/join-request" {
 		handlers.JoinGroupRequest(w, r)
+		return
+	}
+	if r.Method == http.MethodPost && r.URL.Path == "/groups/invite" {
+		handlers.InviteToGroup(w, r)
+		return
+	}
+	if r.Method == http.MethodPost && r.URL.Path == "/groups/handle-invites" {
+		handlers.InviteRequestHandler(w, r)
 		return
 	}
 	if r.Method == http.MethodPost && r.URL.Path == "/groups/handle-request" {
