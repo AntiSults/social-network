@@ -6,7 +6,7 @@ import UserSearch from '@/app/components/SearchingUsers';
 import InviteToGroup from '@/app/components/InviteToGroup'; // Import the InviteToGroup component
 import { useState } from 'react';
 import { useUser } from '@/app/context/UserContext';
-import { Group, User } from '@/app/utils/types';
+import { User } from '@/app/utils/types';
 
 const GroupsPage = () => {
     const { user: currentUser } = useUser();

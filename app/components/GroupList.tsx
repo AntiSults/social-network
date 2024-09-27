@@ -64,7 +64,7 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup }) => {
                                     )}
 
                                     {/* Button to select group for inviting a user */}
-                                    {isCreator && (
+                                    {(isCreator || alreadyInGroup) && (
                                         <button
                                             onClick={() => onSelectGroup(group.id)}
                                             className="bg-blue-500 text-white px-4 py-2 mt-2"

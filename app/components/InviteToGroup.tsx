@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User } from "@/app/utils/types"; // Assuming User and Group types are already defined
+import { User } from "@/app/utils/types";
 
 interface InviteToGroupProps {
     groupId: number; // The selected group ID
