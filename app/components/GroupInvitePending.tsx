@@ -41,7 +41,7 @@ const PendingGroupInvites = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ groupId, userId, accept }),
             });
-            setInvitations(invitations.filter(invite => !(invite.group_id == groupId && invite.user_id === userId)));
+            setInvitations(invitations.filter(invite => invite.group_id !== groupId));
         } catch (err) {
             console.error('Failed to handle invitation', err);
             setError('Failed to handle invitation');
@@ -53,18 +53,36 @@ const PendingGroupInvites = () => {
     }
 
     return (
-        <div>
-            <h2>Pending Group Invitations</h2>
+        <div className="flex flex-col items-center mt-10">
+            <h2 className="text-2xl font-bold mb-4">Pending Group Invitations</h2>
             {error && <p>{error}</p>}
             {invitations.length === 0 ? (
                 <p>No pending invitations</p>
             ) : (
-                <ul>
+                <ul className="w-full max-w-lg">
                     {invitations.map(invitation => (
-                        <li key={invitation.group_id}>
-                            {`You've been invited by ${invitation.first_name} ${invitation.last_name} to join ${invitation.group_name}`}
-                            <button onClick={() => handleInvitationDecision(invitation.group_id, user?.ID, true)}>Accept</button>
-                            <button onClick={() => handleInvitationDecision(invitation.group_id, user?.ID, false)}>Decline</button>
+                        <li
+                            key={invitation.group_id}
+                            className="flex justify-between items-center bg-white shadow-md rounded-lg p-4 mb-4"
+                        >
+                            <div>
+                                <p className="font-semibold">
+                                    {`You've been invited by ${invitation.first_name} ${invitation.last_name} to join ${invitation.group_name}`}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => handleInvitationDecision(invitation.group_id, user?.ID, true)}
+                                className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition"
+                            >
+                                Accept
+                            </button>
+                            <button
+                                onClick={() => handleInvitationDecision(invitation.group_id, user?.ID, false)}
+                                className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition"
+                            >
+                                Decline
+                            </button>
+
                         </li>
                     ))}
                 </ul>

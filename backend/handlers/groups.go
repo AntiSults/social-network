@@ -136,13 +136,12 @@ func JoinRequestHandler(w http.ResponseWriter, r *http.Request) {
 		"status":  status,
 	})
 }
-
 func InviteRequestHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	// Define the expected request payload
+
 	var req struct {
 		GroupID int  `json:"groupId"`
 		UserID  int  `json:"userId"`
@@ -153,24 +152,18 @@ func InviteRequestHandler(w http.ResponseWriter, r *http.Request) {
 		middleware.SendErrorResponse(w, "Invalid input: "+err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	err := sqlite.Db.HandleGroupRequest(req.GroupID, req.UserID, req.Accept)
 	if err != nil {
 		middleware.SendErrorResponse(w, "Failed to process the invite request: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	status := "rejected"
-	if req.Accept {
-		status = "accepted"
-	}
-
+	// Send a response back confirming the action was successful
+	response := map[string]string{"message": "Invite request processed successfully"}
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Request processed successfully",
-		"groupId": fmt.Sprintf("%d", req.GroupID),
-		"userId":  fmt.Sprintf("%d", req.UserID),
-		"status":  status,
-	})
+	json.NewEncoder(w).Encode(response)
 }
 
 // GetPendingGroupJoin fetches pending group join requests for the group creator
