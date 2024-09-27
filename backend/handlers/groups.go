@@ -153,7 +153,6 @@ func InviteRequestHandler(w http.ResponseWriter, r *http.Request) {
 		middleware.SendErrorResponse(w, "Invalid input: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-	fmt.Println("Invites", req)
 	err := sqlite.Db.HandleGroupRequest(req.GroupID, req.UserID, req.Accept)
 	if err != nil {
 		middleware.SendErrorResponse(w, "Failed to process the invite request: "+err.Error(), http.StatusInternalServerError)

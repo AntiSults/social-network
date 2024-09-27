@@ -34,7 +34,7 @@ const PendingGroupInvites = () => {
     }, [user]);
 
     const handleInvitationDecision = async (groupId: number, userId: number | undefined, accept: boolean) => {
-        console.log("sending back", groupId, userId, accept)
+
         try {
             await fetch(`http://localhost:8080/groups/handle-invites`, {
                 method: 'POST',
