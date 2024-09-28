@@ -17,19 +17,25 @@ const GroupsPage = () => {
         <div className="min-h-screen bg-gray-50">
             <NavBar logged={true} />
 
-            <div>
-                <h1>Groups</h1>
-                {/* 1. Create a new group */}
-                <div>
-                    <h2>Create New Group</h2>
+            <div className="container mx-auto p-6">
+                <h1 className="text-3xl font-bold mb-6 text-center">Groups</h1>
+
+                {/* Create New Group */}
+                <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+                    <h2 className="text-2xl font-semibold mb-4">Create New Group</h2>
                     <CreateGroupForm />
                 </div>
-                {/* 2. Display all groups with the option to join */}
-                <GroupList onSelectGroup={setSelectedGroup} /> {/* Pass selected group ID */}
-                {/* 3. Invite users to groups */}
-                <div>
-                    <h2>Invite User to Group</h2>
-                    <UserSearch onSelectUser={setSelectedUser} /> {/* Capture selected user */}
+
+                {/* Display all groups with the option to join */}
+                <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+                    <h2 className="text-2xl font-semibold mb-4">Available Groups</h2>
+                    <GroupList onSelectGroup={setSelectedGroup} />
+                </div>
+
+                {/* Invite User to Group */}
+                <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+                    <h2 className="text-2xl font-semibold mb-4">Invite User to Group</h2>
+                    <UserSearch onSelectUser={setSelectedUser} />
 
                     {selectedUser && selectedGroup && (
                         <InviteToGroup
