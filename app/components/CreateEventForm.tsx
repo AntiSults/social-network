@@ -1,5 +1,7 @@
 "use client"
 import { useState } from 'react';
+import FieldInput from './FieldInput';
+import Button from "@/app/components/Button";
 
 const CreateEventForm = ({ groupId }: { groupId: number }) => {
     const [title, setTitle] = useState('');
@@ -17,25 +19,28 @@ const CreateEventForm = ({ groupId }: { groupId: number }) => {
 
     return (
         <form onSubmit={handleSubmit}>
-            <input
+            <FieldInput
                 type="text"
                 placeholder="Event Title"
+                required={true}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                required
             />
-            <textarea
+            <FieldInput
+                type="text"
                 placeholder="Event Description"
+                required={true}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
             />
-            <input
+            <FieldInput
                 type="datetime-local"
+                required={true}
+                placeholder=""
                 value={eventDate}
                 onChange={(e) => setEventDate(e.target.value)}
-                required
             />
-            <button type="submit">Create Event</button>
+            <Button type="submit" name="Create Event" />
         </form>
     );
 };

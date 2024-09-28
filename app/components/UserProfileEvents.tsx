@@ -53,7 +53,7 @@ const UserProfileEvents = () => {
                         <p>{event.description}</p>
                         <p>Date: {new Date(event.eventDate).toLocaleString()}</p>
                         {/* Pass groupId and userId to EventReactions */}
-                        <EventReactions eventId={event.id} userId={user?.ID} />
+                        <EventReactions eventId={event.id} />
                         {/* Option to create a new event in the same group */}
                         <CreateEventForm groupId={event.groupId} />
                     </li>
@@ -64,3 +64,4 @@ const UserProfileEvents = () => {
 };
 
 export default UserProfileEvents;
+
