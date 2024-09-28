@@ -27,7 +27,6 @@ func CreateGroup(w http.ResponseWriter, r *http.Request) {
 
 	err := sqlite.Db.CreateGroup(req.Name, req.Description, req.CreatorID)
 	if err != nil {
-
 		middleware.SendErrorResponse(w, "Failed to insert group into DB"+err.Error(), http.StatusInternalServerError)
 		return
 	}

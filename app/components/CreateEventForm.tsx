@@ -7,18 +7,40 @@ const CreateEventForm = ({ groupId }: { groupId: number }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [eventDate, setEventDate] = useState('');
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [success, setSuccess] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await fetch(`http://localhost:8080/groups/events`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, description, eventDate }),
-        });
+        setSubmitError(null);  // Clear any previous errors
+
+        try {
+            const response = await fetch(`http://localhost:8080/groups/events`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ groupId, title, description, eventDate }),
+            });
+
+            if (response.ok) {
+                setTitle('');
+                setDescription('');
+                setEventDate('');
+                setSuccess(true);
+            } else {
+                const errorMessage = await response.text();
+                setSubmitError(errorMessage || 'Failed to create event');
+            }
+        } catch (err) {
+            console.error('Error submitting form:', err);
+            setSubmitError('An error occurred while creating the event');
+        }
     };
 
     return (
         <form onSubmit={handleSubmit}>
+            {submitError && <p style={{ color: 'red' }}>{submitError}</p>}
+            {success && <p style={{ color: 'green' }}>Event created successfully!</p>}
+
             <FieldInput
                 type="text"
                 placeholder="Event Title"

@@ -34,7 +34,7 @@ func SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/groups/pending-requests", HandleGroups)
 	mux.HandleFunc("/groups/pending-invites", HandleGroups)
 	mux.HandleFunc("/groups/events", HandleGroupEvents)
-
+	mux.HandleFunc("/groups/events-react", HandleGroupEvents)
 	return mux
 }
 func HandleFollowers(w http.ResponseWriter, r *http.Request) {
@@ -98,8 +98,13 @@ func HandleGroups(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func HandleGroupEvents(w http.ResponseWriter, r *http.Request) {
-
+	if r.Method == http.MethodPost && r.URL.Path == "/groups/events-react" {
+		handlers.EventReaction(w, r)
+		return
+	}
 	switch r.Method {
+	case http.MethodPost:
+		handlers.CreateEvent(w, r)
 	case http.MethodGet:
 		handlers.GetEvents(w, r)
 	default:
