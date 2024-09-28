@@ -16,7 +16,7 @@ const UserSearch: React.FC<UserSearchProps> = ({ onSelectUser }) => {
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
         const users = await searchUsers(searchQuery);
-        setSearchResults(users);
+        setSearchResults(users || []);
     };
 
     const handleUserClick = (user: SearchResult) => {
