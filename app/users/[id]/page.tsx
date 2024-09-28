@@ -15,6 +15,7 @@ const ProfilePage = () => {
     if (!profileUser) {
         return <p>Loading...</p>;
     }
+
     return (
         <div className="min-h-screen bg-gray-50">
             <NavBar logged={true} />
