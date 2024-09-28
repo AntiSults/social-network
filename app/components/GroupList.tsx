@@ -65,19 +65,12 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup }) => {
                                     ) : (
                                         <JoinGroup groupId={group.id} currentUser={user as User | null} />
                                     )}
-                                    {/* Button to open the group */}
-                                    <button
-                                        onClick={() => {/* Add logic to open the group */}}
-                                        className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out"
-                                    >
-                                        Open Group
-                                    </button>
 
                                     {/* Button to select group for inviting a user */}
                                     {(isCreator || alreadyInGroup) && (
                                         <button
                                             onClick={() => {onSelectGroup(group.id)}}
-                                            className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out ml-4"
+                                            className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out"
                                         >
                                             Select Group for Invitation
                                         </button>
