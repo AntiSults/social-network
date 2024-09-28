@@ -1,8 +1,8 @@
 
 
-const EventReactions = ({ eventId, userId }: { eventId: number, userId: number }) => {
+const EventReactions = ({ eventId, userId }: { eventId: number, userId: number | undefined }) => {
     const handleReaction = async (reaction: string) => {
-        await fetch(`/api/events/${eventId}/react`, {
+        await fetch(`http://localhost:8080/groups/events-react`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId, reaction }),

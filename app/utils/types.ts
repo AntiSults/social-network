@@ -51,3 +51,12 @@ export interface Post {
     author_last_name: string;
     files: string | null;
 }
+
+export interface Event {
+    id: number;
+    title: string;
+    description: string;
+    eventDate: string; // or Date type if you prefer
+    groupId: number;
+    createdBy: number;
+}
