@@ -5,6 +5,7 @@ import GroupList from '@/app/components/GroupList';
 import CreateEventForm from '@/app/components/CreateEventForm';
 import { useUser } from '@/app/context/UserContext';
 import { useState } from 'react';
+import NavBar from "@/app/components/NavBar";
 
 const EventsPage = () => {
     const { user } = useUser();  // Fetch current user from context
@@ -20,6 +21,7 @@ const EventsPage = () => {
 
     return (
         <div>
+            <NavBar logged={true} />
             <h1>Events</h1>
             {/* Display the list of available groups */}
 
