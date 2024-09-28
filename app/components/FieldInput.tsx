@@ -1,7 +1,7 @@
 import React from "react";
 
 interface Props {
-  name: string;
+  name?: string;
   type: string;
   placeholder: string;
   required: boolean;
@@ -27,7 +27,7 @@ const FieldInput = ({
         className={
           type !== "textarea"
             ? `grow ${className}`
-            : `grow textarea textarea-ghost textarea-xs w-full max-w-xs ${className}`
+            : `grow textarea textarea-ghost textarea-xs w- max-w-xs ${className}`
         }
         placeholder={placeholder}
         required={required}

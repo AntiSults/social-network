@@ -2,13 +2,8 @@ import React, { useState } from "react";
 import FieldInput from "./FieldInput";
 import Button from "./Button";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
-import { getOptionStyle } from "../utils/getOptionStyle";
-
-interface Recipient {
-    id: number;
-    name: string;
-    type: "user" | "group";
-}
+import { getOptionStyle } from "@/app/utils/getOptionStyle";
+import { Recipient } from "@/app/utils/types";
 
 interface ChatInputProps {
     message: string;

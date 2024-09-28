@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useUser } from "../context/UserContext";
+import { useUser } from "@/app/context/UserContext";
 
 interface Props {
   onFileSelect: (file: File) => void;

@@ -1,12 +1,5 @@
 import React from "react";
-
-interface Message {
-    id?: number;
-    content: string;
-    fromUserID: number;
-    toUserID: number | number[];
-    created: string;
-}
+import { Message } from "@/app/utils/types";
 
 interface User {
     ID: number;
