@@ -57,8 +57,6 @@ const UserProfileEvents = () => {
                         <p>Date: {new Date(event.eventDate).toLocaleString()}</p>
                         {/* Event reactions */}
                         <EventReactions eventId={event.id} />
-                        {/* Create a new event within the same group */}
-                        <CreateEventForm groupId={event.groupId} />
                     </li>
                 ))}
             </ul>

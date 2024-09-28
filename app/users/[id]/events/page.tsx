@@ -22,7 +22,9 @@ const EventsPage = () => {
         <div>
             <h1>Events</h1>
             {/* Display the list of available groups */}
-            <GroupList onSelectGroup={handleGroupSelect} />
+
+            <GroupList onSelectGroup={handleGroupSelect} actionType="createEvent" />
+
             {/* Display the form to create an event if a group is selected */}
             {selectedGroupId && (
                 <div>

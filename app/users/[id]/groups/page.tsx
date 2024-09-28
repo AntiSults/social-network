@@ -29,7 +29,8 @@ const GroupsPage = () => {
                 {/* Display all groups with the option to join */}
                 <div className="bg-white shadow-md rounded-lg p-6 mb-6">
                     <h2 className="text-2xl font-semibold mb-4">Available Groups</h2>
-                    <GroupList onSelectGroup={setSelectedGroup} />
+                    <GroupList onSelectGroup={setSelectedGroup} actionType="invite" />
+
                 </div>
 
                 {/* Invite User to Group */}

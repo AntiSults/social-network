@@ -5,10 +5,11 @@ import { useUser } from '@/app/context/UserContext';
 import { User, Group } from "@/app/utils/types";
 
 interface GroupListProps {
-    onSelectGroup: (groupId: number) => void; // Prop to pass selected group for event creation
+    onSelectGroup: (groupId: number) => void; // Prop to pass selected group for action
+    actionType: 'invite' | 'createEvent'; // Action type to customize the button
 }
 
-const GroupList: React.FC<GroupListProps> = ({ onSelectGroup }) => {
+const GroupList: React.FC<GroupListProps> = ({ onSelectGroup, actionType }) => {
     const { user } = useUser(); // Current logged-in user context
     const [groups, setGroups] = useState<Group[]>([]);
     const [error, setError] = useState<string | null>(null);
@@ -57,7 +58,7 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup }) => {
                             <li key={`group-${group.id}`} className="p-4 border border-gray-300 rounded-md">
                                 <div>
                                     <h3 className="text-lg font-semibold">{group.name}</h3>
-                                    <p className="text-gray-600  font-semibold">{group.description}</p>
+                                    <p className="text-gray-600 font-semibold">{group.description}</p>
 
                                     {alreadyInGroup || isCreator ? (
                                         <p className="text-gray-500">
@@ -67,13 +68,15 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup }) => {
                                         <JoinGroup groupId={group.id} currentUser={user as User | null} />
                                     )}
 
-                                    {/* Button to select group for creating an event */}
+                                    {/* Button to select group based on the action type */}
                                     {(isCreator || alreadyInGroup) && (
                                         <button
-                                            onClick={() => { onSelectGroup(group.id) }}
+                                            onClick={() => onSelectGroup(group.id)}
                                             className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out"
                                         >
-                                            Select Group for Event Creation
+                                            {actionType === 'createEvent'
+                                                ? 'Select Group for Event Creation'
+                                                : 'Select Group for Sending Invite'}
                                         </button>
                                     )}
                                 </div>
