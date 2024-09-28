@@ -13,7 +13,7 @@ const SearchBar: React.FC = () => {
 
     const handleSearch = async () => {
         const users = await searchUsers(searchQuery); // Reusable search logic
-        setSearchResults(users);
+        setSearchResults(users || []); // Ensure searchResults is always an array
     };
 
     const goToUserProfile = (user: SearchResult) => {
@@ -39,7 +39,7 @@ const SearchBar: React.FC = () => {
                 </button>
             </div>
 
-            {searchResults.length > 0 && (
+            {searchResults?.length > 0 && (
                 <ul className="absolute w-full mt-2 bg-white shadow-lg rounded-lg max-h-60 overflow-y-auto z-10">
                     {searchResults.map((result: SearchResult) => (
                         <li
