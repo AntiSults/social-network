@@ -26,6 +26,15 @@ type Group struct {
 	Members     []int     `json:"members"`
 }
 
+type Event struct {
+	ID          int    `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	EventDate   string `json:"date_time"`
+	GroupID     int    `json:"group_id"`
+	CreatorID   int    `json:"creator_id"`
+}
+
 type GroupJoinRequest struct {
 	GroupID   int    `json:"group_id"`
 	GroupName string `json:"group_name"`

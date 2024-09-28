@@ -5,7 +5,7 @@ import { useUser } from '@/app/context/UserContext';
 import { User, Group } from "@/app/utils/types";
 
 interface GroupListProps {
-    onSelectGroup: (groupId: number) => void; // Prop to pass selected group for invitation
+    onSelectGroup: (groupId: number) => void; // Prop to pass selected group for event creation
 }
 
 const GroupList: React.FC<GroupListProps> = ({ onSelectGroup }) => {
@@ -35,6 +35,7 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup }) => {
     const isGroupCreator = (group: Group) => {
         return group.creator_id === currentUser?.ID;
     };
+
     const safeGroups = Array.isArray(groups) ? groups : [];
 
     return (
@@ -45,7 +46,7 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup }) => {
                 <p>No groups available.</p>
             ) : (
                 <ul>
-                    {groups.map((group) => {
+                    {safeGroups.map((group) => {
                         if (!group || !group.id) {
                             return null;
                         }
@@ -64,13 +65,13 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup }) => {
                                         <JoinGroup groupId={group.id} currentUser={user as User | null} />
                                     )}
 
-                                    {/* Button to select group for inviting a user */}
+                                    {/* Button to select group for creating an event */}
                                     {(isCreator || alreadyInGroup) && (
                                         <button
                                             onClick={() => onSelectGroup(group.id)}
                                             className="bg-blue-500 text-white px-4 py-2 mt-2"
                                         >
-                                            Select Group for Invitation
+                                            Select Group for Event Creation
                                         </button>
                                     )}
                                 </div>

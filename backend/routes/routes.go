@@ -33,6 +33,7 @@ func SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/groups/handle-invites", HandleGroups)
 	mux.HandleFunc("/groups/pending-requests", HandleGroups)
 	mux.HandleFunc("/groups/pending-invites", HandleGroups)
+	mux.HandleFunc("/groups/events", HandleGroupEvents)
 
 	return mux
 }
@@ -92,6 +93,15 @@ func HandleGroups(w http.ResponseWriter, r *http.Request) {
 		handlers.CreateGroup(w, r)
 	case http.MethodGet:
 		handlers.GetGroupsWithMembers(w, r)
+	default:
+		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+func HandleGroupEvents(w http.ResponseWriter, r *http.Request) {
+
+	switch r.Method {
+	case http.MethodGet:
+		handlers.GetEvents(w, r)
 	default:
 		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}

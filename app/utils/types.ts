@@ -56,7 +56,6 @@ export interface Event {
     id: number;
     title: string;
     description: string;
-    eventDate: string; // or Date type if you prefer
+    eventDate: string;
     groupId: number;
-    createdBy: number;
 }
