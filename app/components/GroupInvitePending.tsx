@@ -47,11 +47,9 @@ const PendingGroupInvites = () => {
             setError('Failed to handle invitation');
         }
     };
-
     if (!invitations.length) {
         return null;
     }
-
     return (
         <div className="flex flex-col items-center mt-10">
             <h2 className="text-2xl font-bold mb-4">Pending Group Invitations</h2>
