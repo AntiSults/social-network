@@ -5,14 +5,14 @@ interface PendingRequestsProps {
     user: User;
 }
 const PendingRequests: React.FC<PendingRequestsProps> = ({ user }) => {
-    const [pendingRequests, setPendingRequests] = useState<User[]>([]); // Keep this as an array to avoid map errors
+    const [pendingRequests, setPendingRequests] = useState<User[]>([]);
     useEffect(() => {
         const fetchPendingRequests = async () => {
             try {
                 // Fetch pending follow requests for the logged-in user
                 const response = await fetch(`http://localhost:8080/followers/pending?userId=${user.ID}`);
                 const data = await response.json();
-                // Assuming you receive an array of users with pending requests
+
                 setPendingRequests(data);
             } catch (error) {
                 console.error("Error fetching pending follow requests:", error);
@@ -27,7 +27,7 @@ const PendingRequests: React.FC<PendingRequestsProps> = ({ user }) => {
             const response = await fetch(`http://localhost:8080/followers/accept`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId, followerId }), // Send both userId and followerId
+                body: JSON.stringify({ userId, followerId }),
             });
             if (response.ok) {
                 // Remove the accepted request from pending requests
@@ -44,7 +44,7 @@ const PendingRequests: React.FC<PendingRequestsProps> = ({ user }) => {
             const response = await fetch(`http://localhost:8080/followers/reject`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId, followerId }), // Send both userId and followerId
+                body: JSON.stringify({ userId, followerId }),
             });
             if (response.ok) {
                 // Remove the rejected request from pending requests
