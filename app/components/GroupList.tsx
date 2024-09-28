@@ -39,14 +39,14 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup }) => {
     const safeGroups = Array.isArray(groups) ? groups : [];
 
     return (
-        <div>
-            <h2>All Groups</h2>
+        <div className="bg-white shadow-md rounded-lg p-6 mb-4">
+            <h2 className="text-xl font-bold mb-4">All Groups</h2>
             {error && <p>{error}</p>}
             {safeGroups.length === 0 ? (
-                <p>No groups available.</p>
+                <p className="text-gray-500">No groups available.</p>
             ) : (
-                <ul>
-                    {safeGroups.map((group) => {
+                <ul className="space-y-4">
+                    {groups.map((group) => {
                         if (!group || !group.id) {
                             return null;
                         }
@@ -54,13 +54,15 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup }) => {
                         const isCreator = isGroupCreator(group);
 
                         return (
-                            <li key={`group-${group.id}`}>
+                            <li key={`group-${group.id}`} className="p-4 border border-gray-300 rounded-md">
                                 <div>
-                                    <h3>{group.name}</h3>
-                                    <p>{group.description}</p>
+                                    <h3 className="text-lg font-semibold">{group.name}</h3>
+                                    <p className="text-gray-600  font-semibold">{group.description}</p>
 
                                     {alreadyInGroup || isCreator ? (
-                                        <p>{isCreator ? 'You are the creator' : 'Already a member'}</p>
+                                        <p className="text-gray-500">
+                                            {isCreator ? 'You are the creator' : 'Already a member'}
+                                        </p>
                                     ) : (
                                         <JoinGroup groupId={group.id} currentUser={user as User | null} />
                                     )}
@@ -68,8 +70,8 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup }) => {
                                     {/* Button to select group for creating an event */}
                                     {(isCreator || alreadyInGroup) && (
                                         <button
-                                            onClick={() => onSelectGroup(group.id)}
-                                            className="bg-blue-500 text-white px-4 py-2 mt-2"
+                                            onClick={() => { onSelectGroup(group.id) }}
+                                            className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out"
                                         >
                                             Select Group for Event Creation
                                         </button>

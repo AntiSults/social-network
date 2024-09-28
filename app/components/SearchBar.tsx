@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/app/context/UserContext';
-import { searchUsers } from '@/app/utils/searchUsers'; // Search logic moved to utility
+import { searchUsers } from '@/app/utils/searchUsers';
 import { User as SearchResult } from "@/app/utils/types";
 
 const SearchBar: React.FC = () => {

@@ -41,31 +41,40 @@ const CreateGroupForm = () => {
     };
 
     return (
-        <div>
-            {success && <p>Group created successfully!</p>}
-            {error && <p>{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <label>
-                    Group Name:
+        <div className="bg-white shadow-md rounded-lg p-6 mb-4">
+            {success && <p className="text-green-500 font-semibold">Group created successfully!</p>}
+            {error && <p className="text-red-500 font-semibold">{error}</p>}
+            <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+                <label className="flex flex-col">
+                    <span className="font-semibold">Group Name:</span>
                     <input
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         required
+                        className="border border-gray-300 rounded-md p-2"
                     />
                 </label>
-                <label>
-                    Description:
+                <label className="flex flex-col">
+                    <span className="font-semibold">Description:</span>
                     <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         required
+                        className="border border-gray-300 rounded-md p-2"
                     />
                 </label>
-                <button type="submit">Create Group</button>
+                <div className="flex justify-center">
+                    <button
+                        type="submit"
+                        className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out"
+                    >
+                        Create Group
+                    </button>
+                </div>
             </form>
         </div>
-    );
+    );    
 };
 
 export default CreateGroupForm;
