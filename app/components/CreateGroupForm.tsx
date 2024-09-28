@@ -64,12 +64,14 @@ const CreateGroupForm = () => {
                         className="border border-gray-300 rounded-md p-2"
                     />
                 </label>
-                <button
-                    type="submit"
-                    className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out"
-                >
-                    Create Group
-                </button>
+                <div className="flex justify-center">
+                    <button
+                        type="submit"
+                        className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out"
+                    >
+                        Create Group
+                    </button>
+                </div>
             </form>
         </div>
     );    

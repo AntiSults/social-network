@@ -77,7 +77,7 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup }) => {
                                     {(isCreator || alreadyInGroup) && (
                                         <button
                                             onClick={() => {onSelectGroup(group.id)}}
-                                            className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out"
+                                            className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out ml-4"
                                         >
                                             Select Group for Invitation
                                         </button>
