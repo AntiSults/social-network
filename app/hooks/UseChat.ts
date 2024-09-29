@@ -2,13 +2,7 @@ import { useState, useEffect } from "react";
 import { clientCookieToken } from "@/app/utils/auth";
 import checkLoginStatus from "@/app/utils/checkLoginStatus";
 import { useUser } from "@/app/context/UserContext";
-import { Message } from "@/app/utils/types";
-
-interface Recipient {
-  id: number;
-  name: string;
-  type: "user" | "group";
-}
+import { Message, Recipient } from "@/app/utils/types";
 
 interface User {
   ID: number;

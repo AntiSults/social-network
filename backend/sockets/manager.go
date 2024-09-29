@@ -6,10 +6,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"social-network/db/sqlite"
 	"social-network/handlers"
 	"social-network/middleware"
 	"social-network/structs"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -186,13 +189,11 @@ func (m *Manager) addClient(client *Client) {
 func (m *Manager) removeClient(client *Client) {
 	m.Lock()
 	defer m.Unlock()
-
 	// Check if Client exists, then delete it
 	if _, ok := m.Clients[client]; ok {
 		// close connection
 		client.connection.Close()
 		// remove
-		//fmt.Println(client.nickname, "WS connection closed")
 		delete(m.Clients, client)
 		delete(m.ClientsByUserID, client.clientId) // Remove from ClientsByUserID
 	}
@@ -202,11 +203,25 @@ func (m *Manager) removeClient(client *Client) {
 func checkOrigin(r *http.Request) bool {
 	// Grab the request origin
 	origin := r.Header.Get("Origin")
-
-	switch origin {
-	case "http://localhost:8080", "http://localhost:3000":
-		return true
-	default:
+	if origin == "" {
 		return false
 	}
+	// Parse the origin to extract the host and port
+	u, err := url.Parse(origin)
+	if err != nil {
+		return false
+	}
+	hostParts := strings.Split(u.Host, ":")
+	if len(hostParts) != 2 {
+		return false
+	}
+	port, err := strconv.Atoi(hostParts[1])
+	if err != nil {
+		return false
+	}
+	// Allow localhost with port range 3000-3010 or specific other origins
+	if (hostParts[0] == "localhost" && port >= 3000 && port <= 3010) || origin == "http://localhost:8080" {
+		return true
+	}
+	return false
 }
