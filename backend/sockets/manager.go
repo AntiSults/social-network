@@ -55,7 +55,7 @@ func (m *Manager) setupEventHandlers() {
 }
 
 func (m *Manager) handleUpload(e Event, c *Client) error {
-
+	fmt.Println("Request Upload type", e.Type)
 	if e.Type != "initial_upload" {
 		return fmt.Errorf("unexpected event type: %s", e.Type)
 	}

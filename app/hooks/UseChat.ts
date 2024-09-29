@@ -19,13 +19,16 @@ interface Event {
   token: string;
 }
 
-const useChat = (groupId?: string) => {
+const useChat = (initialGroupId?: string) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [users, setUsers] = useState<Record<number, User>>({});
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const { user: currentUser } = useUser();
+
+  // Add groupId state here
+  const [groupId, setGroupId] = useState<string | null>(initialGroupId || null);
 
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [selectedRecipient, setSelectedRecipient] = useState<number | null>(null);
@@ -39,8 +42,8 @@ const useChat = (groupId?: string) => {
       console.log("Connected to WebSocket server");
       if (clientToken) {
         const uploadRequest = {
-          type: groupId ? "initial_group_upload" : "initial_upload", // Switch type based on chat context
-          payload: { groupId: groupId || null }, // Pass groupId if it's a group chat
+          type: groupId ? "initial_group_upload" : "initial_upload",
+          payload: { groupId: groupId || null },
           sessionToken: clientToken,
         };
         socketInstance.send(JSON.stringify(uploadRequest));
@@ -52,12 +55,10 @@ const useChat = (groupId?: string) => {
       const incomingEvent: Event = JSON.parse(event.data);
 
       if (incomingEvent.type === "initial_upload_response" || incomingEvent.type === "initial_group_upload_response") {
-        // Set messages from initial upload response
         if (Array.isArray(incomingEvent.payload.Message)) {
           setMessages(incomingEvent.payload.Message);
         }
 
-        // Set users from initial upload response
         if (Array.isArray(incomingEvent.payload.User)) {
           const usersById = incomingEvent.payload.User.reduce((acc, user) => {
             acc[user.ID] = user;
@@ -66,19 +67,20 @@ const useChat = (groupId?: string) => {
 
           setUsers(usersById);
 
-          // Transform users into recipients format
           const formattedRecipients: Recipient[] = incomingEvent.payload.User.map(user => ({
             id: user.ID,
             name: `${user.firstName} ${user.lastName}`,
-            type: groupId ? "group" : "user" // Label based on group or individual chat
+            type: groupId ? "group" : "user",
           }));
 
           setRecipients(formattedRecipients);
         }
       }
 
-      if (incomingEvent.type === "chat_message" && incomingEvent.payload.Message) {
-        setMessages((prevMessages) => [...prevMessages, ...incomingEvent.payload.Message]);
+      if (incomingEvent.type === "chat_message" || incomingEvent.type === "group_chat_message") {
+        if (incomingEvent.payload.Message) {
+          setMessages((prevMessages) => [...prevMessages, ...incomingEvent.payload.Message]);
+        }
       }
     };
 
@@ -95,7 +97,7 @@ const useChat = (groupId?: string) => {
     return () => {
       socketInstance.close();
     };
-  }, [groupId]); // Re-run effect if groupId changes
+  }, [groupId]);
 
   const sendChatMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,7 +117,7 @@ const useChat = (groupId?: string) => {
       };
 
       const event: Event = {
-        type: groupId ? "group_chat_message" : "chat_message", // Switch between regular and group message
+        type: groupId ? "group_chat_message" : "chat_message",
         payload: { Message: [payload], User: [] },
         token: clientToken,
       };
@@ -135,7 +137,8 @@ const useChat = (groupId?: string) => {
     users,
     recipients,
     selectedRecipient,
-    setSelectedRecipient
+    setSelectedRecipient,
+    setGroupId, // Return setGroupId to be able to update it
   };
 };
 
