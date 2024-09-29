@@ -32,7 +32,7 @@ export interface GroupJoinRequest {
 export interface Recipient {
     id: number;
     name: string;
-    type: "user";
+    type: "user" | "group";
 }
 
 export interface Message {

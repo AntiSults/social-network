@@ -5,12 +5,12 @@ import { useUser } from '@/app/context/UserContext';
 import { User, Group } from "@/app/utils/types";
 
 interface GroupListProps {
-    onSelectGroup: (groupId: number) => void; // Prop to pass selected group for action
-    actionType: 'invite' | 'createEvent'; // Action type to customize the button
+    onSelectGroup: (groupId: number) => void;  // Pass group ID when selected
+    actionType: 'invite' | 'createEvent' | 'chat'; // Add 'chat' for group chat selection
 }
 
 const GroupList: React.FC<GroupListProps> = ({ onSelectGroup, actionType }) => {
-    const { user } = useUser(); // Current logged-in user context
+    const { user } = useUser();  // Current logged-in user context
     const [groups, setGroups] = useState<Group[]>([]);
     const [error, setError] = useState<string | null>(null);
     const currentUser = user;
@@ -51,6 +51,7 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup, actionType }) => {
                         if (!group || !group.id) {
                             return null;
                         }
+
                         const alreadyInGroup = isUserInGroup(group);
                         const isCreator = isGroupCreator(group);
 
@@ -68,15 +69,17 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup, actionType }) => {
                                         <JoinGroup groupId={group.id} currentUser={user as User | null} />
                                     )}
 
-                                    {/* Button to select group based on the action type */}
+                                    {/* Button to select group for the desired action */}
                                     {(isCreator || alreadyInGroup) && (
                                         <button
-                                            onClick={() => onSelectGroup(group.id)}
+                                            onClick={() => onSelectGroup(group.id)}  // Call onSelectGroup with the group ID
                                             className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out"
                                         >
                                             {actionType === 'createEvent'
                                                 ? 'Select Group for Event Creation'
-                                                : 'Select Group for Sending Invite'}
+                                                : actionType === 'invite'
+                                                    ? 'Select Group for Sending Invite'
+                                                    : 'Select Group for Chat'}
                                         </button>
                                     )}
                                 </div>
