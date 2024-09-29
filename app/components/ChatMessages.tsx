@@ -18,10 +18,9 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, users, currentUse
         <div className="chat-messages mb-4 max-h-96 overflow-y-auto border border-gray-300 rounded-md p-2">
             {messages.map((msg, index) => {
                 const sender = users[msg.fromUserID];
-                const senderName = currentUser && msg.fromUserID === currentUser.ID ? "Me" : `${sender?.firstName || 'Unknown'} ${sender?.lastName || 'User'}`;
-                // Handle individual vs group message logic (for future use if needed)
-                const isGroupMessage = Array.isArray(msg.toUserID) && msg.toUserID.length > 1;
-
+                const senderName = currentUser && msg.fromUserID === currentUser.ID
+                    ? "Me"
+                    : `${sender?.firstName || 'Unknown'} ${sender?.lastName || 'User'}`;
 
                 return (
                     <div

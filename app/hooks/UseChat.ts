@@ -2,14 +2,12 @@ import { useState, useEffect } from "react";
 import { clientCookieToken } from "@/app/utils/auth";
 import checkLoginStatus from "@/app/utils/checkLoginStatus";
 import { useUser } from "@/app/context/UserContext";
-import { Recipient } from "@/app/utils/types";
+import { Message } from "@/app/utils/types";
 
-interface Message {
-  id?: number;
-  content: string;
-  fromUserID: number;
-  toUserID: number | number[];
-  created: string;
+interface Recipient {
+  id: number;
+  name: string;
+  type: "user" | "group";
 }
 
 interface User {
@@ -36,7 +34,7 @@ const useChat = () => {
   const { user: currentUser } = useUser();
 
   const [recipients, setRecipients] = useState<Recipient[]>([]);
-  const [selectedRecipient, setSelectedRecipient] = useState<number | number[]>([]); // Always an array
+  const [selectedRecipient, setSelectedRecipient] = useState<number | null>(null); // Now a single number
 
   useEffect(() => {
     setIsLoggedIn(checkLoginStatus());
@@ -114,11 +112,11 @@ const useChat = () => {
       return;
     }
 
-    if (socket && message.trim() !== "" && currentUser) {
+    if (socket && message.trim() !== "" && currentUser && selectedRecipient !== null) {
       const payload: Message = {
         content: message,
         fromUserID: currentUser.ID,
-        toUserID: selectedRecipient,
+        toUserID: selectedRecipient, // Single recipient now
         created: new Date().toISOString(),
       };
 
@@ -127,7 +125,7 @@ const useChat = () => {
         payload: { Message: [payload], User: [] },
         token: clientToken,
       };
-      console.log(event)
+
       socket.send(JSON.stringify(event));
       setMessage("");
       setMessages((prevMessages) => [...prevMessages, payload]);

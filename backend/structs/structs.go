@@ -51,13 +51,14 @@ type Message struct {
 	ID          int    `json:"id,omitempty"`
 	Content     string `json:"content"`
 	Created     string `json:"created"`
-	RecipientID []int  `json:"toUserID"`
+	RecipientID int    `json:"toUserID"`
 	SenderID    int    `json:"fromUserID"`
 }
 
 type ChatMessage struct {
 	Message []Message
 	User    []User
+	// Group   []Group
 }
 
 type Post struct {
