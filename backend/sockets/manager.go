@@ -68,7 +68,6 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 	if err != nil {
 		return fmt.Errorf("error getting ID from session token: %w", err)
 	}
-	fmt.Println("user ID", userID)
 	// getting slice of followers
 	followerSlice, err := sqlite.Db.GetFollowersSlice(userID)
 	if err != nil {

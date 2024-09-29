@@ -60,46 +60,47 @@ func (d *Database) FetchMessages(userID int) ([]structs.Message, error) {
 	return messages, nil
 }
 
-func (d *Database) GetGroupsWithMembersByUser(userID int) ([]structs.Group, error) {
-	var groups []structs.Group
-
-	rows, err := d.db.Query(`
-        SELECT 
-            g.ID, g.Name, g.Description, g.CreatorID, 
-    		IFNULL(GROUP_CONCAT(u.ID), '') AS members 
-        FROM 
-            Groups g
-        LEFT JOIN 
-            GroupUsers gu ON gu.GroupID = g.ID
-        LEFT JOIN 
-            Users u ON u.ID = gu.UserID
-        WHERE 
-            g.CreatorID = ? OR g.ID IN (
-                SELECT GroupID FROM GroupUsers WHERE UserID = ?
-            )
-        GROUP BY 
-            g.ID;
-    `, userID, userID)
-
+func (d *Database) SaveGroupMessage(message *structs.GroupMessage) (*structs.GroupMessage, error) {
+	// Step 1: Insert the message into the GroupMessages table
+	res, err := d.db.Exec(
+		"INSERT INTO GroupMessages (content, fromuser, toUserID, groupID, time_created) VALUES(?,?,?,?,?)",
+		message.Content, message.SenderID, message.RecipientID, message.GroupID, message.Created,
+	)
 	if err != nil {
 		return nil, err
 	}
+
+	// Get the last inserted message ID
+	id, err := res.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	message.ID = int(id)
+
+	return message, nil
+}
+
+func (d *Database) FetchGroupMessages(groupID int, userID int) ([]structs.GroupMessage, error) {
+	rows, err := d.db.Query(`
+        SELECT id, content, fromuser, toUserID, groupID, time_created
+        FROM GroupMessages
+        WHERE groupID = ? AND (fromuser = ? OR toUserID = ?)
+        ORDER BY time_created ASC
+    `, groupID, userID, userID)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch group messages: %w", err)
+	}
 	defer rows.Close()
 
+	var messages []structs.GroupMessage
+
 	for rows.Next() {
-		var group structs.Group
-		var memberList string // This will hold the CSV of user IDs
-		if err := rows.Scan(&group.ID, &group.Name, &group.Description, &group.CreatorID, &memberList); err != nil {
-			return nil, err
+		var message structs.GroupMessage
+		if err := rows.Scan(&message.ID, &message.Content, &message.SenderID, &message.RecipientID, &message.GroupID, &message.Created); err != nil {
+			return nil, fmt.Errorf("failed to scan group message: %w", err)
 		}
-
-		// Convert the CSV member list to a slice of integers
-		group.Members = convertCSVToIntSlice(memberList)
-		if memberList == "" {
-			group.Members = []int{}
-		}
-		groups = append(groups, group)
+		messages = append(messages, message)
 	}
-
-	return groups, nil
+	return messages, nil
 }
