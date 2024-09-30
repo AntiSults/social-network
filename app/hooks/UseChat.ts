@@ -121,12 +121,12 @@ const useChat = (initialGroupId?: string) => {
         fromUserID: currentUser.ID,
         toUserID: selectedRecipient,
         created: new Date().toISOString(),
+        groupID: groupId !== null ? +groupId : 0,
       };
-      const gi: number = groupId !== null ? +groupId : 0;
-      currentUser.ID = gi
+
       const event: Event = {
         type: groupId ? "group_chat_message" : "chat_message",
-        payload: { Message: [payload], User: [currentUser] },
+        payload: { Message: [payload], User: [] },
         token: clientToken,
       };
 

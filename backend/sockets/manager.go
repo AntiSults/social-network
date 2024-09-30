@@ -168,15 +168,13 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 func (m *Manager) handleMessages(e Event, c *Client) error {
 	if e.Type == "group_chat_message" {
 		var common structs.ChatMessage
-		fmt.Printf("Handling %v event\n", string(e.Type))
+		fmt.Printf("Handling %v event\n", e.Type)
+
 		err := json.Unmarshal(e.Payload, &common)
 		if err != nil {
 			return fmt.Errorf("error unmarshalling the payload: %w", err)
 		}
-
-		common.Message[0].GroupID = common.User[0].ID
 		_, err = sqlite.Db.SaveGroupMessage(&common.Message[0])
-
 		if err != nil {
 			log.Println("error saving PM into db: ", err)
 		}
@@ -189,7 +187,7 @@ func (m *Manager) handleMessages(e Event, c *Client) error {
 		return nil
 	} else if e.Type == "chat_message" {
 		var common structs.ChatMessage
-		fmt.Printf("Handling %v event\n", string(e.Type))
+		fmt.Printf("Handling %v event\n", e.Type)
 		err := json.Unmarshal(e.Payload, &common)
 		if err != nil {
 			return fmt.Errorf("error unmarshalling the payload: %w", err)

@@ -41,6 +41,7 @@ export interface Message {
     fromUserID: number;
     toUserID: number | number[];
     created: string;
+    groupID: number | null;
 }
 
 export interface Post {
