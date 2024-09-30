@@ -33,9 +33,8 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 		middleware.SendErrorResponse(w, "Invalid input"+err.Error(), http.StatusBadRequest)
 		return
 	}
-	eventDate := "2024-09-30 12:00:00"
-	eventDate = req.EventDate
-	err := sqlite.Db.CreateEvent(req.GroupID, req.Title, req.Description, eventDate)
+
+	err := sqlite.Db.CreateEvent(req.GroupID, req.Title, req.Description, req.EventDate)
 	if err != nil {
 		middleware.SendErrorResponse(w, "Failed to insert group into DB"+err.Error(), http.StatusInternalServerError)
 		return
