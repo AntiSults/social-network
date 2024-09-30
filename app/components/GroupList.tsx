@@ -53,7 +53,7 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup, actionType }) => {
                         }
 
                         const alreadyInGroup = isUserInGroup(group);
-                        const isCreator = isGroupCreator(group);
+                        const isCreator = isGroupCreator(group) && isUserInGroup(group);
 
                         return (
                             <li key={`group-${group.id}`} className="p-4 border border-gray-300 rounded-md">

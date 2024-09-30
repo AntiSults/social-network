@@ -3,9 +3,10 @@ package sqlite
 import "social-network/structs"
 
 func (d *Database) CreateEvent(groupID int, title, description string, eventDate string) error {
+	// Use STRFTIME to convert the incoming format when inserting
 	_, err := d.db.Exec(`
         INSERT INTO GroupEvents (GroupID, Title, Description, EventDate)
-        VALUES (?, ?, ?, ?)`, groupID, title, description, eventDate)
+        VALUES (?, ?, ?, STRFTIME('%Y-%m-%d %H:%M:%S', ?) )`, groupID, title, description, eventDate)
 	return err
 }
 

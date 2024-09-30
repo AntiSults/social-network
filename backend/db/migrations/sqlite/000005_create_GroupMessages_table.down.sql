@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS GroupMessages
+DROP TABLE IF EXISTS GroupMessages;

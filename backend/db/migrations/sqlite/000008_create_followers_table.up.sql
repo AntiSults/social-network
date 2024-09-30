@@ -1,4 +1,4 @@
-CREATE TABLE followers (
+CREATE TABLE IF NOT EXISTS followers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER,
     follower_id INTEGER,

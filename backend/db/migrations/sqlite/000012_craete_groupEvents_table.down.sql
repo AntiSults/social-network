@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS GroupEvents
+DROP TABLE IF EXISTS GroupEvents;

@@ -1,4 +1,4 @@
-CREATE TABLE EventReactions (
+CREATE TABLE IF NOT EXISTS EventReactions (
     EventID INTEGER NOT NULL,
     UserID INTEGER NOT NULL,
     Reaction TEXT CHECK (Reaction IN ('going', 'not going')),

@@ -1,0 +1,7 @@
+CREATE TRIGGER IF NOT EXISTS AddCreatorToGroupUsers
+AFTER INSERT ON Groups
+FOR EACH ROW
+BEGIN
+    INSERT INTO GroupUsers (GroupID, UserID)
+    VALUES (NEW.ID, NEW.CreatorID);
+END;
