@@ -41,14 +41,21 @@ const useChat = (initialGroupId?: string) => {
     socketInstance.onopen = () => {
       console.log("Connected to WebSocket server");
       if (clientToken) {
-        const uploadRequest = {
-          type: groupId ? "initial_group_upload" : "initial_upload",
-          payload: { groupId: groupId || null },
-          sessionToken: clientToken,
-        };
+        const uploadRequest = groupId
+          ? {
+            type: "initial_group_upload",
+            payload: { groupId },
+            sessionToken: clientToken,
+          }
+          : {
+            type: "initial_upload",
+            sessionToken: clientToken,
+          };
+
         socketInstance.send(JSON.stringify(uploadRequest));
       }
     };
+
 
     socketInstance.onmessage = (event) => {
       console.log("Received message:", event.data);
@@ -115,10 +122,11 @@ const useChat = (initialGroupId?: string) => {
         toUserID: selectedRecipient,
         created: new Date().toISOString(),
       };
-
+      const gi: number = groupId !== null ? +groupId : 0;
+      currentUser.ID = gi
       const event: Event = {
         type: groupId ? "group_chat_message" : "chat_message",
-        payload: { Message: [payload], User: [] },
+        payload: { Message: [payload], User: [currentUser] },
         token: clientToken,
       };
 
@@ -138,6 +146,7 @@ const useChat = (initialGroupId?: string) => {
     recipients,
     selectedRecipient,
     setSelectedRecipient,
+    groupId,
     setGroupId, // Return setGroupId to be able to update it
   };
 };

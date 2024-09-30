@@ -51,83 +51,165 @@ func (m *Manager) setupEventHandlers() {
 
 	// may add different events e.g. for sending posts, comments, notifications in future
 	m.handlers[EventMessage] = m.handleMessages
+	m.handlers[EventGroupMessage] = m.handleMessages
 	m.handlers[EventUpload] = m.handleUpload
+	m.handlers[EventGroupUpload] = m.handleUpload
 }
 
 func (m *Manager) handleUpload(e Event, c *Client) error {
-	fmt.Println("Request Upload type", e.Type)
-	if e.Type != "initial_upload" {
-		return fmt.Errorf("unexpected event type: %s", e.Type)
+	if e.Type == "initial_group_upload" {
+		var req struct {
+			GroupID string `json:"groupId"`
+		}
+		err := json.Unmarshal(e.Payload, &req)
+		if err != nil {
+			return fmt.Errorf("error unmarshalling the payload (GroupID): %w", err)
+		}
+		groupID, err := strconv.Atoi(req.GroupID)
+		if err != nil || groupID <= 0 {
+			return fmt.Errorf("invalid groupID")
+		}
+		token := e.SessionToken
+		if token == "" {
+			return fmt.Errorf("session token is missing")
+		}
+		// Attempt to get the userID from in-memory session store, then DB
+		userID, err := handlers.GetUserId(token)
+		if err != nil {
+			return fmt.Errorf("error getting ID from session token: %w", err)
+		}
+		// Fetch group messages for current User & GroupID
+		messages, err := sqlite.Db.FetchGroupMessages(groupID, userID)
+		if err != nil {
+			return fmt.Errorf("error fetching messages for user ID %d: %w", userID, err)
+		}
+		fmt.Printf("GroupID %d,\nUserID %d, \nGroup messages %v\n", groupID, userID, messages)
+		// Fetch the user IDs of the members in the group
+		groupUserIDs, err := sqlite.Db.GetGroupUsers(userID, groupID)
+		if err != nil {
+			return fmt.Errorf("error querying group users: %w", err)
+		}
+		// Fetch full user information from the user IDs
+		usersInfo, err := sqlite.Db.GetUsersByIDs(groupUserIDs)
+		if err != nil {
+			return fmt.Errorf("error querying usersInfo: %w", err)
+		}
+		// Create the response payload with messages and full user information
+		common := structs.ChatMessage{
+			Message: messages,
+			User:    usersInfo,
+		}
+		// Marshal the response to JSON
+		dataJSON, err := json.Marshal(&common)
+		if err != nil {
+			log.Println("error marshaling messages: ", err)
+			return err
+		}
+		// Create the response event for group upload
+		updateEvent := newEvent("initial_group_upload_response", dataJSON, token)
+		// Send the response to the correct client
+		if client, ok := m.ClientsByUserID[userID]; ok {
+			client.egress <- *updateEvent
+		}
+		return nil
 	}
-	token := e.SessionToken
-	if token == "" {
-		return fmt.Errorf("session token is missing")
+	// Regular initial upload (for non-group chat)
+	if e.Type == "initial_upload" {
+		token := e.SessionToken
+		if token == "" {
+			return fmt.Errorf("session token is missing")
+		}
+		// Attempt to get the userID from in-memory session store, then DB
+		userID, err := handlers.GetUserId(token)
+		if err != nil {
+			return fmt.Errorf("error getting ID from session token: %w", err)
+		}
+		// Fetch messages for the current user
+		messages, err := sqlite.Db.FetchMessages(userID)
+		if err != nil {
+			return fmt.Errorf("error fetching messages for user ID %d: %w", userID, err)
+		}
+		// Fetch the user's followers and their info
+		followerSlice, err := sqlite.Db.GetFollowersSlice(userID)
+		if err != nil {
+			return fmt.Errorf("error querying followers slice data: %w", err)
+		}
+		// Including the current user
+		followerSlice = append(followerSlice, userID)
+		// Fetch user info from the DB
+		usersInfo, err := sqlite.Db.GetUsersByIDs(followerSlice)
+		if err != nil {
+			return fmt.Errorf("error querying usersInfo: %w", err)
+		}
+		// Create the response payload with messages and users
+		common := structs.ChatMessage{
+			Message: messages,
+			User:    usersInfo,
+		}
+		// Marshal the response to JSON
+		dataJSON, err := json.Marshal(&common)
+		if err != nil {
+			log.Println("error marshaling messages: ", err)
+			return err
+		}
+		// Create the response event for regular chat upload
+		updateEvent := newEvent("initial_upload_response", dataJSON, token)
+		// Send the response to the correct client
+		if client, ok := m.ClientsByUserID[userID]; ok {
+			client.egress <- *updateEvent
+		}
+		return nil
 	}
-	// Attempt to get the userID from in-memory session store, then DB
-	userID, err := handlers.GetUserId(token)
-	if err != nil {
-		return fmt.Errorf("error getting ID from session token: %w", err)
-	}
-	// getting slice of followers
-	followerSlice, err := sqlite.Db.GetFollowersSlice(userID)
-	if err != nil {
-		return fmt.Errorf("error querying followers slice data: %w", err)
-	}
-	//including current user
-	followerSlice = append(followerSlice, userID)
-	//getting users from db
-	usersInfo, err := sqlite.Db.GetUsersByIDs(followerSlice)
-	if err != nil {
-		return fmt.Errorf("error querying usersInfo: %w", err)
-	}
-	// Fetch messages for current User
-	messages, err := sqlite.Db.FetchMessages(userID)
-	if err != nil {
-		return fmt.Errorf("error fetching messages for user ID %d: %w", userID, err)
-	}
-	common := structs.ChatMessage{
-		Message: messages,
-		User:    usersInfo,
-		// Group:   groupInfo,
-	}
-	// Marshal messages to JSON
-	dataJSON, err := json.Marshal(&common)
-	if err != nil {
-		log.Println("error marshaling messages: ", err)
-		return err
-	}
-	// Create the response event
-	updateEvent := newEvent("initial_upload_response", dataJSON, token)
-
-	// Send the response to the correct client
-	if client, ok := m.ClientsByUserID[userID]; ok {
-		client.egress <- *updateEvent
-	}
-	return nil
+	// Handle unexpected event types
+	return fmt.Errorf("unexpected event type: %s", e.Type)
 }
 
 // handleMessages takes care of sent messages, save later to DB here
 func (m *Manager) handleMessages(e Event, c *Client) error {
+	if e.Type == "group_chat_message" {
+		var common structs.ChatMessage
+		fmt.Printf("Handling %v event\n", string(e.Type))
+		err := json.Unmarshal(e.Payload, &common)
+		if err != nil {
+			return fmt.Errorf("error unmarshalling the payload: %w", err)
+		}
 
-	var common structs.ChatMessage
-	fmt.Printf("Handling %v event\n", string(e.Type))
-	err := json.Unmarshal(e.Payload, &common)
-	if err != nil {
-		return fmt.Errorf("error unmarshalling the payload: %w", err)
+		common.Message[0].GroupID = common.User[0].ID
+		_, err = sqlite.Db.SaveGroupMessage(&common.Message[0])
+
+		if err != nil {
+			log.Println("error saving PM into db: ", err)
+		}
+		// finding user to send message to
+		updateEvent := newEvent("chat_message", e.Payload, "")
+
+		if recipientClient, ok := m.ClientsByUserID[common.Message[0].RecipientID]; ok {
+			recipientClient.egress <- *updateEvent
+		}
+		return nil
+	} else if e.Type == "chat_message" {
+		var common structs.ChatMessage
+		fmt.Printf("Handling %v event\n", string(e.Type))
+		err := json.Unmarshal(e.Payload, &common)
+		if err != nil {
+			return fmt.Errorf("error unmarshalling the payload: %w", err)
+		}
+
+		_, err = sqlite.Db.SaveMessage(&common.Message[0])
+
+		if err != nil {
+			log.Println("error saving PM into db: ", err)
+		}
+		// finding user to send message to
+		updateEvent := newEvent("chat_message", e.Payload, "")
+
+		if recipientClient, ok := m.ClientsByUserID[common.Message[0].RecipientID]; ok {
+			recipientClient.egress <- *updateEvent
+		}
+		return nil
 	}
-
-	_, err = sqlite.Db.SaveMessage(&common.Message[0])
-
-	if err != nil {
-		log.Println("error saving PM into db: ", err)
-	}
-	// finding user to send message to
-	updateEvent := newEvent("chat_message", e.Payload, "")
-
-	if recipientClient, ok := m.ClientsByUserID[common.Message[0].RecipientID]; ok {
-		recipientClient.egress <- *updateEvent
-	}
-	return nil
+	// Handle unexpected event types
+	return fmt.Errorf("unexpected event type: %s", e.Type)
 }
 
 // routeEvent routing Events to appropriate handler

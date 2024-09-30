@@ -12,6 +12,7 @@ interface ChatInputProps {
     recipients: Recipient[];
     selectedRecipient: number | null;
     setSelectedRecipient: React.Dispatch<React.SetStateAction<number | null>>;
+    groupId: string | null;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -21,6 +22,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     recipients,
     selectedRecipient,
     setSelectedRecipient,
+    groupId,
 }) => {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 

@@ -19,7 +19,8 @@ const ChatMessage = () => {
         recipients,
         selectedRecipient,
         setSelectedRecipient,
-        setGroupId, // Now setGroupId is available
+        groupId,
+        setGroupId,
     } = useChat();
 
     const { user: currentUser } = useUser();
@@ -38,14 +39,21 @@ const ChatMessage = () => {
 
                 {isLoggedIn ? (
                     <>
-                        <ChatMessages messages={messages} users={users} currentUser={currentUser} />
+                        <ChatMessages
+                            messages={messages}
+                            users={users}
+                            currentUser={currentUser}
+                            groupId={groupId} // Pass groupId prop
+                            setGroupId={setGroupId}
+                        />
                         <ChatInput
                             message={message}
                             setMessage={setMessage}
-                            onSubmit={sendChatMessage}
+                            onSubmit={sendChatMessage} // Ensure this is connected
                             recipients={recipients}
                             selectedRecipient={selectedRecipient}
                             setSelectedRecipient={setSelectedRecipient}
+                            groupId={groupId} // Pass groupId prop to ChatInput
                         />
                     </>
                 ) : (
