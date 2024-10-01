@@ -47,14 +47,10 @@ func RequireLogin(next http.Handler) http.Handler {
 			return
 		}
 		// Validate the session
-		userID, err := GetUserId(cookie.Value)
-		if err != nil {
-			fmt.Println(err)
-			SendErrorResponse(w, "Please log in. "+err.Error(), http.StatusUnauthorized)
+		if !security.ValidateSession(cookie.Value) {
+			SendErrorResponse(w, "Please log in.", http.StatusUnauthorized)
 			return
 		}
-		fmt.Println(userID)
-		//?
 		next.ServeHTTP(w, r)
 	})
 }
