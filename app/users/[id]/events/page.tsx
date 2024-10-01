@@ -14,11 +14,9 @@ const EventsPage = () => {
     if (!user) {
         return <p>Loading...</p>;
     }
-
     const handleGroupSelect = (groupId: number) => {
         setSelectedGroupId(groupId);  // Set selected group ID when a group is chosen
     };
-
     return (
         <div>
             <NavBar logged={true} />

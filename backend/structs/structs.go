@@ -26,6 +26,13 @@ type Group struct {
 	Members     []int     `json:"members"`
 }
 
+type GroupMemberReaction struct {
+	UserId    int    `json:"userID"`
+	FirstName string `json:"fname"`
+	LastName  string `json:"lname"`
+	Reaction  string `json:"reaction"`
+}
+
 type Event struct {
 	ID          int    `json:"id"`
 	Title       string `json:"title"`
@@ -56,19 +63,9 @@ type Message struct {
 	GroupID     int    `json:"groupID"`
 }
 
-// type GroupMessage struct {
-// 	ID          int    `json:"id,omitempty"`
-// 	Content     string `json:"content"`
-// 	Created     string `json:"created"`
-// 	RecipientID int    `json:"toUserID"`
-// 	SenderID    int    `json:"fromUserID"`
-// 	GroupID     int    `json:"groupID"`
-// }
-
 type ChatMessage struct {
 	Message []Message
 	User    []User
-	// Group   []Group
 }
 
 type Post struct {

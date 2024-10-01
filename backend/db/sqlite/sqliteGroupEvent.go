@@ -49,3 +49,31 @@ func (d *Database) GetAllEvents(UserID int) ([]structs.Event, error) {
 
 	return events, nil
 }
+func (d *Database) GetMembersWithReactions(EventID, GroupID int) ([]structs.GroupMemberReaction, error) {
+
+	var members []structs.GroupMemberReaction
+	query := `
+		SELECT gu.UserID, u.FirstName, u.LastName, COALESCE(er.Reaction, 'pending') AS Reaction
+		FROM GroupUsers gu
+		JOIN Users u ON gu.UserID = u.ID
+		LEFT JOIN EventReactions er ON er.UserID = gu.UserID AND er.EventID = ?
+		WHERE gu.GroupID = ?
+	`
+	rows, err := d.db.Query(query, EventID, GroupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var member structs.GroupMemberReaction
+		if err := rows.Scan(&member.UserId, &member.FirstName, &member.LastName, &member.Reaction); err != nil {
+			return nil, err
+		}
+		members = append(members, member)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return members, nil
+}

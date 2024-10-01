@@ -60,3 +60,10 @@ export interface Event {
     eventDate: string;
     groupId: number;
 }
+
+export type GroupMemberReaction = {
+    userID: number;
+    fname: string;
+    lname: string;
+    reaction: 'going' | 'not going' | 'pending';
+};

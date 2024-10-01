@@ -65,3 +65,34 @@ func EventReaction(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }
+
+func GetGroupMembersWithReactions(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	eventIDstr := r.URL.Query().Get("eventID")
+	groupIDstr := r.URL.Query().Get("groupID")
+
+	if eventIDstr == "" || groupIDstr == "" {
+		middleware.SendErrorResponse(w, "Invalid parameters", http.StatusBadRequest)
+		return
+	}
+	eventID, err := strconv.Atoi(eventIDstr)
+	if err != nil || eventID <= 0 {
+		middleware.SendErrorResponse(w, "Invalid eventID", http.StatusBadRequest)
+		return
+	}
+	groupID, err := strconv.Atoi(groupIDstr)
+	if err != nil || groupID <= 0 {
+		middleware.SendErrorResponse(w, "Invalid groupID", http.StatusBadRequest)
+		return
+	}
+
+	members, err := sqlite.Db.GetMembersWithReactions(eventID, groupID)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Error fetching members with reactions", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(members)
+}

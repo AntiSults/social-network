@@ -15,7 +15,6 @@ const EventReactions = ({ eventId }: { eventId: number }) => {
             setError('You must be logged in to respond to an event.');
             return;
         }
-
         setLoading(true);
         setError(null);
         setStatus(null);
@@ -45,7 +44,7 @@ const EventReactions = ({ eventId }: { eventId: number }) => {
 
     return (
         <div>
-            <h3>Will you attend?</h3>
+            <h3>Add/Change your reaction</h3>
             {error && <p className="text-red-500">{error}</p>}
             {status && <p className="text-green-500">{status}</p>}
 
