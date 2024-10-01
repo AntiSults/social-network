@@ -34,9 +34,9 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	// Check if session exists in memory
 	if session, ok := security.DbSessions[cookie.Value]; ok {
 		// Protect UserMap with write lock before deletion
-		UserMapLock.Lock()
-		delete(UserMap, session.UserID)
-		UserMapLock.Unlock()
+		middleware.UserMapLock.Lock()
+		delete(middleware.UserMap, session.UserID)
+		middleware.UserMapLock.Unlock()
 	}
 
 	security.RemoveSession(cookie.Value)

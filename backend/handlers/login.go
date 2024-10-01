@@ -8,14 +8,6 @@ import (
 	"social-network/db/sqlite"
 	"social-network/middleware"
 	"social-network/security"
-	"social-network/structs"
-	"sync"
-)
-
-// Creating local variable for storing users online.
-var (
-	UserMap     = make(map[int]structs.User)
-	UserMapLock sync.RWMutex // Mutex to protect UserMap
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -46,9 +38,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	security.NewSession("session_token", user.ID, w)
 
 	// Protect UserMap with write lock
-	UserMapLock.Lock()
-	UserMap[user.ID] = *user
-	UserMapLock.Unlock()
+	middleware.UserMapLock.Lock()
+	middleware.UserMap[user.ID] = *user
+	middleware.UserMapLock.Unlock()
 
 	jsonData, err := json.Marshal(user)
 	if err != nil {

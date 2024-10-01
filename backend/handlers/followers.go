@@ -25,7 +25,7 @@ func FollowUser(w http.ResponseWriter, r *http.Request) {
 		middleware.SendErrorResponse(w, "Invalid input", http.StatusBadRequest)
 		return
 	}
-	user, err := GetUser(req.UserID)
+	user, err := middleware.GetUser(req.UserID)
 	if err != nil {
 		middleware.SendErrorResponse(w, "Error querying user data to struct"+err.Error(), http.StatusInternalServerError)
 		return

@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"social-network/db/sqlite"
-	"social-network/handlers"
 	"social-network/middleware"
 	"social-network/structs"
 	"strconv"
@@ -74,7 +73,7 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 			return fmt.Errorf("session token is missing")
 		}
 		// Attempt to get the userID from in-memory session store, then DB
-		userID, err := handlers.GetUserId(token)
+		userID, err := middleware.GetUserId(token)
 		if err != nil {
 			return fmt.Errorf("error getting ID from session token: %w", err)
 		}
@@ -120,7 +119,7 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 			return fmt.Errorf("session token is missing")
 		}
 		// Attempt to get the userID from in-memory session store, then DB
-		userID, err := handlers.GetUserId(token)
+		userID, err := middleware.GetUserId(token)
 		if err != nil {
 			return fmt.Errorf("error getting ID from session token: %w", err)
 		}
@@ -233,7 +232,7 @@ func (m *Manager) Serve_WS(w http.ResponseWriter, r *http.Request) {
 		middleware.SendErrorResponse(w, "Error getting token: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-	userID, err := handlers.GetUserId(cookie.Value)
+	userID, err := middleware.GetUserId(cookie.Value)
 	if err != nil {
 		middleware.SendErrorResponse(w, "Error getting user ID: "+err.Error(), http.StatusBadRequest)
 		return
