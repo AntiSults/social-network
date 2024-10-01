@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import React from "react";
+import React, { useEffect } from "react";
 import { useUser } from "@/app/context/UserContext";
 
 interface Props {
@@ -22,6 +22,31 @@ const NavBar = ({ logged, logpage = false }: Props) => {
       console.log("Logout failed: ", data.message);
     }
   };
+
+  //this one logging out if you close the tab
+  useEffect(() => {
+    let isNavigating = false;
+    // Detect navigation within the app
+    const handleBeforeNavigate = () => {
+      isNavigating = true;
+    };
+    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
+      if (!isNavigating) {
+        // Only log out if it is not navigating but closing the tab
+        await fetch("http://localhost:8080/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("click", handleBeforeNavigate);  // Tracks clicks on links/buttons for navigation
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("click", handleBeforeNavigate);
+    };
+  }, []);
 
   return (
     <div>
