@@ -26,6 +26,7 @@ func SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/followers/pending", HandleFollowers)
 	mux.HandleFunc("/followers/accept", HandleFollowers)
 	mux.HandleFunc("/followers/reject", HandleFollowers)
+	mux.HandleFunc("/followers/followersList", HandleFollowers)
 	mux.HandleFunc("/groups", HandleGroups)
 	mux.HandleFunc("/groups/join-request", HandleGroups)
 	mux.HandleFunc("/groups/invite", HandleGroups)
@@ -52,6 +53,10 @@ func HandleFollowers(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.Method == http.MethodGet && r.URL.Path == "/followers/pending" {
 		handlers.GetPendingFollowRequests(w, r)
+		return
+	}
+	if r.Method == http.MethodGet && r.URL.Path == "/followers/followersList" {
+		handlers.GetFollowLists(w, r)
 		return
 	}
 	switch r.Method {
