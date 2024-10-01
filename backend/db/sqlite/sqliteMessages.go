@@ -132,45 +132,28 @@ func (d *Database) GetGroupUsers(UserID, GroupID int) ([]int, error) {
 	return users, nil
 }
 
-// func (d *Database) GetGroupsWithMembersByUser(userID int) ([]structs.Group, error) {
-// 	var groups []structs.Group
+func (d *Database) GetGroupMembers(GroupID int) ([]int, error) {
+	var users []int
+	query := `
+        SELECT UserID FROM GroupUsers
+        WHERE GroupID = ?
+    `
+	rows, err := d.db.Query(query, GroupID)
+	if err != nil {
+		return nil, fmt.Errorf("error querying group members: %v", err)
+	}
+	defer rows.Close()
 
-// 	rows, err := d.db.Query(`
-//         SELECT
-//             g.ID, g.Name, g.Description, g.CreatorID,
-//     		IFNULL(GROUP_CONCAT(u.ID), '') AS members
-//         FROM
-//             Groups g
-//         LEFT JOIN
-//             GroupUsers gu ON gu.GroupID = g.ID
-//         LEFT JOIN
-//             Users u ON u.ID = gu.UserID
-//         WHERE
-//             g.CreatorID = ? OR g.ID IN (
-//                 SELECT GroupID FROM GroupUsers WHERE UserID = ?
-//             )
-//         GROUP BY
-//             g.ID;
-//     `, userID, userID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
+	for rows.Next() {
+		var userID int
+		if err := rows.Scan(&userID); err != nil {
+			return nil, fmt.Errorf("error scanning userID: %v", err)
+		}
+		users = append(users, userID)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error during rows iteration: %v", err)
+	}
 
-// 	for rows.Next() {
-// 		var group structs.Group
-// 		var memberList string // This will hold the CSV of user IDs
-// 		if err := rows.Scan(&group.ID, &group.Name, &group.Description, &group.CreatorID, &memberList); err != nil {
-// 			return nil, err
-// 		}
-
-// 		// Convert the CSV member list to a slice of integers
-// 		group.Members = convertCSVToIntSlice(memberList)
-// 		if memberList == "" {
-// 			group.Members = []int{}
-// 		}
-// 		groups = append(groups, group)
-// 	}
-
-// 	return groups, nil
-// }
+	return users, nil
+}

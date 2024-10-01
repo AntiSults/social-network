@@ -13,6 +13,9 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup, actionType }) => {
     const { user } = useUser();  // Current logged-in user context
     const [groups, setGroups] = useState<Group[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [showMembers, setShowMembers] = useState<boolean>(false);
+    const [members, setMembers] = useState<User[]>([]);
+    const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
     const currentUser = user;
 
     useEffect(() => {
@@ -28,6 +31,22 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup, actionType }) => {
         };
         fetchGroups();
     }, []);
+
+    const fetchGroupMembers = async (groupId: number) => {
+        try {
+            const response = await fetch(`http://localhost:8080/groups/members?groupId=${groupId}`);
+            const data = await response.json();
+            setMembers(data);
+            setShowMembers(true);
+        } catch (err) {
+            console.error('Failed to fetch group members', err);
+        }
+    };
+
+    const handleViewMembers = (groupId: number) => {
+        setSelectedGroupId(groupId);
+        fetchGroupMembers(groupId);
+    };
 
     const isUserInGroup = (group: Group) => {
         return group.members?.includes(currentUser?.ID ?? -1);
@@ -61,6 +80,13 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup, actionType }) => {
                                     <h3 className="text-lg font-semibold">{group.name}</h3>
                                     <p className="text-gray-600 font-semibold">{group.description}</p>
 
+                                    <button
+                                        onClick={() => handleViewMembers(group.id)}
+                                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg"
+                                    >
+                                        View Members
+                                    </button>
+
                                     {alreadyInGroup || isCreator ? (
                                         <p className="text-gray-500">
                                             {isCreator ? 'You are the creator' : 'Already a member'}
@@ -88,6 +114,25 @@ const GroupList: React.FC<GroupListProps> = ({ onSelectGroup, actionType }) => {
                     })}
                 </ul>
             )}
+            {showMembers && (
+                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
+                    <div className="bg-white p-6 rounded-lg">
+                        <h3 className="text-lg font-semibold">Group Members</h3>
+                        <ul>
+                            {members.map((member) => (
+                                <li key={member.ID} className="text-gray-700">
+                                    {member.firstName} {member.lastName}
+                                </li>
+                            ))}
+                        </ul>
+                        <button onClick={() => setShowMembers(false)} className="mt-4 text-blue-500">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
+
+
         </div>
     );
 };

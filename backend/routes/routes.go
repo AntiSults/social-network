@@ -30,6 +30,7 @@ func SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/groups", HandleGroups)
 	mux.HandleFunc("/groups/join-request", HandleGroups)
 	mux.HandleFunc("/groups/invite", HandleGroups)
+	mux.HandleFunc("/groups/members", HandleGroups)
 	mux.HandleFunc("/groups/handle-request", HandleGroups)
 	mux.HandleFunc("/groups/handle-invites", HandleGroups)
 	mux.HandleFunc("/groups/pending-requests", HandleGroups)
@@ -71,6 +72,10 @@ func HandleFollowers(w http.ResponseWriter, r *http.Request) {
 func HandleGroups(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet && r.URL.Path == "/groups/pending-invites" {
 		handlers.GetPendingGroupInvites(w, r)
+		return
+	}
+	if r.Method == http.MethodGet && r.URL.Path == "/groups/members" {
+		handlers.GetGroupMembers(w, r)
 		return
 	}
 	if r.Method == http.MethodGet && r.URL.Path == "/groups/pending-requests" {
