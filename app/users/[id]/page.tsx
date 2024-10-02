@@ -2,7 +2,6 @@
 import Image from 'next/image';
 import React from "react";
 import { useUser } from "@/app/context/UserContext";
-import checkLoginStatus from "@/app/utils/checkLoginStatus";
 import NavBar from "@/app/components/NavBar";
 import SearchBar from "@/app/components/SearchBar";
 import Followers from "@/app/components/Followers";

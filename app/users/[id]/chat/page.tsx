@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useState } from "react";
 import NavBar from "@/app/components/NavBar";
 import ChatMessages from "@/app/components/ChatMessages";
 import ChatInput from "@/app/components/ChatInput";

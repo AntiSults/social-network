@@ -8,7 +8,6 @@ import Button from "@/app/components/Button";
 import { useRouter } from "next/navigation";
 import AvatarUploadField from "@/app/components/AvatarUploadField";
 import NavBar from "@/app/components/NavBar";
-import Error from "@/app/components/Error";
 import ErrorMessage from "@/app/components/Error";
 
 const RegisterPage = () => {
