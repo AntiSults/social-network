@@ -24,7 +24,14 @@ const ChatMessage = () => {
     } = useChat();
 
     const { user: currentUser } = useUser();
-
+    if (!currentUser) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <NavBar logged={true} />
+                <p className="text-center text-gray-600">Please login for chatting!</p>
+            </div>
+        );
+    }
     const handleGroupSelect = (groupId: number) => {
         setGroupId(groupId.toString()); // Update the groupId in chat state
     };
@@ -34,32 +41,26 @@ const ChatMessage = () => {
             <NavBar logged={isLoggedIn} />
             <div className="max-w-xl mx-auto p-4 bg-white shadow-md rounded-md">
                 <h1 className="text-xl font-bold mb-4">Chat Component</h1>
-
                 <GroupList onSelectGroup={handleGroupSelect} actionType="chat" />
+                <ChatMessages
+                    messages={messages}
+                    users={users}
+                    currentUser={currentUser}
+                    groupId={groupId} // Pass groupId prop
+                    setGroupId={setGroupId}
+                />
+                <ChatInput
+                    message={message}
+                    setMessage={setMessage}
+                    onSubmit={sendChatMessage} // Ensure this is connected
+                    recipients={recipients}
+                    selectedRecipient={selectedRecipient}
+                    setSelectedRecipient={setSelectedRecipient}
+                    groupId={groupId} // Pass groupId prop to ChatInput
+                />
 
-                {isLoggedIn ? (
-                    <>
-                        <ChatMessages
-                            messages={messages}
-                            users={users}
-                            currentUser={currentUser}
-                            groupId={groupId} // Pass groupId prop
-                            setGroupId={setGroupId}
-                        />
-                        <ChatInput
-                            message={message}
-                            setMessage={setMessage}
-                            onSubmit={sendChatMessage} // Ensure this is connected
-                            recipients={recipients}
-                            selectedRecipient={selectedRecipient}
-                            setSelectedRecipient={setSelectedRecipient}
-                            groupId={groupId} // Pass groupId prop to ChatInput
-                        />
-                    </>
-                ) : (
-                    <p className="text-center text-gray-600">Please login for chatting!</p>
-                )}
-            </div>
+
+            </div >
         </>
     );
 };

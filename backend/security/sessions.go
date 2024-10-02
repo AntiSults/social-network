@@ -77,13 +77,11 @@ func ValidateSession(sessionToken string) bool {
 	if !exists {
 		return false
 	}
-
 	// Check if the session is expired
 	if session.ExpirationTime.Before(time.Now()) {
 		delete(DbSessions, sessionToken)
 		return false
 	}
-
 	// Update last activity
 	session.LastActivity = time.Now()
 	DbSessions[sessionToken] = session

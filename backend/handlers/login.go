@@ -16,7 +16,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		middleware.SendErrorResponse(w, "Method not allowed!", http.StatusMethodNotAllowed)
 		return
 	}
-
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 	user, err := sqlite.Db.GetUserByEmail(email)
@@ -28,15 +27,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Database error", http.StatusInternalServerError)
 		return
 	}
-
 	err = security.CheckPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		middleware.SendErrorResponse(w, "Wrong password", http.StatusBadRequest)
 		return
 	}
-
 	security.NewSession("session_token", user.ID, w)
-
 	// Protect UserMap with write lock
 	middleware.UserMapLock.Lock()
 	middleware.UserMap[user.ID] = *user

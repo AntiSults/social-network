@@ -12,7 +12,12 @@ const EventsPage = () => {
     const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);  // To track selected group for event creation
 
     if (!user) {
-        return <p>Loading...</p>;
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <NavBar logged={true} />
+                <p className="text-center text-gray-600">Please login to see Group Events!</p>
+            </div>
+        );
     }
     const handleGroupSelect = (groupId: number) => {
         setSelectedGroupId(groupId);  // Set selected group ID when a group is chosen

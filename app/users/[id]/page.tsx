@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import React from "react";
 import { useUser } from "@/app/context/UserContext";
+import checkLoginStatus from "@/app/utils/checkLoginStatus";
 import NavBar from "@/app/components/NavBar";
 import SearchBar from "@/app/components/SearchBar";
 import Followers from "@/app/components/Followers";
@@ -13,10 +14,15 @@ import FollowList from '@/app/components/FollowLists';
 const ProfilePage = () => {
     const { user, selectedUser } = useUser();
     const profileUser = selectedUser || user;
-    if (!profileUser) {
-        return <p>Loading...</p>;
-    }
 
+    if (!profileUser) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <NavBar logged={true} />
+                <p className="text-center text-gray-600">Please login to see User Profile!</p>
+            </div>
+        );
+    }
     return (
         <div className="min-h-screen bg-gray-50">
             <NavBar logged={true} />
@@ -54,6 +60,8 @@ const ProfilePage = () => {
             )}
             {/* Following/Followers list (Only if viewing own profile) */}
             {profileUser?.ID === user?.ID && <FollowList user={user} />}
+
+
         </div>
     );
 };
