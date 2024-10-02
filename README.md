@@ -1,5 +1,20 @@
 ## SOCIAL NETWORK DEVELOPMENT
 
+### START PROJECT WITH DOCKER
+
+Run Docker
+
+Go to the folder "social-network" and use:
+`docker build -t front-image .`
+
+Go to the folder "backend" and use:
+`docker build -t back-image .`
+
+Go back to the "social-network" folder and use:
+`docker-compose up`
+
+Go to: http://localhost:3000
+
 ### SET UP
 
 run `npm install`
