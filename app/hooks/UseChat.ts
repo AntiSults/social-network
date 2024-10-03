@@ -33,6 +33,12 @@ const useChat = (initialGroupId?: string) => {
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [selectedRecipient, setSelectedRecipient] = useState<number | null>(null);
 
+  // Reset recipients and messages when groupId changes
+  useEffect(() => {
+    setRecipients([]); // Clear recipients when switching chats
+    setMessages([]); // Clear messages when switching chats
+  }, [groupId]);
+
   useEffect(() => {
     setIsLoggedIn(checkLoginStatus());
     const clientToken = clientCookieToken();
@@ -55,7 +61,6 @@ const useChat = (initialGroupId?: string) => {
         socketInstance.send(JSON.stringify(uploadRequest));
       }
     };
-
 
     socketInstance.onmessage = (event) => {
       console.log("Received message:", event.data);
@@ -104,7 +109,7 @@ const useChat = (initialGroupId?: string) => {
     return () => {
       socketInstance.close();
     };
-  }, [groupId]);
+  }, [groupId]); // Add groupId as dependency to reset when it changes
 
   const sendChatMessage = (e: React.FormEvent) => {
     e.preventDefault();
