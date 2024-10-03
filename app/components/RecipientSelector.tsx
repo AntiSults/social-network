@@ -4,8 +4,8 @@ import { Recipient } from "@/app/utils/types";
 
 interface RecipientSelectorProps {
     recipients: Recipient[];
-    selectedRecipient: number[];
-    setSelectedRecipient: React.Dispatch<React.SetStateAction<number[]>>;
+    selectedRecipient: number | null;
+    setSelectedRecipient: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
 const RecipientSelector: React.FC<RecipientSelectorProps> = ({
@@ -15,12 +15,12 @@ const RecipientSelector: React.FC<RecipientSelectorProps> = ({
 }) => {
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedValue = parseInt(e.target.value, 10);
-        setSelectedRecipient([selectedValue]); // Wrap in array
+        setSelectedRecipient(selectedValue); // Directly set the selected recipient
     };
 
     return (
         <select
-            value={selectedRecipient.length > 0 ? selectedRecipient[0] : ""}
+            value={selectedRecipient !== null ? selectedRecipient : ""}
             onChange={handleChange}
             className="p-2 border border-gray-300 rounded-md"
         >
@@ -31,7 +31,7 @@ const RecipientSelector: React.FC<RecipientSelectorProps> = ({
                     value={recipient.id}
                     style={getOptionStyle(recipient.type)}
                 >
-                    {recipient.name} ({recipient.type})
+                    {recipient.name}
                 </option>
             ))}
         </select>

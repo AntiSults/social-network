@@ -1,39 +1,46 @@
-"use client"
+"use client";
+
+import UserProfileEvents from '@/app/components/UserProfileEvents';
+import GroupList from '@/app/components/GroupList';
+import CreateEventForm from '@/app/components/CreateEventForm';
+import { useUser } from '@/app/context/UserContext';
+import { useState } from 'react';
 import NavBar from "@/app/components/NavBar";
-import { useUser } from "@/app/context/UserContext";
-import { useEffect, useState } from 'react';
-import EventReactions from '@/app/components/EventReactions';
 
+const EventsPage = () => {
+    const { user } = useUser();  // Fetch current user from context
+    const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);  // To track selected group for event creation
 
-
-const UserEvents = () => {
-
-    const { user } = useUser();
-    const [events, setEvents] = useState([]);
-
-    useEffect(() => {
-        const fetchEvents = async () => {
-            const res = await fetch(`/api/users/${user?.ID}/events`);
-            const data = await res.json();
-            setEvents(data);
-        };
-        fetchEvents();
-    }, [user?.ID]);
-
+    if (!user) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <NavBar logged={true} />
+                <p className="text-center text-gray-600">Please login to see Group Events!</p>
+            </div>
+        );
+    }
+    const handleGroupSelect = (groupId: number) => {
+        setSelectedGroupId(groupId);  // Set selected group ID when a group is chosen
+    };
     return (
         <div>
-            <h2>Your Events</h2>
-            <ul>
-                {events.map(event => (
-                    <li key={event.id}>
-                        <h3>{event.title}</h3>
-                        <p>{event.description}</p>
-                        <EventReactions eventId={event.id} />
-                    </li>
-                ))}
-            </ul>
+            <NavBar logged={true} />
+            <h1>Events</h1>
+            {/* Display the list of available groups */}
+
+            <GroupList onSelectGroup={handleGroupSelect} actionType="createEvent" />
+
+            {/* Display the form to create an event if a group is selected */}
+            {selectedGroupId && (
+                <div>
+                    <h2>Create an Event for Group ID: {selectedGroupId}</h2>
+                    <CreateEventForm groupId={selectedGroupId} />
+                </div>
+            )}
+            {/* Fetch and display the user's events */}
+            <UserProfileEvents />
         </div>
     );
 };
 
-export default UserProfileEvents;
+export default EventsPage;

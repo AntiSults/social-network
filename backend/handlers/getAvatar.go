@@ -24,7 +24,7 @@ func GetAvatarPath(w http.ResponseWriter, r *http.Request) {
 		logged = true
 	}
 	if logged {
-		userID, err := GetUserId(cookie.Value)
+		userID, err := middleware.GetUserId(cookie.Value)
 		if err != nil {
 			middleware.SendErrorResponse(w, "error getting id from token: "+err.Error(), http.StatusInternalServerError)
 			return

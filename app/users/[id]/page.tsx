@@ -8,14 +8,20 @@ import Followers from "@/app/components/Followers";
 import PendingRequests from "@/app/components/PendingRequests";
 import PendingGroupRequests from "@/app/components/GroupRequestsPending";
 import PendingGroupInvites from '@/app/components/GroupInvitePending';
+import FollowList from '@/app/components/FollowLists';
 
 const ProfilePage = () => {
     const { user, selectedUser } = useUser();
     const profileUser = selectedUser || user;
-    if (!profileUser) {
-        return <p>Loading...</p>;
-    }
 
+    if (!profileUser) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <NavBar logged={true} />
+                <p className="text-center text-gray-600">Please login to see User Profile!</p>
+            </div>
+        );
+    }
     return (
         <div className="min-h-screen bg-gray-50">
             <NavBar logged={true} />
@@ -51,6 +57,10 @@ const ProfilePage = () => {
             {profileUser?.ID !== user?.ID && (
                 <Followers profileUser={profileUser} user={user} />
             )}
+            {/* Following/Followers list (Only if viewing own profile) */}
+            {profileUser?.ID === user?.ID && <FollowList user={user} />}
+
+
         </div>
     );
 };

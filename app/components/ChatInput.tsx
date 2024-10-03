@@ -10,8 +10,9 @@ interface ChatInputProps {
     setMessage: React.Dispatch<React.SetStateAction<string>>;
     onSubmit: (e: React.FormEvent) => void;
     recipients: Recipient[];
-    selectedRecipient: number | number[];
-    setSelectedRecipient: React.Dispatch<React.SetStateAction<number | number[]>>;
+    selectedRecipient: number | null;
+    setSelectedRecipient: React.Dispatch<React.SetStateAction<number | null>>;
+    groupId: string | null;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({
@@ -21,6 +22,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     recipients,
     selectedRecipient,
     setSelectedRecipient,
+    groupId,
 }) => {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
@@ -33,16 +35,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
         <form onSubmit={onSubmit} className="flex flex-col space-y-2">
             {/* Recipient Selector */}
             <select
-                value={Array.isArray(selectedRecipient) ? selectedRecipient[0] : selectedRecipient}
+                value={selectedRecipient ?? ""}  // Single recipient, default empty string
                 onChange={(e) => {
                     const selectedID = parseInt(e.target.value);
-                    setSelectedRecipient([selectedID]); // Always wrap in an array
+                    setSelectedRecipient(selectedID);  // Directly set the selected recipient
                 }}
                 className="p-2 border border-gray-300 rounded-md"
             >
+                <option value="" disabled>Select a recipient</option> {/* Default option */}
                 {recipients.map((recipient) => (
                     <option key={recipient.id} value={recipient.id} style={getOptionStyle(recipient.type)}>
-                        {recipient.name} ({recipient.type})
+                        {recipient.name}
                     </option>
                 ))}
             </select>

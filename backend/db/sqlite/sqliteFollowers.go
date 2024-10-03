@@ -152,3 +152,53 @@ func (d *Database) GetFollowersSlice(userID int) ([]int, error) {
 
 	return userIDs, nil
 }
+
+// GetFollowers returns a list of users who follow the given user.
+func (d *Database) GetFollowers(userID int) ([]int, error) {
+	query := `
+		SELECT follower_id
+		FROM followers
+		WHERE user_id = ? AND status = 'accepted'
+	`
+	rows, err := d.db.Query(query, userID)
+	if err != nil {
+		return nil, fmt.Errorf("error querying followers: %v", err)
+	}
+	defer rows.Close()
+
+	var followers []int
+	for rows.Next() {
+		var followerID int
+		if err := rows.Scan(&followerID); err != nil {
+			log.Printf("Error scanning followerId: %v", err)
+			continue
+		}
+		followers = append(followers, followerID)
+	}
+	return followers, nil
+}
+
+// GetFollowing returns a list of users that the given user is following.
+func (d *Database) GetFollowing(userID int) ([]int, error) {
+	query := `
+		SELECT user_id
+		FROM followers
+		WHERE follower_id = ? AND status = 'accepted'
+	`
+	rows, err := d.db.Query(query, userID)
+	if err != nil {
+		return nil, fmt.Errorf("error querying following: %v", err)
+	}
+	defer rows.Close()
+
+	var following []int
+	for rows.Next() {
+		var followingID int
+		if err := rows.Scan(&followingID); err != nil {
+			log.Printf("Error scanning followingId: %v", err)
+			continue
+		}
+		following = append(following, followingID)
+	}
+	return following, nil
+}

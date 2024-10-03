@@ -41,6 +41,7 @@ export interface Message {
     fromUserID: number;
     toUserID: number | number[];
     created: string;
+    groupID: number | null;
 }
 
 export interface Post {
@@ -52,7 +53,6 @@ export interface Post {
     files: string | null;
 }
 
-
 export interface Comment {
     id: number;
     postID: number;
@@ -62,4 +62,19 @@ export interface Comment {
     created_at: string;
     author_first_name: string;
     author_last_name: string;
-  }
+}
+
+export interface Event {
+    id: number;
+    title: string;
+    description: string;
+    eventDate: string;
+    groupId: number;
+}
+
+export type GroupMemberReaction = {
+    userID: number;
+    fname: string;
+    lname: string;
+    reaction: 'going' | 'not going' | 'pending';
+};

@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS GroupJoinRequests
+DROP TABLE IF EXISTS GroupJoinRequests;

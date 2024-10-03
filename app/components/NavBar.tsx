@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import React from "react";
+import React, { useEffect } from "react";
 import { useUser } from "@/app/context/UserContext";
 
 interface Props {
@@ -23,6 +23,31 @@ const NavBar = ({ logged, logpage = false }: Props) => {
     }
   };
 
+  //this one logging out if you close the tab
+  useEffect(() => {
+    let isNavigating = false;
+    // Detect navigation within the app
+    const handleBeforeNavigate = () => {
+      isNavigating = true;
+    };
+    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
+      if (!isNavigating) {
+        // Only log out if it is not navigating but closing the tab
+        await fetch("http://localhost:8080/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("click", handleBeforeNavigate);  // Tracks clicks on links/buttons for navigation
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("click", handleBeforeNavigate);
+    };
+  }, []);
+
   return (
     <div>
       <div className="navbar bg-base-300 rounded-box">
@@ -41,6 +66,9 @@ const NavBar = ({ logged, logpage = false }: Props) => {
           </a>
           <a href={`/users/${user?.ID}/groups`} className="ml-4 text-lg font-bold">
             Groups
+          </a>
+          <a href={`/users/${user?.ID}/events`} className="ml-4 text-lg font-bold">
+            Group-Events
           </a>
         </div>
         <div className="flex flex-1 justify-end px-2">

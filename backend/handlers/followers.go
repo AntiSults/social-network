@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"social-network/db/sqlite"
 	"social-network/middleware"
+	"social-network/structs"
 	"strconv"
 )
 
@@ -24,7 +25,7 @@ func FollowUser(w http.ResponseWriter, r *http.Request) {
 		middleware.SendErrorResponse(w, "Invalid input", http.StatusBadRequest)
 		return
 	}
-	user, err := GetUser(req.UserID)
+	user, err := middleware.GetUser(req.UserID)
 	if err != nil {
 		middleware.SendErrorResponse(w, "Error querying user data to struct"+err.Error(), http.StatusInternalServerError)
 		return
@@ -183,4 +184,61 @@ func RejectFollowRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+func GetFollowLists(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	userIDStr := r.URL.Query().Get("userId")
+	if userIDStr == "" {
+		middleware.SendErrorResponse(w, "Invalid parameters", http.StatusBadRequest)
+		return
+	}
+
+	// Convert userID to integer
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Invalid userId parameter", http.StatusBadRequest)
+		return
+	}
+
+	// Get followers (users who follow the current user)
+	followersIDs, err := sqlite.Db.GetFollowers(userID)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Failed to retrieve followers", http.StatusInternalServerError)
+		return
+	}
+
+	// Get following (users that the current user follows)
+	followingIDs, err := sqlite.Db.GetFollowing(userID)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Failed to retrieve following", http.StatusInternalServerError)
+		return
+	}
+
+	// Fetch user info for followers and following users
+	followersInfo, err := sqlite.Db.GetUsersByIDs(followersIDs)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Failed to retrieve followers info", http.StatusInternalServerError)
+		return
+	}
+	followingInfo, err := sqlite.Db.GetUsersByIDs(followingIDs)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Failed to retrieve following info", http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare the response
+	responseData := map[string][]structs.User{
+		"followers": followersInfo,
+		"following": followingInfo,
+	}
+
+	// Send the response as JSON
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(responseData); err != nil {
+		middleware.SendErrorResponse(w, "Failed to encode response", http.StatusInternalServerError)
+	}
 }

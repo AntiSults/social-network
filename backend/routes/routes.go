@@ -17,7 +17,7 @@ func SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/logout", handlers.Logout)
 	mux.HandleFunc("/getAvatarPath", handlers.GetAvatarPath)
 	mux.Handle("/getUserData", middleware.RequireLogin(http.HandlerFunc(handlers.GetUserData)))
-	mux.Handle("/testLoggedIn", middleware.RequireLogin(http.HandlerFunc(middleware.DummyCheck)))
+	// mux.Handle("/testLoggedIn", middleware.RequireLogin(http.HandlerFunc(middleware.DummyCheck)))
 	mux.HandleFunc("/create-posts", handlers.CreatePost)
 	mux.HandleFunc("/posts", handlers.GetPosts)
 	mux.HandleFunc("/create-comment", handlers.CreateComment)
@@ -28,14 +28,18 @@ func SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/followers/pending", HandleFollowers)
 	mux.HandleFunc("/followers/accept", HandleFollowers)
 	mux.HandleFunc("/followers/reject", HandleFollowers)
+	mux.HandleFunc("/followers/followersList", HandleFollowers)
 	mux.HandleFunc("/groups", HandleGroups)
 	mux.HandleFunc("/groups/join-request", HandleGroups)
 	mux.HandleFunc("/groups/invite", HandleGroups)
+	mux.HandleFunc("/groups/members", HandleGroups)
 	mux.HandleFunc("/groups/handle-request", HandleGroups)
 	mux.HandleFunc("/groups/handle-invites", HandleGroups)
 	mux.HandleFunc("/groups/pending-requests", HandleGroups)
 	mux.HandleFunc("/groups/pending-invites", HandleGroups)
-
+	mux.HandleFunc("/groups/events", HandleGroupEvents)
+	mux.HandleFunc("/groups/events-react", HandleGroupEvents)
+	mux.HandleFunc("/groups/members-with-reactions", HandleGroupEvents)
 	return mux
 }
 func HandleFollowers(w http.ResponseWriter, r *http.Request) {
@@ -55,6 +59,10 @@ func HandleFollowers(w http.ResponseWriter, r *http.Request) {
 		handlers.GetPendingFollowRequests(w, r)
 		return
 	}
+	if r.Method == http.MethodGet && r.URL.Path == "/followers/followersList" {
+		handlers.GetFollowLists(w, r)
+		return
+	}
 	switch r.Method {
 	case http.MethodPost:
 		handlers.FollowUser(w, r)
@@ -65,8 +73,13 @@ func HandleFollowers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func HandleGroups(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method == http.MethodGet && r.URL.Path == "/groups/pending-invites" {
 		handlers.GetPendingGroupInvites(w, r)
+		return
+	}
+	if r.Method == http.MethodGet && r.URL.Path == "/groups/members" {
+		handlers.GetGroupMembers(w, r)
 		return
 	}
 	if r.Method == http.MethodGet && r.URL.Path == "/groups/pending-requests" {
@@ -94,6 +107,24 @@ func HandleGroups(w http.ResponseWriter, r *http.Request) {
 		handlers.CreateGroup(w, r)
 	case http.MethodGet:
 		handlers.GetGroupsWithMembers(w, r)
+	default:
+		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+func HandleGroupEvents(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet && r.URL.Path == "/groups/members-with-reactions" {
+		handlers.GetGroupMembersWithReactions(w, r)
+		return
+	}
+	if r.Method == http.MethodPost && r.URL.Path == "/groups/events-react" {
+		handlers.EventReaction(w, r)
+		return
+	}
+	switch r.Method {
+	case http.MethodPost:
+		handlers.CreateEvent(w, r)
+	case http.MethodGet:
+		handlers.GetEvents(w, r)
 	default:
 		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}

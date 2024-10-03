@@ -26,6 +26,21 @@ type Group struct {
 	Members     []int     `json:"members"`
 }
 
+type GroupMemberReaction struct {
+	UserId    int    `json:"userID"`
+	FirstName string `json:"fname"`
+	LastName  string `json:"lname"`
+	Reaction  string `json:"reaction"`
+}
+
+type Event struct {
+	ID          int    `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	EventDate   string `json:"eventDate"`
+	GroupID     int    `json:"groupId"`
+}
+
 type GroupJoinRequest struct {
 	GroupID   int    `json:"group_id"`
 	GroupName string `json:"group_name"`
@@ -43,8 +58,9 @@ type Message struct {
 	ID          int    `json:"id,omitempty"`
 	Content     string `json:"content"`
 	Created     string `json:"created"`
-	RecipientID []int  `json:"toUserID"`
+	RecipientID int    `json:"toUserID"`
 	SenderID    int    `json:"fromUserID"`
+	GroupID     int    `json:"groupID"`
 }
 
 type ChatMessage struct {

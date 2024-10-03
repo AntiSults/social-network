@@ -39,14 +39,14 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := GetUserId(cookie.Value)
+	userID, err := middleware.GetUserId(cookie.Value)
 	if err != nil {
 		middleware.SendErrorResponse(w, "Error getting ID from session token", http.StatusInternalServerError)
 		return
 	}
 
 	// Searching for post creators name
-	user, err := GetUser(userID)
+	user, err := middleware.GetUser(userID)
 	if err != nil {
 		middleware.SendErrorResponse(w, "Failed to retrieve user", http.StatusInternalServerError)
 		return
@@ -95,7 +95,7 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 	if err != nil || cookie.Value == "" {
 		posts, err = sqlite.Db.GetPosts(false)
 	} else {
-		_, err = GetUserId(cookie.Value)
+		_, err = middleware.GetUserId(cookie.Value)
 		if err != nil {
 			posts, err = sqlite.Db.GetPosts(false)
 		} else {

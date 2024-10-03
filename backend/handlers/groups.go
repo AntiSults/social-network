@@ -27,7 +27,6 @@ func CreateGroup(w http.ResponseWriter, r *http.Request) {
 
 	err := sqlite.Db.CreateGroup(req.Name, req.Description, req.CreatorID)
 	if err != nil {
-
 		middleware.SendErrorResponse(w, "Failed to insert group into DB"+err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -198,4 +197,34 @@ func GetPendingGroupInvites(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(invitations)
+}
+func GetGroupMembers(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	groupIDStr := r.URL.Query().Get("groupId")
+	if groupIDStr == "" {
+		middleware.SendErrorResponse(w, "Invalid parameters", http.StatusBadRequest)
+		return
+	}
+	groupID, err := strconv.Atoi(groupIDStr)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Invalid groupId parameter", http.StatusBadRequest)
+		return
+	}
+	// Fetch the members' IDs for the group
+	group, err := sqlite.Db.GetGroupMembers(groupID)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Failed to retrieve group", http.StatusInternalServerError)
+		return
+	}
+	// Fetch user info for the members
+	membersInfo, err := sqlite.Db.GetUsersByIDs(group)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Failed to retrieve group members", http.StatusInternalServerError)
+		return
+	}
+	// Return the user details as a response
+	json.NewEncoder(w).Encode(membersInfo)
 }

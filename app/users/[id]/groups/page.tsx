@@ -10,8 +10,18 @@ import { User } from '@/app/utils/types';
 
 const GroupsPage = () => {
     const { user: currentUser } = useUser();
+
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
+
+    if (!currentUser) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <NavBar logged={true} />
+                <p className="text-center text-gray-600">Please login to see Groups!</p>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -29,7 +39,8 @@ const GroupsPage = () => {
                 {/* Display all groups with the option to join */}
                 <div className="bg-white shadow-md rounded-lg p-6 mb-6">
                     <h2 className="text-2xl font-semibold mb-4">Available Groups</h2>
-                    <GroupList onSelectGroup={setSelectedGroup} />
+                    <GroupList onSelectGroup={setSelectedGroup} actionType="invite" />
+
                 </div>
 
                 {/* Invite User to Group */}
