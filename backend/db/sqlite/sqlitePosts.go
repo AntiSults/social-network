@@ -17,7 +17,6 @@ func (d *Database) SavePost(post *structs.Post) error {
 	if err != nil {
 		return fmt.Errorf("failed to save post: %w", err)
 	}
-	fmt.Println("Post successfully inserted to db!")
 	return nil
 }
 

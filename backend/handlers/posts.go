@@ -113,28 +113,31 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 }
 
 func savePostFile(r *http.Request) (string, error) {
-	if file, handler, err := r.FormFile("files"); err == nil {
-		defer file.Close()
-
-		if err := os.MkdirAll(postsDir, os.ModePerm); err != nil {
-			return "", err
+	file, handler, err := r.FormFile("files")
+	if err != nil {
+		if err == http.ErrMissingFile {
+			return "", nil
 		}
-
-		fileName := fmt.Sprintf("%d%s", time.Now().UnixNano(), filepath.Ext(handler.Filename))
-		filePath := filepath.Join(postsDir, fileName)
-
-		outFile, err := os.Create(filePath)
-		if err != nil {
-			return "", err
-		}
-		defer outFile.Close()
-
-		if _, err := io.Copy(outFile, file); err != nil {
-			return "", err
-		}
-
-		return filePath, nil
-	} else {
 		return "", err
 	}
+	defer file.Close()
+
+	if err := os.MkdirAll(postsDir, os.ModePerm); err != nil {
+		return "", err
+	}
+
+	fileName := fmt.Sprintf("%d%s", time.Now().UnixNano(), filepath.Ext(handler.Filename))
+	filePath := filepath.Join(postsDir, fileName)
+
+	outFile, err := os.Create(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer outFile.Close()
+
+	if _, err := io.Copy(outFile, file); err != nil {
+		return "", err
+	}
+
+	return filePath, nil
 }
