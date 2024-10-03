@@ -42,72 +42,81 @@ const useChat = (initialGroupId?: string) => {
   useEffect(() => {
     setIsLoggedIn(checkLoginStatus());
     const clientToken = clientCookieToken();
-    const socketInstance = new WebSocket("ws://localhost:8080/ws");
+    let socketInstance: WebSocket | null = null;
+    const connectSocket = () => {
+      socketInstance = new WebSocket("ws://localhost:8080/ws");
 
-    socketInstance.onopen = () => {
-      console.log("Connected to WebSocket server");
-      if (clientToken) {
-        const uploadRequest = groupId
-          ? {
-            type: "initial_group_upload",
-            payload: { groupId },
-            sessionToken: clientToken,
+      socketInstance.onopen = () => {
+        console.log("Connected to WebSocket server");
+        if (clientToken) {
+          const uploadRequest = groupId
+            ? {
+              type: "initial_group_upload",
+              payload: { groupId },
+              sessionToken: clientToken,
+            }
+            : {
+              type: "initial_upload",
+              sessionToken: clientToken,
+            };
+
+          socketInstance?.send(JSON.stringify(uploadRequest));
+        }
+      };
+
+      socketInstance.onmessage = (event) => {
+        const incomingEvent: Event = JSON.parse(event.data);
+
+        if (incomingEvent.type === "initial_upload_response" || incomingEvent.type === "initial_group_upload_response") {
+          if (Array.isArray(incomingEvent.payload.Message)) {
+            setMessages(incomingEvent.payload.Message);
           }
-          : {
-            type: "initial_upload",
-            sessionToken: clientToken,
-          };
 
-        socketInstance.send(JSON.stringify(uploadRequest));
-      }
-    };
+          if (Array.isArray(incomingEvent.payload.User)) {
+            const usersById = incomingEvent.payload.User.reduce((acc, user) => {
+              acc[user.ID] = user;
+              return acc;
+            }, {} as Record<number, User>);
 
-    socketInstance.onmessage = (event) => {
-      console.log("Received message:", event.data);
-      const incomingEvent: Event = JSON.parse(event.data);
+            setUsers(usersById);
 
-      if (incomingEvent.type === "initial_upload_response" || incomingEvent.type === "initial_group_upload_response") {
-        if (Array.isArray(incomingEvent.payload.Message)) {
-          setMessages(incomingEvent.payload.Message);
+            const formattedRecipients: Recipient[] = incomingEvent.payload.User.map(user => ({
+              id: user.ID,
+              name: `${user.firstName} ${user.lastName}`,
+              type: groupId ? "group" : "user",
+            }));
+
+            setRecipients(formattedRecipients);
+          }
         }
 
-        if (Array.isArray(incomingEvent.payload.User)) {
-          const usersById = incomingEvent.payload.User.reduce((acc, user) => {
-            acc[user.ID] = user;
-            return acc;
-          }, {} as Record<number, User>);
-
-          setUsers(usersById);
-
-          const formattedRecipients: Recipient[] = incomingEvent.payload.User.map(user => ({
-            id: user.ID,
-            name: `${user.firstName} ${user.lastName}`,
-            type: groupId ? "group" : "user",
-          }));
-
-          setRecipients(formattedRecipients);
+        if (incomingEvent.type === "chat_message" || incomingEvent.type === "group_chat_message") {
+          if (incomingEvent.payload.Message) {
+            setMessages((prevMessages) => [...prevMessages, ...incomingEvent.payload.Message]);
+          }
         }
-      }
+      };
 
-      if (incomingEvent.type === "chat_message" || incomingEvent.type === "group_chat_message") {
-        if (incomingEvent.payload.Message) {
-          setMessages((prevMessages) => [...prevMessages, ...incomingEvent.payload.Message]);
+      socketInstance.onerror = (error) => {
+        console.error("Socket error", error);
+      };
+
+      socketInstance.onclose = (event) => {
+        console.log(`Disconnected: ${event.reason} (Code: ${event.code})`);
+        if (event.code !== 1000 && event.code !== 1001) {
+          console.log("Attempting to reconnect...");
+          setTimeout(connectSocket, 5000); // Reconnect after 5 seconds
         }
-      }
+      };
     };
 
-    socketInstance.onerror = (error) => {
-      console.error("Socket error", error);
-    };
-
-    socketInstance.onclose = () => {
-      console.log("Disconnected from WebSocket server");
-    };
-
+    connectSocket();
     setSocket(socketInstance);
 
     return () => {
-      socketInstance.close();
+      if (socketInstance?.readyState === WebSocket.OPEN) {
+        socketInstance.close(1000, "Component unmounted");
+      }
     };
   }, [groupId]); // Add groupId as dependency to reset when it changes
 
