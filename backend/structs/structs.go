@@ -62,3 +62,14 @@ type Post struct {
 	AuthorLastName  string    `json:"author_last_name"`
 	Files           string    `json:"files"`
 }
+
+type Comment struct {
+	ID              int       `json:"id,omitempty"`
+	PostID          int       `json:"post_id"`
+	UserID          int       `json:"user_id"`
+	Content         string    `json:"content"`
+	File            string    `json:"file"`
+	CreatedAt       time.Time `json:"created_at"`
+	AuthorFirstName string    `json:"author_first_name"`
+	AuthorLastName  string    `json:"author_last_name"`
+}

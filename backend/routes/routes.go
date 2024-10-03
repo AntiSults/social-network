@@ -20,6 +20,8 @@ func SetupRoutes() *http.ServeMux {
 	mux.Handle("/testLoggedIn", middleware.RequireLogin(http.HandlerFunc(middleware.DummyCheck)))
 	mux.HandleFunc("/create-posts", handlers.CreatePost)
 	mux.HandleFunc("/posts", handlers.GetPosts)
+	mux.HandleFunc("/create-comment", handlers.CreateComment)
+	mux.HandleFunc("/comments", handlers.GetComments)
 	mux.HandleFunc("/search", handlers.SearchUser)
 	mux.HandleFunc("/followers", HandleFollowers)
 	mux.HandleFunc("/followers/status", HandleFollowers)

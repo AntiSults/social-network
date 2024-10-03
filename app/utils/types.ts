@@ -51,3 +51,15 @@ export interface Post {
     author_last_name: string;
     files: string | null;
 }
+
+
+export interface Comment {
+    id: number;
+    postID: number;
+    userID: number;
+    content: string;
+    file?: string;
+    created_at: string;
+    author_first_name: string;
+    author_last_name: string;
+  }

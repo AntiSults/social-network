@@ -1,5 +1,6 @@
 import React from "react";
 import { Post } from "@/app/utils/types";
+import Comments from "./Comments";
 
 interface PostsListProps {
     posts: Post[];
@@ -36,6 +37,7 @@ const PostsList: React.FC<PostsListProps> = ({ posts }) => {
                         <small className="block mt-4 text-gray-500">
                             {new Date(post.created_at).toLocaleString()}
                         </small>
+                        <Comments postID={post.id} />
                     </div>
                 ))
             )}

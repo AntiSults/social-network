@@ -6,6 +6,7 @@ import NewPostForm from "@/app/components/NewPostForm";
 import PostsList from "@/app/components/PostsList";
 import checkLoginStatus from "@/app/utils/checkLoginStatus";
 import NavBar from "@/app/components/NavBar";
+import Comments from "@/app/components/Comments";
 
 const PostsPage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -45,6 +46,12 @@ const PostsPage = () => {
           <p className="text-center text-gray-600">Please log in to create a post.</p>
         )}
         <PostsList posts={posts} />
+        {posts.map((post) => (
+          <div key={post.id}>
+            <h3>{post.content}</h3>
+            <Comments postID={post.id} />
+          </div>
+        ))}
       </div>
     </>
   );
