@@ -8,5 +8,5 @@ CREATE TABLE IF NOT EXISTS Posts (
     author_first_name TEXT,
     author_last_name TEXT,
     files TEXT,
-    FOREIGN KEY (UserID) REFERENCES users(ID),
+    FOREIGN KEY (UserID) REFERENCES users(ID)
 );
