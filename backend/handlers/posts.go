@@ -95,10 +95,11 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 	if err != nil || cookie.Value == "" {
 		posts, err = sqlite.Db.GetPosts(false)
 	} else {
-		_, err = middleware.GetUserId(cookie.Value)
+		userID, err := middleware.GetUserId(cookie.Value)
 		if err != nil {
 			posts, err = sqlite.Db.GetPosts(false)
 		} else {
+			fmt.Println("UserID:", userID)
 			posts, err = sqlite.Db.GetPosts(true)
 		}
 	}
@@ -107,6 +108,7 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 		middleware.SendErrorResponse(w, "Failed to fetch posts", http.StatusInternalServerError)
 		return
 	}
+	fmt.Println("Posts fetched:", posts)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(posts)

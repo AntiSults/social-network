@@ -25,7 +25,6 @@ const PostsPage = () => {
         }
     };
 
-
     const handlePostCreated = async (content: string, privacy: string, file?: File | null) => {
         try {
             await createPost(content, privacy, file || null);

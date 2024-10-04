@@ -17,13 +17,22 @@ func (d *Database) SavePost(post *structs.Post) error {
 	if err != nil {
 		return fmt.Errorf("failed to save post: %w", err)
 	}
+	fmt.Println("Post successfully inserted to db!")
 	return nil
 }
 
 func (d *Database) GetPosts(authenticated bool) ([]structs.Post, error) {
 	var query string
 	if authenticated {
-		query = `SELECT ID, UserID, Content, Privacy, created_at, author_first_name, author_last_name, files FROM Posts ORDER BY created_at DESC`
+		query =
+			`
+        SELECT ID, UserID, Content, Privacy, created_at, author_first_name, author_last_name, files 
+        FROM Posts 
+        WHERE Privacy = 'public' 
+        OR (Privacy = 'private' AND UserID = ?) 
+        OR (Privacy = 'private' AND ID IN (SELECT post_id FROM followers WHERE follower_id = ? AND status = 'accepted'))
+        ORDER BY created_at DESC
+    	`
 	} else {
 		query = `SELECT ID, UserID, Content, Privacy, created_at, author_first_name, author_last_name, files FROM Posts WHERE Privacy = 'public' ORDER BY created_at DESC`
 	}
