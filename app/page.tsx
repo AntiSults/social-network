@@ -35,7 +35,9 @@ const Home = () => {
 
         {currentUser ? (
           <p className="text-2xl mt-4">
-            {currentUser?.firstName} {currentUser?.lastName} is logged in
+            <Link href={`/users/${currentUser.ID}`} className="text-blue-500 underline">
+              {currentUser?.firstName} {currentUser?.lastName}
+            </Link>{" "} is logged in
           </p>
         ) : (
           <p className="text-2xl mt-4">
