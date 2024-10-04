@@ -12,17 +12,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <UserProvider> {/* Wrap children with UserProvider */}
+        {/* Wrap children with UserProvider for context */}
+        <UserProvider>
           {children}
         </UserProvider>
       </body>
     </html>
   );
 }
-

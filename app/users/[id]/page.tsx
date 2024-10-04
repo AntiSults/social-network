@@ -23,7 +23,7 @@ const ProfilePage = () => {
         );
     }
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen">
             <NavBar logged={true} />
             <div className="flex flex-col items-center mt-10">
                 <div className="w-full max-w-md mb-10">

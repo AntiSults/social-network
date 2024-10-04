@@ -24,7 +24,7 @@ const GroupsPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen">
             <NavBar logged={true} />
 
             <div className="container mx-auto p-6">

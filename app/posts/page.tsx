@@ -20,12 +20,11 @@ const PostsPage = () => {
   const fetchPosts = async () => {
     try {
       const fetchedPosts = await getPosts();
-      setPosts(fetchedPosts);
+      setPosts(fetchedPosts && Array.isArray(fetchPosts) ? fetchPosts : []);
     } catch (error) {
       console.error("Failed to fetch posts:", error);
     }
   };
-
 
   const handlePostCreated = async (content: string, privacy: string, file?: File | null) => {
     try {
