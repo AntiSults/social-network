@@ -16,8 +16,8 @@ const ProfilePage = () => {
 
     if (!profileUser) {
         return (
-            <div className="min-h-screen bg-gray-50">
-                <NavBar logged={true} />
+            <div className="min-h-screen">
+                <NavBar logged={false} />
                 <p className="text-center text-gray-600">Please login to see User Profile!</p>
             </div>
         );
