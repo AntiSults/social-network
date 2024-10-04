@@ -88,6 +88,8 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 		if err != nil {
 			return fmt.Errorf("error querying group users: %w", err)
 		}
+		//add current user for the groupIDs
+		groupUserIDs = append(groupUserIDs, userID)
 		// Fetch full user information from the user IDs
 		usersInfo, err := sqlite.Db.GetUsersByIDs(groupUserIDs)
 		if err != nil {

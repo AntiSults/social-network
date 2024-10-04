@@ -13,8 +13,8 @@ const EventsPage = () => {
 
     if (!user) {
         return (
-            <div className="min-h-screen bg-gray-50">
-                <NavBar logged={true} />
+            <div className="min-h-screen">
+                <NavBar logged={false} />
                 <p className="text-center text-gray-600">Please login to see Group Events!</p>
             </div>
         );
@@ -25,7 +25,7 @@ const EventsPage = () => {
     return (
         <div>
             <NavBar logged={true} />
-            <h1>Events</h1>
+            <h1 className="text-3xl font-bold mb-6 text-center">Events</h1>
             {/* Display the list of available groups */}
 
             <GroupList onSelectGroup={handleGroupSelect} actionType="createEvent" />

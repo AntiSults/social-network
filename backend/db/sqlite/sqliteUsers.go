@@ -89,6 +89,7 @@ func (d *Database) GetUser(userID int) (*structs.User, error) {
 
 // GetUsersByIDs is returning slice of users struct for slice of ID-s
 func (d *Database) GetUsersByIDs(userIDs []int) ([]structs.User, error) {
+
 	if len(userIDs) == 0 {
 		return nil, fmt.Errorf("no user IDs provided")
 	}
