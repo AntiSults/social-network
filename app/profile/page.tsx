@@ -2,17 +2,20 @@
 
 import React from "react";
 import { useUser } from "@/app/context/UserContext"; // Import the custom hook to access user context
+import NavBar from "@/app/components/NavBar";
+import Image from 'next/image';
 
 const Profile = () => {
   const { user } = useUser(); // Access user from context
 
   // If user data is not yet loaded, display a loading message
-  if (!user) {
-    return <div>Loading...</div>;
-  }
+  // if (!user) {
+  //   return <div>Loading...</div>;
+  // }
 
   return (
     <>
+      <NavBar logged={true} />
       {user && (
         <div className="flex flex-col bg-base-300 rounded-box w-fit">
           <div className="topWrapper flex flex-row">
@@ -32,10 +35,12 @@ const Profile = () => {
             <div className="wrapper">
               <div className="basis-1/3 avatar p-8">
                 <div className="w-24 rounded-full ">
-                  <img
-                    src={
-                      user.avatarPath ? user.avatarPath : "/default_avatar.jpg"
-                    }
+                  <Image
+                    src={user.avatarPath || "/default_avatar.jpg"}
+                    alt={`${user.firstName}'s Avatar`}
+                    width={250}
+                    height={250}
+                    className="rounded-full shadow-lg"
                   />
                 </div>
               </div>

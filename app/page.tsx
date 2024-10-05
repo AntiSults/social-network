@@ -31,12 +31,12 @@ const Home = () => {
             className="mx-auto"
           />
         </div>
-        <p className="text-2xl mt-4">Kood/Johvi</p>
+        <p className="text-2xl mt-4">Kood/Jõhvi</p>
 
         {currentUser ? (
           <p className="text-2xl mt-4">
             <Link href={`/users/${currentUser.ID}`} className="text-blue-500 underline">
-              {currentUser?.firstName} {currentUser?.lastName}
+              {currentUser.firstName} {currentUser.lastName}
             </Link>{" "} is logged in
           </p>
         ) : (
