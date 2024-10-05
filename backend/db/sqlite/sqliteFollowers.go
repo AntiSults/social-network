@@ -69,7 +69,6 @@ func (d *Database) GetPendingFollowRequests(userID int) ([]structs.User, error) 
         FROM followers
         WHERE user_id = ? AND status = 'pending'
     `
-
 	rows, err := d.db.Query(query, userID)
 	if err != nil {
 		return nil, fmt.Errorf("error querying pending follow requests: %v", err)
@@ -86,22 +85,18 @@ func (d *Database) GetPendingFollowRequests(userID int) ([]structs.User, error) 
 		}
 		followerIDs = append(followerIDs, followerID)
 	}
-
 	if err = rows.Err(); err != nil {
 		return nil, fmt.Errorf("error processing rows: %v", err)
 	}
-
 	// Step 2: Use GetUsersByIDs to get user details for the pending followers
 	if len(followerIDs) == 0 {
 		// No pending followers, return an empty slice
 		return []structs.User{}, nil
 	}
-
 	users, err := d.GetUsersByIDs(followerIDs)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching users for pending follow requests: %v", err)
 	}
-
 	return users, nil
 }
 

@@ -1,17 +1,12 @@
 "use client";
 
 import React from "react";
-import { useUser } from "@/app/context/UserContext"; // Import the custom hook to access user context
+import { useUser } from "@/app/context/UserContext";
 import NavBar from "@/app/components/NavBar";
 import Image from 'next/image';
 
 const Profile = () => {
-  const { user } = useUser(); // Access user from context
-
-  // If user data is not yet loaded, display a loading message
-  // if (!user) {
-  //   return <div>Loading...</div>;
-  // }
+  const { user } = useUser();
 
   return (
     <>
