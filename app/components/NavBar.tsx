@@ -128,7 +128,6 @@ const NavBar = ({ logged, logpage = false }: Props) => {
                     <>
                       <hr />
                       <li className="font-bold">Pending Requests</li>
-
                       <li key={notifications.ID}>
                         <a>
                           {notifications.firstName} {notifications.lastName}
