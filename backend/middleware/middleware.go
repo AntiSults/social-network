@@ -129,15 +129,3 @@ func GetUser(id int) (*structs.User, error) {
 	}
 	return user, nil
 }
-
-// func RedirectToLogin(w http.ResponseWriter, r *http.Request, message string, statusCode int) {
-// 	redirectURL := "/login?error=" + url.QueryEscape(message)
-// 	http.Redirect(w, r, redirectURL, statusCode)
-// }
-
-// // TEST FUNCTION DELETE LATER
-// func DummyCheck(w http.ResponseWriter, r *http.Request) {
-
-// 	fmt.Println("joujou")
-// 	w.WriteHeader(http.StatusOK)
-// }
