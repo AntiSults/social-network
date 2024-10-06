@@ -228,3 +228,31 @@ func GetGroupMembers(w http.ResponseWriter, r *http.Request) {
 	// Return the user details as a response
 	json.NewEncoder(w).Encode(membersInfo)
 }
+
+func GetUserGroups(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		middleware.SendErrorResponse(w, "Method not allowed!", http.StatusMethodNotAllowed)
+		return
+	}
+
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		middleware.SendErrorResponse(w, "Error getting token"+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	userID, err := middleware.GetUserId(cookie.Value)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Error getting ID from session token", http.StatusInternalServerError)
+		return
+	}
+
+	groups, err := sqlite.Db.GetGroupsByUser(userID)
+	if err != nil {
+		middleware.SendErrorResponse(w, "Failed to fetch groups", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(groups)
+}

@@ -1,6 +1,8 @@
 package sqlite
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"social-network/structs"
 	"strconv"
@@ -168,4 +170,55 @@ func convertCSVToIntSlice(csv string) []int {
 		intList = append(intList, num)
 	}
 	return intList
+}
+
+func (d *Database) GetGroupsByUser(userID int) ([]structs.Group, error) {
+	var groups []structs.Group
+
+	rows, err := d.db.Query(`
+        SELECT 
+            g.ID, g.Name, g.Description, g.CreatorID,
+            IFNULL(GROUP_CONCAT(gu.UserID), '') AS members
+        FROM 
+            Groups g
+        JOIN 
+            GroupUsers gu ON gu.GroupID = g.ID
+        WHERE 
+            gu.UserID = ?
+        GROUP BY 
+            g.ID;
+    `, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var group structs.Group
+		var memberList string
+		if err := rows.Scan(&group.ID, &group.Name, &group.Description, &group.CreatorID, &memberList); err != nil {
+			return nil, err
+		}
+
+		group.Members = convertCSVToIntSlice(memberList)
+		if memberList == "" {
+			group.Members = []int{}
+		}
+		groups = append(groups, group)
+	}
+
+	return groups, nil
+}
+
+// GetGroupIDForUser checks if a user is a member of a group and returns the GroupID.
+func (d *Database) GetGroupIDForUser(userID int, groupID int) (int, error) {
+	var gid int
+	err := d.db.QueryRow("SELECT GroupID FROM GroupUsers WHERE UserID = ? AND GroupID = ?", userID, groupID).Scan(&gid)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, nil // Group not found
+		}
+		return 0, err
+	}
+	return gid, nil // Returns GroupID
 }
