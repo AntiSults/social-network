@@ -16,7 +16,7 @@ export const getPosts = async () => {
   }
 };
 
-export const createPost = async (content: string, privacy: string, file: File | null) => {
+export const createPost = async (content: string, privacy: string, file: File | null, groupId?: number | null) => {
   try {
     const formData = new FormData();
     formData.append("content", content);
@@ -25,6 +25,9 @@ export const createPost = async (content: string, privacy: string, file: File | 
     if (file) {
       formData.append("files", file);
     }
+    if (groupId !== null) {
+      formData.append("group_id", String(groupId));
+  }
 
     // Send POST request to create a new post
     const response = await axios.post(`${API_URL}/create-posts`, formData, {
@@ -71,6 +74,18 @@ export const createComment = async (postId: number, content: string, file: File 
     return response.data;
   } catch (error) {
     console.error("Error creating comment:", error);
+    throw error;
+  }
+};
+
+export const getUserGroups = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/groups/get-users`, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user groups:", error);
     throw error;
   }
 };

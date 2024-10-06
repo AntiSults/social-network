@@ -51,6 +51,7 @@ export interface Post {
     author_first_name: string;
     author_last_name: string;
     files: string | null;
+    group_name: string | null;
 }
 
 export interface Comment {

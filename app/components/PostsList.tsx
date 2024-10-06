@@ -21,6 +21,11 @@ const PostsList: React.FC<PostsListProps> = ({ posts }) => {
                             {post.author_first_name} {post.author_last_name}:
                         </p>
                         <p className="mt-2">{post.content}</p>
+                        {post.group_name && (
+                            <p className="mt-2 text-gray-600 text-lg font-semibold">
+                                Group: {post.group_name}
+                            </p>
+                        )}
                         {post.files && (
                             <div className="mt-4">
                                 <img

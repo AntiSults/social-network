@@ -10,6 +10,7 @@ import (
 	"social-network/db/sqlite"
 	"social-network/middleware"
 	"social-network/structs"
+	"strconv"
 	"time"
 )
 
@@ -25,9 +26,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	content := r.FormValue("content")
 	privacy := r.FormValue("privacy")
-
-	fmt.Println("Content:", content)
-	fmt.Println("Privacy:", privacy)
+	groupIDStr := r.FormValue("group_id")
 
 	var post structs.Post
 	post.Content = content
@@ -45,6 +44,26 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var groupID int
+	if groupIDStr != "" {
+		parsedGroupID, err := strconv.Atoi(groupIDStr)
+		if err != nil {
+			http.Error(w, "Invalid group ID", http.StatusBadRequest)
+			return
+		}
+
+		groupID, err = sqlite.Db.GetGroupIDForUser(userID, parsedGroupID)
+		if err != nil {
+			http.Error(w, "Error checking group membership", http.StatusInternalServerError)
+			return
+		}
+
+		if groupID == 0 {
+			http.Error(w, "User is not a member of the specified group", http.StatusForbidden)
+			return
+		}
+	}
+
 	// Searching for post creators name
 	user, err := middleware.GetUser(userID)
 	if err != nil {
@@ -57,6 +76,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	post.CreatedAt = time.Now()
 	post.AuthorFirstName = user.FirstName
 	post.AuthorLastName = user.LastName
+	post.GroupID = groupID
 
 	if post.Privacy == "" {
 		post.Privacy = "public"

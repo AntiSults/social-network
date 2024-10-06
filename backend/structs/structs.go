@@ -74,9 +74,11 @@ type Post struct {
 	Content         string    `json:"content"`
 	Privacy         string    `json:"privacy"`
 	CreatedAt       time.Time `json:"created_at"`
+	GroupID         int       `json:"group_id"`
 	AuthorFirstName string    `json:"author_first_name"`
 	AuthorLastName  string    `json:"author_last_name"`
 	Files           string    `json:"files"`
+	GroupName       string    `json:"group_name"`
 }
 
 type Comment struct {

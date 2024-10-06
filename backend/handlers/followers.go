@@ -185,6 +185,7 @@ func RejectFollowRequest(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
 func GetFollowLists(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)
