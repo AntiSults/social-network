@@ -269,14 +269,12 @@ func (m *Manager) Serve_WS(w http.ResponseWriter, r *http.Request) {
 		middleware.SendErrorResponse(w, "Error getting user ID: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-	fmt.Printf("Client %d is connected\n", userID)
 	// Begin by upgrading the HTTP request
 	conn, err := WebsocketUpgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	log.Printf("Client %d is connecting", userID)
 	// Create New Client
 	client := NewClient(conn, m)
 	client.clientId = userID
@@ -284,12 +282,8 @@ func (m *Manager) Serve_WS(w http.ResponseWriter, r *http.Request) {
 	m.addClient(client)
 	m.ClientsByUserID[userID] = client
 
-	log.Printf("Client %d added. Current Clients: %+v", userID, m.Clients)
-	log.Printf("Clients By UserID: %+v", m.ClientsByUserID)
-
 	go client.readMessages()
 	go client.writeMessages()
-
 }
 
 // addClient is concurrently adding client to manager (w/mutex)
