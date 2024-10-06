@@ -2,11 +2,12 @@ package security
 
 import (
 	"fmt"
-	"github.com/satori/go.uuid"
 	"net/http"
 	"social-network/db/sqlite"
 	"sync"
 	"time"
+
+	"github.com/satori/go.uuid"
 )
 
 const sessionLength int = 1800 // seconds

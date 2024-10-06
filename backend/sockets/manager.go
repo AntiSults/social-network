@@ -45,6 +45,17 @@ func NewManager() *Manager {
 	return m
 }
 
+var managerInstance *Manager
+var once sync.Once
+
+// GetManager returns the singleton instance of the Manager
+func GetManager() *Manager {
+	once.Do(func() {
+		managerInstance = NewManager()
+	})
+	return managerInstance
+}
+
 // setupEventHandlers adds Event handlers to handlers Map
 func (m *Manager) setupEventHandlers() {
 
@@ -53,8 +64,27 @@ func (m *Manager) setupEventHandlers() {
 	m.handlers[EventGroupMessage] = m.handleMessages
 	m.handlers[EventUpload] = m.handleUpload
 	m.handlers[EventGroupUpload] = m.handleUpload
+	m.handlers[EventNotify] = m.HandleNotify
 }
 
+func (m *Manager) HandleNotify(e Event, c *Client) error {
+	var follower structs.User
+	err := json.Unmarshal(e.Payload, &follower)
+	if err != nil {
+		log.Printf("Error unmarshaling follower info: %v", err)
+		return err
+	}
+	notifyEvent := newEvent(EventNotify, e.Payload, e.SessionToken)
+
+	if client, ok := m.ClientsByUserID[c.clientId]; ok {
+		client.egress <- *notifyEvent
+
+	} else {
+		log.Printf("User with ID %d not connected", c.clientId)
+		return fmt.Errorf("user not connected")
+	}
+	return nil
+}
 func (m *Manager) handleUpload(e Event, c *Client) error {
 	if e.Type == "initial_group_upload" {
 		var req struct {
@@ -180,7 +210,7 @@ func (m *Manager) handleMessages(e Event, c *Client) error {
 			log.Println("error saving PM into db: ", err)
 		}
 		// finding user to send message to
-		updateEvent := newEvent("chat_message", e.Payload, "")
+		updateEvent := newEvent("chat_message", e.Payload, e.SessionToken)
 
 		if recipientClient, ok := m.ClientsByUserID[common.Message[0].RecipientID]; ok {
 			recipientClient.egress <- *updateEvent
@@ -200,7 +230,7 @@ func (m *Manager) handleMessages(e Event, c *Client) error {
 			log.Println("error saving PM into db: ", err)
 		}
 		// finding user to send message to
-		updateEvent := newEvent("chat_message", e.Payload, "")
+		updateEvent := newEvent("chat_message", e.Payload, e.SessionToken)
 
 		if recipientClient, ok := m.ClientsByUserID[common.Message[0].RecipientID]; ok {
 			recipientClient.egress <- *updateEvent
@@ -254,7 +284,6 @@ func (m *Manager) Serve_WS(w http.ResponseWriter, r *http.Request) {
 
 	go client.readMessages()
 	go client.writeMessages()
-
 }
 
 // addClient is concurrently adding client to manager (w/mutex)
