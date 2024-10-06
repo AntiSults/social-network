@@ -58,9 +58,6 @@ const NavBar = ({ logged, logpage = false }: Props) => {
       window.removeEventListener("click", handleBeforeNavigate);
     };
   }, []);
-  useEffect(() => {
-    console.log("Updated notifications:", notifications);
-  }, [notifications]);
 
   return (
     <div>
