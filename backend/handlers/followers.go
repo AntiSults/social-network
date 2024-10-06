@@ -39,7 +39,9 @@ func FollowUser(w http.ResponseWriter, r *http.Request) {
 		middleware.SendErrorResponse(w, "Failed to save follower to DB", http.StatusInternalServerError)
 		return
 	}
-
+	if status == "pending" {
+		triggerFollowNotification(req.UserID, req.FollowerID)
+	}
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -153,7 +155,6 @@ func AcceptFollowRequest(w http.ResponseWriter, r *http.Request) {
 		middleware.SendErrorResponse(w, "Invalid input", http.StatusBadRequest)
 		return
 	}
-	fmt.Println("checking", req.FollowerID, req.UserID)
 	if err := sqlite.Db.UpdateFollowRequestStatus(req.UserID, req.FollowerID, "accepted"); err != nil {
 		middleware.SendErrorResponse(w, "Failed to accept follow request", http.StatusInternalServerError)
 		return

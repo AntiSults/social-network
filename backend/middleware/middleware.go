@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"social-network/db/sqlite"
 	"social-network/security"
 	"social-network/structs"
+	"strconv"
 	"sync"
 )
 
@@ -16,12 +18,12 @@ var (
 	UserMapLock sync.RWMutex // Mutex to protect UserMap
 )
 
-// Allows CORS from specific origin
+// Allows CORS from specific origins in the range 3000-3010
 func CorsMiddleWare(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
-		// Headers for CORS
-		if origin == "http://localhost:3000" {
+		if isAllowedOrigin(origin) {
+			// Headers for CORS
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS, DELETE")
@@ -34,6 +36,31 @@ func CorsMiddleWare(next http.Handler) http.Handler {
 		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+// Checks if the origin is allowed based on the specified port range
+func isAllowedOrigin(origin string) bool {
+	if origin == "" {
+		return false
+	}
+	u, err := url.Parse(origin)
+	if err != nil {
+		return false
+	}
+	port := u.Port()
+	if port == "" {
+		// Default to port 80 for http and 443 for https
+		if u.Scheme == "http" {
+			port = "80"
+		} else {
+			port = "443"
+		}
+	}
+	portInt, err := strconv.Atoi(port)
+	if err != nil {
+		return false
+	}
+	return portInt >= 3000 && portInt <= 3010
 }
 
 func RequireLogin(next http.Handler) http.Handler {
