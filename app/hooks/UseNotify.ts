@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import checkLoginStatus from "@/app/utils/checkLoginStatus";
 
 interface User {
     ID: number;
@@ -12,42 +13,62 @@ interface Event {
     token: string;
 }
 
-export const useNotificationWS = (setNotifications: (user: User) => void) => {
-    const [socket, setSocket] = useState<WebSocket | null>(null);
+export const useNotificationWS = (setNotifications: (user: User, type: string) => void) => {
+    const socketRef = useRef<WebSocket | null>(null);
+    const reconnectTimeout = useRef<NodeJS.Timeout | null>(null); // For reconnect logic
 
     useEffect(() => {
-        let socketInstance: WebSocket | null = null;
+        const loggedIn = checkLoginStatus();
 
-        const connectSocket = () => {
-            socketInstance = new WebSocket("ws://localhost:8080/notify");
+        if (loggedIn && !socketRef.current) {
+            const connectSocket = () => {
+                if (reconnectTimeout.current) {
+                    clearTimeout(reconnectTimeout.current);
+                    reconnectTimeout.current = null;
+                }
+                const socket = new WebSocket("ws://localhost:8080/notify");
+                socketRef.current = socket;
 
-            socketInstance.onopen = () => {
-                console.log("Connected to notify WebSocket");
+                socket.onopen = () => {
+                    console.log("Connected to notify WebSocket");
+                };
+                socket.onmessage = (event) => {
+                    const data: Event = JSON.parse(event.data);
+                    if (data.type === "Pending-follow-request") {
+                        const { ID, firstName, lastName } = data.payload;
+                        const filteredUser: User = { ID, firstName, lastName };
+                        setNotifications(filteredUser, data.type);
+                    }
+                };
+                socket.onclose = (event) => {
+                    console.log(`Disconnected: ${event.reason} (Code: ${event.code})`);
+                    if (event.code !== 1000 && event.code !== 1001) {
+                        console.log("Attempting to reconnect...");
+                        reconnectTimeout.current = setTimeout(connectSocket, 5000); // Reconnect after delay
+                    }
+                };
+                socket.onerror = (error) => {
+                    console.error("WebSocket error:", error);
+                };
             };
-            socketInstance.onmessage = (event) => {
-                const data: Event = JSON.parse(event.data);
-                if (data.type === "pending_follow_request") {
-                    const { ID, firstName, lastName } = data.payload;
-                    const filteredUser: User = { ID, firstName, lastName };
-                    setNotifications(filteredUser);
+            connectSocket();
+
+            return () => {
+                if (socketRef.current?.readyState === WebSocket.OPEN) {
+                    socketRef.current.close(1000, "Component unmounted");
+                }
+                if (reconnectTimeout.current) {
+                    clearTimeout(reconnectTimeout.current);
                 }
             };
-            socketInstance.onclose = (event) => {
-                console.log(`Disconnected: ${event.reason} (Code: ${event.code})`);
-                if (event.code !== 1000 && event.code !== 1001) {
-                    console.log("Attempting to reconnect...");
-                    setTimeout(connectSocket, 5000);
-                }
-            };
-        };
-
-        connectSocket();
-        setSocket(socketInstance);
-
+        }
         return () => {
-            if (socketInstance?.readyState === WebSocket.OPEN) {
-                socketInstance.close(1000, "Component unmounted");
+            if (socketRef.current?.readyState === WebSocket.OPEN) {
+                socketRef.current.close(1000, "Component unmounted");
+            }
+            if (reconnectTimeout.current) {
+                clearTimeout(reconnectTimeout.current);
             }
         };
-    }, [setNotifications]);
+    }, [setNotifications]); // Depend only on setNotifications
 };

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import React, { useEffect, useState } from "react";
 import { useUser } from "@/app/context/UserContext";
-import { useNotificationWS } from "@/app/hooks/UseNotify";
+import Notifications from './Notifications';
 
 
 interface Props {
@@ -9,17 +9,9 @@ interface Props {
   logpage?: boolean;
 }
 
-interface User {
-  ID: number;
-  firstName: string;
-  lastName: string;
-}
-
 const NavBar = ({ logged, logpage = false }: Props) => {
+  const [hasNotifications, setHasNotifications] = useState(false);
   const { user } = useUser();
-
-  const [notifications, setNotifications] = useState<User>();
-  useNotificationWS(setNotifications);
 
   const handleLogOut = async () => {
     const response = await fetch("http://localhost:8080/logout", {
@@ -59,10 +51,6 @@ const NavBar = ({ logged, logpage = false }: Props) => {
     };
   }, []);
 
-  //only for checking notifications
-  useEffect(() => {
-    console.log("Updated notifications:", notifications);
-  }, [notifications]);
   return (
     <div>
       <div className="navbar bg-base-300 rounded-box">
@@ -107,7 +95,7 @@ const NavBar = ({ logged, logpage = false }: Props) => {
                     </div>
                   </div>
                   {/* Flashing bulb or notification icon */}
-                  {notifications && (
+                  {hasNotifications && (
                     <div className="ml-4 relative">
                       <span className="animate-ping absolute inline-flex h-4 w-4 rounded-full bg-red-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500"></span>
@@ -124,19 +112,8 @@ const NavBar = ({ logged, logpage = false }: Props) => {
                   <li>
                     <a onClick={handleLogOut}>Log out</a>
                   </li>
-                  {/* Notifications Dropdown */}
-                  {notifications && (
-                    <>
-                      <hr />
-                      <li className="font-bold">Pending Requests</li>
-                      <li key={notifications.ID}>
-                        <a>
-                          {notifications.firstName} {notifications.lastName}
-                        </a>
-                      </li>
-
-                    </>
-                  )}
+                  {/* Notifications */}
+                  <Notifications setHasNotifications={setHasNotifications} />
                 </ul>
               </div>
             )}

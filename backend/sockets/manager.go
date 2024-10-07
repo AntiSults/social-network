@@ -64,12 +64,12 @@ func (m *Manager) setupEventHandlers() {
 	m.handlers[EventGroupMessage] = m.handleMessages
 	m.handlers[EventUpload] = m.handleUpload
 	m.handlers[EventGroupUpload] = m.handleUpload
-	m.handlers[EventNotify] = m.HandleNotify
+	// m.handlers[EventNotify] = m.HandleNotify
 }
 
 func (m *Manager) HandleNotify(e Event, c *Client) error {
 
-	notifyEvent := newEvent(EventNotify, e.Payload, e.SessionToken)
+	notifyEvent := newEvent(e.Type, e.Payload, e.SessionToken)
 
 	if client, ok := m.ClientsByUserID[c.clientId]; ok {
 		client.egress <- *notifyEvent

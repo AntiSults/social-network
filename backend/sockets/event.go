@@ -24,5 +24,6 @@ const (
 	EventGroupMessage = "group_chat_message"
 	EventUpload       = "initial_upload"
 	EventGroupUpload  = "initial_group_upload"
-	EventNotify       = "pending_follow_request"
+	EventFollowNotify = "Pending-follow-request"
+	EventGroupInvite  = "Group-Invite-Notification"
 )

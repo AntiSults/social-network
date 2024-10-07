@@ -22,7 +22,7 @@ func triggerFollowNotification(userID, followerID int) {
 		return
 	}
 	event := sockets.Event{
-		Type:    sockets.EventNotify,
+		Type:    sockets.EventFollowNotify,
 		Payload: dataJSON,
 	}
 	manager := sockets.GetManager()
@@ -61,7 +61,7 @@ func triggerGroupInvite(userID, GroupID, InviterID int) {
 		return
 	}
 	event := sockets.Event{
-		Type:    "Group-Invite-Notification",
+		Type:    sockets.EventGroupInvite,
 		Payload: dataJSON,
 	}
 	manager := sockets.GetManager()
