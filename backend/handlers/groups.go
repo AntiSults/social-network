@@ -94,6 +94,8 @@ func InviteToGroup(w http.ResponseWriter, r *http.Request) {
 		middleware.SendErrorResponse(w, "Failed to insert Joining request into DB", http.StatusInternalServerError)
 		return
 	}
+	//fire WS to send notification to user being invited
+	triggerGroupInvite(req.UserID, req.GroupID, req.InviterID)
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Invite is sent"})

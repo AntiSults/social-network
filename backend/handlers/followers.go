@@ -39,6 +39,7 @@ func FollowUser(w http.ResponseWriter, r *http.Request) {
 		middleware.SendErrorResponse(w, "Failed to save follower to DB", http.StatusInternalServerError)
 		return
 	}
+	//fire WS to send notification to "private" user being followed
 	if status == "pending" {
 		triggerFollowNotification(req.UserID, req.FollowerID)
 	}

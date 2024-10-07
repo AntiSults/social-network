@@ -80,7 +80,7 @@ func (m *Manager) HandleNotify(e Event, c *Client) error {
 	return nil
 }
 func (m *Manager) handleUpload(e Event, c *Client) error {
-	if e.Type == "initial_group_upload" {
+	if e.Type == EventGroupUpload {
 		var req struct {
 			GroupID string `json:"groupId"`
 		}
@@ -139,7 +139,7 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 		return nil
 	}
 	// Regular initial upload (for non-group chat)
-	if e.Type == "initial_upload" {
+	if e.Type == EventUpload {
 		token := e.SessionToken
 		if token == "" {
 			return fmt.Errorf("session token is missing")
@@ -191,7 +191,7 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 
 // handleMessages takes care of sent messages, save later to DB here
 func (m *Manager) handleMessages(e Event, c *Client) error {
-	if e.Type == "group_chat_message" {
+	if e.Type == EventGroupMessage {
 		var common structs.ChatMessage
 		fmt.Printf("Handling %v event\n", e.Type)
 
@@ -204,13 +204,13 @@ func (m *Manager) handleMessages(e Event, c *Client) error {
 			log.Println("error saving PM into db: ", err)
 		}
 		// finding user to send message to
-		updateEvent := newEvent("chat_message", e.Payload, e.SessionToken)
+		updateEvent := newEvent(EventGroupMessage, e.Payload, e.SessionToken)
 
 		if recipientClient, ok := m.ClientsByUserID[common.Message[0].RecipientID]; ok {
 			recipientClient.egress <- *updateEvent
 		}
 		return nil
-	} else if e.Type == "chat_message" {
+	} else if e.Type == EventMessage {
 		var common structs.ChatMessage
 		fmt.Printf("Handling %v event\n", e.Type)
 		err := json.Unmarshal(e.Payload, &common)
@@ -224,7 +224,7 @@ func (m *Manager) handleMessages(e Event, c *Client) error {
 			log.Println("error saving PM into db: ", err)
 		}
 		// finding user to send message to
-		updateEvent := newEvent("chat_message", e.Payload, e.SessionToken)
+		updateEvent := newEvent(EventMessage, e.Payload, e.SessionToken)
 
 		if recipientClient, ok := m.ClientsByUserID[common.Message[0].RecipientID]; ok {
 			recipientClient.egress <- *updateEvent
