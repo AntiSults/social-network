@@ -68,17 +68,11 @@ func (m *Manager) setupEventHandlers() {
 }
 
 func (m *Manager) HandleNotify(e Event, c *Client) error {
-	var follower structs.User
-	err := json.Unmarshal(e.Payload, &follower)
-	if err != nil {
-		log.Printf("Error unmarshaling follower info: %v", err)
-		return err
-	}
+
 	notifyEvent := newEvent(EventNotify, e.Payload, e.SessionToken)
 
 	if client, ok := m.ClientsByUserID[c.clientId]; ok {
 		client.egress <- *notifyEvent
-
 	} else {
 		log.Printf("User with ID %d not connected", c.clientId)
 		return fmt.Errorf("user not connected")
