@@ -6,14 +6,17 @@ interface User {
     firstName: string;
     lastName: string;
 }
-
+interface Data {
+    User: User;
+    GroupName: string | null;
+}
 interface Event {
     type: string;
-    payload: User;
+    payload: Data;
     token: string;
 }
 
-export const useNotificationWS = (setNotifications: (user: User, type: string) => void) => {
+export const useNotificationWS = (setNotifications: (user: User, type: string, group: string | null) => void) => {
     const socketRef = useRef<WebSocket | null>(null);
     const reconnectTimeout = useRef<NodeJS.Timeout | null>(null); // For reconnect logic
 
@@ -35,9 +38,13 @@ export const useNotificationWS = (setNotifications: (user: User, type: string) =
                 socket.onmessage = (event) => {
                     const data: Event = JSON.parse(event.data);
                     if (data.type === "Pending-follow-request") {
-                        const { ID, firstName, lastName } = data.payload;
+                        const { ID, firstName, lastName } = data.payload.User;
                         const filteredUser: User = { ID, firstName, lastName };
-                        setNotifications(filteredUser, data.type);
+                        setNotifications(filteredUser, data.type, null);
+                    } else if (data.type === "Group-Invite-Notification") {
+                        const { ID, firstName, lastName } = data.payload.User;
+                        const filteredUser: User = { ID, firstName, lastName };
+                        setNotifications(filteredUser, data.type, data.payload.GroupName);
                     }
                 };
                 socket.onclose = (event) => {

@@ -10,13 +10,17 @@ import (
 )
 
 func triggerFollowNotification(userID, followerID int) {
-
+	var Data struct {
+		User structs.User
+	}
 	followerInfo, err := middleware.GetUser(followerID)
 	if err != nil {
 		log.Printf("Failed to retrieve follower info: %v", err)
 		return
 	}
-	dataJSON, err := json.Marshal(followerInfo)
+	Data.User = *followerInfo
+
+	dataJSON, err := json.Marshal(&Data)
 	if err != nil {
 		log.Printf("Error marshalling follower info: %v", err)
 		return
@@ -38,8 +42,8 @@ func triggerFollowNotification(userID, followerID int) {
 }
 
 func triggerGroupInvite(userID, GroupID, InviterID int) {
-	var data struct {
-		Inviter   structs.User
+	var Data struct {
+		User      structs.User
 		GroupName string
 	}
 	inviterInfo, err := middleware.GetUser(InviterID)
@@ -52,10 +56,10 @@ func triggerGroupInvite(userID, GroupID, InviterID int) {
 		log.Printf("Failed to retrieve group name info: %v", err)
 		return
 	}
-	data.Inviter = *inviterInfo
-	data.GroupName = groupName
+	Data.User = *inviterInfo
+	Data.GroupName = groupName
 
-	dataJSON, err := json.Marshal(&data)
+	dataJSON, err := json.Marshal(&Data)
 	if err != nil {
 		log.Printf("Error marshalling follower info: %v", err)
 		return
