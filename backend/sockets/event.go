@@ -26,4 +26,5 @@ const (
 	EventGroupUpload  = "initial_group_upload"
 	EventFollowNotify = "Pending-follow-request"
 	EventGroupInvite  = "Group-Invite-Notification"
+	EventGroupJoin    = "Group-Join-Request"
 )

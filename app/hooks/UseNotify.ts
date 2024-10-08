@@ -41,7 +41,7 @@ export const useNotificationWS = (setNotifications: (user: User, type: string, g
                         const { ID, firstName, lastName } = data.payload.User;
                         const filteredUser: User = { ID, firstName, lastName };
                         setNotifications(filteredUser, data.type, null);
-                    } else if (data.type === "Group-Invite-Notification") {
+                    } else if (data.type === "Group-Invite-Notification" || data.type === "Group-Join-Request") {
                         const { ID, firstName, lastName } = data.payload.User;
                         const filteredUser: User = { ID, firstName, lastName };
                         setNotifications(filteredUser, data.type, data.payload.GroupName);

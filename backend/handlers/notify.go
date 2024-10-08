@@ -51,7 +51,7 @@ func triggerGroupInvite(userID, GroupID, InviterID int) {
 		log.Printf("Failed to retrieve inviter info: %v", err)
 		return
 	}
-	groupName, err := sqlite.Db.GetGroupName(GroupID)
+	groupName, _, err := sqlite.Db.GetGroupNameAndCreatorID(GroupID)
 	if err != nil {
 		log.Printf("Failed to retrieve group name info: %v", err)
 		return
@@ -73,6 +73,45 @@ func triggerGroupInvite(userID, GroupID, InviterID int) {
 	client, ok := manager.ClientsByUserID[userID]
 	if !ok {
 		log.Printf("User with ID %d not connected", userID)
+		return
+	}
+	if err := sockets.GetManager().HandleNotify(event, client); err != nil {
+		log.Printf("Error triggering follow notification: %v", err)
+	}
+}
+
+func triggerGroupJoin(GroupID, reqUserID int) {
+	var Data struct {
+		User      structs.User
+		GroupName string
+	}
+	reqUserInfo, err := middleware.GetUser(reqUserID)
+	if err != nil {
+		log.Printf("Failed to retrieve inviter info: %v", err)
+		return
+	}
+	groupName, creatorID, err := sqlite.Db.GetGroupNameAndCreatorID(GroupID)
+	if err != nil {
+		log.Printf("Failed to retrieve group name info: %v", err)
+		return
+	}
+	Data.User = *reqUserInfo
+	Data.GroupName = groupName
+
+	dataJSON, err := json.Marshal(&Data)
+	if err != nil {
+		log.Printf("Error marshalling follower info: %v", err)
+		return
+	}
+	event := sockets.Event{
+		Type:    sockets.EventGroupJoin,
+		Payload: dataJSON,
+	}
+	manager := sockets.GetManager()
+
+	client, ok := manager.ClientsByUserID[creatorID]
+	if !ok {
+		log.Printf("User with ID %d not connected", creatorID)
 		return
 	}
 	if err := sockets.GetManager().HandleNotify(event, client); err != nil {

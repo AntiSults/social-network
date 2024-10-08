@@ -223,11 +223,12 @@ func (d *Database) GetGroupIDForUser(userID int, groupID int) (int, error) {
 	return gid, nil // Returns GroupID
 }
 
-func (d *Database) GetGroupName(id int) (string, error) {
+func (d *Database) GetGroupNameAndCreatorID(id int) (string, int, error) {
 	var groupName string
-	err := d.db.QueryRow("SELECT Name FROM Groups WHERE ID = ?", id).Scan(&groupName)
+	var creatorID int
+	err := d.db.QueryRow("SELECT Name, CreatorID FROM Groups WHERE ID = ?", id).Scan(&groupName, &creatorID)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
-	return groupName, nil
+	return groupName, creatorID, nil
 }
