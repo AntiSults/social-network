@@ -61,7 +61,7 @@ func triggerGroupInvite(userID, GroupID, InviterID int) {
 
 	dataJSON, err := json.Marshal(&Data)
 	if err != nil {
-		log.Printf("Error marshalling follower info: %v", err)
+		log.Printf("Error marshalling group invite info: %v", err)
 		return
 	}
 	event := sockets.Event{
@@ -100,7 +100,7 @@ func triggerGroupJoin(GroupID, reqUserID int) {
 
 	dataJSON, err := json.Marshal(&Data)
 	if err != nil {
-		log.Printf("Error marshalling follower info: %v", err)
+		log.Printf("Error marshalling group join info: %v", err)
 		return
 	}
 	event := sockets.Event{
@@ -112,6 +112,40 @@ func triggerGroupJoin(GroupID, reqUserID int) {
 	client, ok := manager.ClientsByUserID[creatorID]
 	if !ok {
 		log.Printf("User with ID %d not connected", creatorID)
+		return
+	}
+	if err := sockets.GetManager().HandleNotify(event, client); err != nil {
+		log.Printf("Error triggering follow notification: %v", err)
+	}
+}
+
+func triggerGroupEventNotify(groupEvent structs.Event) {
+	var Data struct {
+		GroupEvent structs.Event
+		GroupName  string
+	}
+	groupName, _, err := sqlite.Db.GetGroupNameAndCreatorID(groupEvent.GroupID)
+	if err != nil {
+		log.Printf("Failed to retrieve group name info: %v", err)
+		return
+	}
+	Data.GroupEvent = groupEvent
+	Data.GroupName = groupName
+
+	dataJSON, err := json.Marshal(&Data)
+	if err != nil {
+		log.Printf("Error marshalling Group Event info: %v", err)
+		return
+	}
+	event := sockets.Event{
+		Type:    sockets.EventNewGroupEvent,
+		Payload: dataJSON,
+	}
+	manager := sockets.GetManager()
+
+	client, ok := manager.ClientsByUserID[groupEvent.UserID]
+	if !ok {
+		log.Printf("User with ID %d is not online", groupEvent.UserID)
 		return
 	}
 	if err := sockets.GetManager().HandleNotify(event, client); err != nil {

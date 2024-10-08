@@ -33,13 +33,15 @@ func CreateEvent(w http.ResponseWriter, r *http.Request) {
 		middleware.SendErrorResponse(w, "Invalid input"+err.Error(), http.StatusBadRequest)
 		return
 	}
-
 	err := sqlite.Db.CreateEvent(req.GroupID, req.Title, req.Description, req.EventDate)
 	if err != nil {
-		middleware.SendErrorResponse(w, "Failed to insert group into DB"+err.Error(), http.StatusInternalServerError)
+		middleware.SendErrorResponse(w, "Failed to insert event into DB"+err.Error(), http.StatusInternalServerError)
 		return
 	}
+	//fire WS to send creation of new Group Event notification for group members online
+	triggerGroupEventNotify(req)
 }
+
 func EventReaction(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		middleware.SendErrorResponse(w, "Method not allowed", http.StatusMethodNotAllowed)

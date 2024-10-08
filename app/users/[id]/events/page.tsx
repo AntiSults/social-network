@@ -26,10 +26,6 @@ const EventsPage = () => {
         <div>
             <NavBar logged={true} />
             <h1 className="text-3xl font-bold mb-6 text-center">Events</h1>
-            {/* Display the list of available groups */}
-
-            <GroupList onSelectGroup={handleGroupSelect} actionType="createEvent" />
-
             {/* Display the form to create an event if a group is selected */}
             {selectedGroupId && (
                 <div>
@@ -37,6 +33,9 @@ const EventsPage = () => {
                     <CreateEventForm groupId={selectedGroupId} />
                 </div>
             )}
+            {/* Display the list of available groups */}
+            <GroupList onSelectGroup={handleGroupSelect} actionType="createEvent" />
+
             {/* Fetch and display the user's events */}
             <UserProfileEvents />
         </div>

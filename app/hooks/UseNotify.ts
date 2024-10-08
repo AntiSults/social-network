@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import checkLoginStatus from "@/app/utils/checkLoginStatus";
+import { useEffect, useRef, useState } from 'react';
+import { useUser } from "@/app/context/UserContext";
 
 interface User {
     ID: number;
@@ -7,7 +7,7 @@ interface User {
     lastName: string;
 }
 interface Data {
-    User: User;
+    User: User | null;
     GroupName: string | null;
 }
 interface Event {
@@ -16,66 +16,58 @@ interface Event {
     token: string;
 }
 
-export const useNotificationWS = (setNotifications: (user: User, type: string, group: string | null) => void) => {
-    const socketRef = useRef<WebSocket | null>(null);
-    const reconnectTimeout = useRef<NodeJS.Timeout | null>(null); // For reconnect logic
-
+export const useNotificationWS = (setNotifications: (type: string, user: User | null, group: string | null) => void) => {
+    const { user } = useUser();
+    const [socket, setSocket] = useState<WebSocket | null>(null);
     useEffect(() => {
-        const loggedIn = checkLoginStatus();
-
-        if (loggedIn && !socketRef.current) {
+        let socketInstance: WebSocket | null = null;
+        if (user) {
             const connectSocket = () => {
-                if (reconnectTimeout.current) {
-                    clearTimeout(reconnectTimeout.current);
-                    reconnectTimeout.current = null;
-                }
-                const socket = new WebSocket("ws://localhost:8080/notify");
-                socketRef.current = socket;
 
-                socket.onopen = () => {
+                const socketInstance = new WebSocket("ws://localhost:8080/notify");
+
+                socketInstance.onopen = () => {
                     console.log("Connected to notify WebSocket");
                 };
-                socket.onmessage = (event) => {
-                    const data: Event = JSON.parse(event.data);
-                    if (data.type === "Pending-follow-request") {
-                        const { ID, firstName, lastName } = data.payload.User;
-                        const filteredUser: User = { ID, firstName, lastName };
-                        setNotifications(filteredUser, data.type, null);
-                    } else if (data.type === "Group-Invite-Notification" || data.type === "Group-Join-Request") {
-                        const { ID, firstName, lastName } = data.payload.User;
-                        const filteredUser: User = { ID, firstName, lastName };
-                        setNotifications(filteredUser, data.type, data.payload.GroupName);
+                socketInstance.onmessage = (event) => {
+                    try {
+                        const data: Event = JSON.parse(event.data);
+
+                        if (data.type === "Pending-follow-request" && data.payload.User) {
+                            const { ID, firstName, lastName } = data.payload.User;
+                            const filteredUser: User = { ID, firstName, lastName };
+                            setNotifications(data.type, filteredUser, null);
+                        } else if (
+                            (data.type === "Group-Invite-Notification" || data.type === "Group-Join-Request") &&
+                            data.payload.User && data.payload.GroupName
+                        ) {
+                            const { ID, firstName, lastName } = data.payload.User;
+                            const filteredUser: User = { ID, firstName, lastName };
+                            setNotifications(data.type, filteredUser, data.payload.GroupName);
+                        } else if (data.type === "New-Group-Event") {
+                            setNotifications(data.type, null, data.payload.GroupName);
+                        }
+                    } catch (error) {
+                        console.error("Failed to parse WebSocket message:", error);
                     }
                 };
-                socket.onclose = (event) => {
-                    console.log(`Disconnected: ${event.reason} (Code: ${event.code})`);
-                    if (event.code !== 1000 && event.code !== 1001) {
-                        console.log("Attempting to reconnect...");
-                        reconnectTimeout.current = setTimeout(connectSocket, 5000); // Reconnect after delay
-                    }
-                };
-                socket.onerror = (error) => {
+                socketInstance.onerror = (error) => {
                     console.error("WebSocket error:", error);
                 };
+                socketInstance.onclose = (event) => {
+                    console.log(`WebSocket closed: ${event.reason} (Code: ${event.code})`);
+                    if (event.code !== 1000 && event.code !== 1001) {
+                        console.log("Attempting to reconnect...");
+                        setTimeout(connectSocket, 5000); // Reconnect after 5 seconds
+                    }
+                };
             };
-            connectSocket();
 
-            return () => {
-                if (socketRef.current?.readyState === WebSocket.OPEN) {
-                    socketRef.current.close(1000, "Component unmounted");
-                }
-                if (reconnectTimeout.current) {
-                    clearTimeout(reconnectTimeout.current);
-                }
-            };
+            connectSocket();
+            setSocket(socketInstance);
+
         }
-        return () => {
-            if (socketRef.current?.readyState === WebSocket.OPEN) {
-                socketRef.current.close(1000, "Component unmounted");
-            }
-            if (reconnectTimeout.current) {
-                clearTimeout(reconnectTimeout.current);
-            }
-        };
-    }, [setNotifications]); // Depend only on setNotifications
+
+
+    }, [user, setNotifications]);
 };

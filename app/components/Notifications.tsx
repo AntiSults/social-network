@@ -12,8 +12,8 @@ interface Props {
 }
 
 interface Notification {
-    user: User;
     type: string;
+    user: User | null;
     group: string | null
 }
 
@@ -21,35 +21,49 @@ const Notifications: React.FC<Props> = ({ setHasNotifications }) => {
     const [notifications, setNotifications] = useState<Notification | null>(null);
 
     // Hook to handle WebSocket notifications
-    useNotificationWS((user, type, group?) => setNotifications({ user, type, group: group || null }));
+    useNotificationWS((type, user?, group?) => setNotifications({ type, user: user || null, group: group || null }));
 
     useEffect(() => {
         // Notify NavBar about the presence of notifications
         setHasNotifications(!!notifications);
     }, [notifications, setHasNotifications]);
-
+    useEffect(() => {
+        console.log("Current notification: ", notifications);
+    }, [notifications]);
     return (
         <>
-            {/* Notifications Dropdown */}
-            {notifications && (
-                <div className="notifications-dropdown">
-                    <hr />
-                    <ul>
-                        <li key={notifications.user.ID} className="font-bold">
-                            <a>You&apos;ve got {notifications.type}</a>
-                            {notifications.group && (
-                                <a> to join group of {notifications.group}</a>
+            <div className="notifications-dropdown">
+                <hr />
+                <ul>
+                    {/* Check if it's a user-based notification */}
+                    {notifications?.user ? (
+                        <>
+                            <li key={notifications.user.ID} className="font-bold">
+                                <a>You&apos;ve got {notifications.type}</a>
+                                {/* Display group-related info if applicable */}
+                                {notifications.group && (
+                                    <a> to join the group {notifications.group}</a>
+                                )}
+                            </li>
+                            <li>
+                                <a>
+                                    from {notifications.user.firstName} {notifications.user.lastName}
+                                </a>
+                            </li>
+                        </>
+                    ) : (
+                        // If no user data, display a generic notification
+                        <>
+                            {notifications?.group && (
+                                <li className="font-bold">
+                                    <a>Someone from your group &quot;{notifications.group}&quot;</a>
+                                    <a> has created {notifications.type}</a>
+                                </li>
                             )}
-                        </li>
-                        <li>
-                            <a>
-                                from {notifications.user.firstName} {notifications.user.lastName}
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-            )}
+                        </>
+                    )}
+                </ul>
+            </div>
         </>
     );
 };

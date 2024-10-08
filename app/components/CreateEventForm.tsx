@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import FieldInput from './FieldInput';
 import Button from "@/app/components/Button";
+import { useUser } from "@/app/context/UserContext";
+
 
 const CreateEventForm = ({ groupId }: { groupId: number }) => {
     const [title, setTitle] = useState('');
@@ -9,6 +11,8 @@ const CreateEventForm = ({ groupId }: { groupId: number }) => {
     const [eventDate, setEventDate] = useState('');
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+    const { user } = useUser();
+    const currentUser = user
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -18,7 +22,7 @@ const CreateEventForm = ({ groupId }: { groupId: number }) => {
             const response = await fetch(`http://localhost:8080/groups/events`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ groupId, title, description, eventDate }),
+                body: JSON.stringify({ userId: currentUser?.ID, groupId, title, description, eventDate }),
             });
 
             if (response.ok) {

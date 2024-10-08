@@ -39,6 +39,7 @@ type Event struct {
 	Description string `json:"description"`
 	EventDate   string `json:"eventDate"`
 	GroupID     int    `json:"groupId"`
+	UserID      int    `json:"userId"`
 }
 
 type GroupJoinRequest struct {

@@ -77,3 +77,24 @@ func (d *Database) GetMembersWithReactions(EventID, GroupID int) ([]structs.Grou
 	}
 	return members, nil
 }
+
+func (d *Database) GetGroupUserIDs(groupID int) ([]int, error) {
+	query := "SELECT UserID FROM GroupUsers WHERE GroupID = ?"
+	rows, err := d.db.Query(query, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var userIDs []int
+	for rows.Next() {
+		var userID int
+		if err := rows.Scan(&userID); err != nil {
+			return nil, err
+		}
+		userIDs = append(userIDs, userID)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return userIDs, nil
+}

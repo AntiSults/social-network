@@ -20,11 +20,12 @@ func newEvent(t string, p json.RawMessage, s string) *Event {
 }
 
 const (
-	EventMessage      = "chat_message"
-	EventGroupMessage = "group_chat_message"
-	EventUpload       = "initial_upload"
-	EventGroupUpload  = "initial_group_upload"
-	EventFollowNotify = "Pending-follow-request"
-	EventGroupInvite  = "Group-Invite-Notification"
-	EventGroupJoin    = "Group-Join-Request"
+	EventMessage       = "chat_message"
+	EventGroupMessage  = "group_chat_message"
+	EventUpload        = "initial_upload"
+	EventGroupUpload   = "initial_group_upload"
+	EventFollowNotify  = "Pending-follow-request"
+	EventGroupInvite   = "Group-Invite-Notification"
+	EventGroupJoin     = "Group-Join-Request"
+	EventNewGroupEvent = "New-Group-Event"
 )

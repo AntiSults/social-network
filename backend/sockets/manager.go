@@ -64,13 +64,32 @@ func (m *Manager) setupEventHandlers() {
 	m.handlers[EventGroupMessage] = m.handleMessages
 	m.handlers[EventUpload] = m.handleUpload
 	m.handlers[EventGroupUpload] = m.handleUpload
-	// m.handlers[EventNotify] = m.HandleNotify
 }
 
 func (m *Manager) HandleNotify(e Event, c *Client) error {
 
 	notifyEvent := newEvent(e.Type, e.Payload, e.SessionToken)
 
+	if e.Type == EventNewGroupEvent {
+		var req struct {
+			GroupEvent structs.Event
+			GroupName  string
+		}
+		err := json.Unmarshal(e.Payload, &req)
+		if err != nil {
+			return fmt.Errorf("error unmarshalling the payload fordata struct: %w", err)
+		}
+		userIDs, err := sqlite.Db.GetGroupUserIDs(req.GroupEvent.GroupID)
+		if err != nil {
+			return fmt.Errorf("error getting slice of userID from GroupUsers: %w", err)
+		}
+		for _, userID := range userIDs {
+			if client, ok := m.ClientsByUserID[userID]; ok {
+				client.egress <- *notifyEvent
+			}
+		}
+		return nil
+	}
 	if client, ok := m.ClientsByUserID[c.clientId]; ok {
 		client.egress <- *notifyEvent
 	} else {
