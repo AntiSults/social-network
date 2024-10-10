@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import FieldInput from "./FieldInput";
 import Button from "./Button";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
-import { getOptionStyle } from "@/app/utils/getOptionStyle";
+import RecipientSelector from "./ChatRecipientSelector";
 import { Recipient } from "@/app/utils/types";
+
 
 interface ChatInputProps {
     message: string;
@@ -33,22 +34,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     return (
         <form onSubmit={onSubmit} className="flex flex-col space-y-2">
-            {/* Recipient Selector */}
-            <select
-                value={selectedRecipient ?? ""}  // Single recipient, default empty string
-                onChange={(e) => {
-                    const selectedID = parseInt(e.target.value);
-                    setSelectedRecipient(selectedID);  // Directly set the selected recipient
-                }}
-                className="p-2 border border-gray-300 rounded-md"
-            >
-                <option value="" disabled>Select a recipient</option> {/* Default option */}
-                {recipients.map((recipient) => (
-                    <option key={recipient.id} value={recipient.id} style={getOptionStyle(recipient.type)}>
-                        {recipient.name}
-                    </option>
-                ))}
-            </select>
+            {/* Use the new RecipientSelector component */}
+            <RecipientSelector
+                recipients={recipients}
+                selectedRecipient={selectedRecipient}
+                setSelectedRecipient={setSelectedRecipient}
+            />
 
             <div className="relative flex items-center">
                 <FieldInput

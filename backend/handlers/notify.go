@@ -11,14 +11,14 @@ import (
 
 func triggerFollowNotification(userID, followerID int) {
 	var Data struct {
-		User structs.User
+		User []structs.User
 	}
 	followerInfo, err := middleware.GetUser(followerID)
 	if err != nil {
 		log.Printf("Failed to retrieve follower info: %v", err)
 		return
 	}
-	Data.User = *followerInfo
+	Data.User = append(Data.User, *followerInfo)
 
 	dataJSON, err := json.Marshal(&Data)
 	if err != nil {
@@ -43,7 +43,7 @@ func triggerFollowNotification(userID, followerID int) {
 
 func triggerGroupInvite(userID, GroupID, InviterID int) {
 	var Data struct {
-		User      structs.User
+		User      []structs.User
 		GroupName string
 	}
 	inviterInfo, err := middleware.GetUser(InviterID)
@@ -56,7 +56,7 @@ func triggerGroupInvite(userID, GroupID, InviterID int) {
 		log.Printf("Failed to retrieve group name info: %v", err)
 		return
 	}
-	Data.User = *inviterInfo
+	Data.User = append(Data.User, *inviterInfo)
 	Data.GroupName = groupName
 
 	dataJSON, err := json.Marshal(&Data)
@@ -82,7 +82,7 @@ func triggerGroupInvite(userID, GroupID, InviterID int) {
 
 func triggerGroupJoin(GroupID, reqUserID int) {
 	var Data struct {
-		User      structs.User
+		User      []structs.User
 		GroupName string
 	}
 	reqUserInfo, err := middleware.GetUser(reqUserID)
@@ -95,7 +95,7 @@ func triggerGroupJoin(GroupID, reqUserID int) {
 		log.Printf("Failed to retrieve group name info: %v", err)
 		return
 	}
-	Data.User = *reqUserInfo
+	Data.User = append(Data.User, *reqUserInfo)
 	Data.GroupName = groupName
 
 	dataJSON, err := json.Marshal(&Data)
@@ -121,7 +121,7 @@ func triggerGroupJoin(GroupID, reqUserID int) {
 
 func triggerGroupEventNotify(groupEvent structs.Event) {
 	var Data struct {
-		GroupEvent structs.Event
+		GroupEvent []structs.Event
 		GroupName  string
 	}
 	groupName, _, err := sqlite.Db.GetGroupNameAndCreatorID(groupEvent.GroupID)
@@ -129,7 +129,7 @@ func triggerGroupEventNotify(groupEvent structs.Event) {
 		log.Printf("Failed to retrieve group name info: %v", err)
 		return
 	}
-	Data.GroupEvent = groupEvent
+	Data.GroupEvent = append(Data.GroupEvent, groupEvent)
 	Data.GroupName = groupName
 
 	dataJSON, err := json.Marshal(&Data)

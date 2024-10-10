@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 	"net/url"
@@ -13,8 +14,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-
-	"github.com/gorilla/websocket"
 )
 
 var WebsocketUpgrader = websocket.Upgrader{
@@ -72,14 +71,14 @@ func (m *Manager) HandleNotify(e Event, c *Client) error {
 
 	if e.Type == EventNewGroupEvent {
 		var req struct {
-			GroupEvent structs.Event
+			GroupEvent []structs.Event
 			GroupName  string
 		}
 		err := json.Unmarshal(e.Payload, &req)
 		if err != nil {
 			return fmt.Errorf("error unmarshalling the payload fordata struct: %w", err)
 		}
-		userIDs, err := sqlite.Db.GetGroupUserIDs(req.GroupEvent.GroupID)
+		userIDs, err := sqlite.Db.GetGroupUserIDs(req.GroupEvent[0].GroupID)
 		if err != nil {
 			return fmt.Errorf("error getting slice of userID from GroupUsers: %w", err)
 		}

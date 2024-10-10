@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useNotificationWS } from '@/app/hooks/UseNotify';
+"use client";
+import { useCallback, useState, useEffect } from 'react';
+import { useChatAndNotify } from "@/app/hooks/UseChat";
+
 
 interface User {
     ID: number;
@@ -17,15 +19,22 @@ interface Notification {
     group: string | null
 }
 
-const Notifications: React.FC<Props> = ({ setHasNotifications }) => {
+export const Notifications: React.FC<Props> = ({ setHasNotifications }) => {
     const [notifications, setNotifications] = useState<Notification | null>(null);
 
-    // Hook to handle WebSocket notifications
-    useNotificationWS((type, user?, group?) => setNotifications({ type, user: user || null, group: group || null }));
+    // Memoize the setNotifications callback
+    const handleSetNotifications = useCallback(
+        (type: string, user: User | null, group: string | null) => {
+            setNotifications({ type, user, group });
+        },
+        [] // Dependencies: No dependencies so it's memoized once
+    );
+    useChatAndNotify(handleSetNotifications);
+
 
     useEffect(() => {
-        // Notify NavBar about the presence of notifications
-        setHasNotifications(!!notifications);
+        // Only update if there is an actual change
+        setHasNotifications(notifications !== null);
     }, [notifications, setHasNotifications]);
     useEffect(() => {
         console.log("Current notification: ", notifications);
@@ -67,6 +76,4 @@ const Notifications: React.FC<Props> = ({ setHasNotifications }) => {
         </>
     );
 };
-
-export default Notifications;
 

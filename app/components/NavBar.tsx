@@ -1,7 +1,9 @@
+"use client";
+
 import Image from 'next/image';
 import React, { useState } from "react";
 import { useUser } from "@/app/context/UserContext";
-import Notifications from './Notifications';
+import { Notifications } from './Notifications';
 import LogoutTabClose from "@/app/hooks/LogOutTabClose";
 
 
