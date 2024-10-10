@@ -1,4 +1,3 @@
-"use client"
 import { useState } from 'react';
 import FieldInput from './FieldInput';
 import Button from "@/app/components/Button";

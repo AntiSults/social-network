@@ -1,4 +1,3 @@
-"use client";
 import JoinGroup from './JoinGroup';
 import { useState, useEffect } from 'react';
 import { useUser } from '@/app/context/UserContext';

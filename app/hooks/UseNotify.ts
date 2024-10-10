@@ -18,7 +18,7 @@ interface Event {
 
 export const useNotificationWS = (setNotifications: (type: string, user: User | null, group: string | null) => void) => {
     const { user } = useUser();
-    const [socket, setSocket] = useState<WebSocket | null>(null);
+    const [_, setSocket] = useState<WebSocket | null>(null);
     useEffect(() => {
         let socketInstance: WebSocket | null = null;
         if (user) {

@@ -32,7 +32,7 @@ const ChatMessage = () => {
         );
     }
     const handleGroupSelect = (groupId: number) => {
-        setGroupId(groupId.toString()); // Update the groupId in chat state
+        setGroupId(groupId.toString());
     };
 
     return (
@@ -45,17 +45,17 @@ const ChatMessage = () => {
                     messages={messages}
                     users={users}
                     currentUser={currentUser}
-                    groupId={groupId} // Pass groupId prop
+                    groupId={groupId}
                     setGroupId={setGroupId}
                 />
                 <ChatInput
                     message={message}
                     setMessage={setMessage}
-                    onSubmit={sendChatMessage} // Ensure this is connected
+                    onSubmit={sendChatMessage}
                     recipients={recipients}
                     selectedRecipient={selectedRecipient}
                     setSelectedRecipient={setSelectedRecipient}
-                    groupId={groupId} // Pass groupId prop to ChatInput
+                    groupId={groupId}
                 />
 
 

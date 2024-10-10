@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useUser } from "@/app/context/UserContext"; // Importing useUser from UserContext
+import { useUser } from "@/app/context/UserContext";
 import NavBar from "./components/NavBar";
 import checkLoginStatus from "./utils/checkLoginStatus";
 import Image from "next/image";
@@ -8,7 +8,7 @@ import Link from "next/link";
 
 const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { user: currentUser } = useUser(); // Accessing the current user from UserContext
+  const { user: currentUser } = useUser();
 
   useEffect(() => {
     setIsLoggedIn(checkLoginStatus());

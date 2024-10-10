@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from 'react';
 import { useUser } from '@/app/context/UserContext';
 
@@ -74,7 +72,7 @@ const CreateGroupForm = () => {
                 </div>
             </form>
         </div>
-    );    
+    );
 };
 
 export default CreateGroupForm;

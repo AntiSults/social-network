@@ -9,16 +9,18 @@ import (
 	"social-network/structs"
 )
 
+var notify = "notify"
+
 func triggerFollowNotification(userID, followerID int) {
 	var Data struct {
-		User []structs.User
+		User structs.User
 	}
 	followerInfo, err := middleware.GetUser(followerID)
 	if err != nil {
 		log.Printf("Failed to retrieve follower info: %v", err)
 		return
 	}
-	Data.User = append(Data.User, *followerInfo)
+	Data.User = *followerInfo
 
 	dataJSON, err := json.Marshal(&Data)
 	if err != nil {
@@ -31,7 +33,7 @@ func triggerFollowNotification(userID, followerID int) {
 	}
 	manager := sockets.GetManager()
 
-	client, ok := manager.ClientsByUserID[userID]["notify"]
+	client, ok := manager.ClientsByUserID[userID][notify]
 	if !ok {
 		log.Printf("User with ID %d not connected", userID)
 		return
@@ -43,7 +45,7 @@ func triggerFollowNotification(userID, followerID int) {
 
 func triggerGroupInvite(userID, GroupID, InviterID int) {
 	var Data struct {
-		User      []structs.User
+		User      structs.User
 		GroupName string
 	}
 	inviterInfo, err := middleware.GetUser(InviterID)
@@ -56,7 +58,7 @@ func triggerGroupInvite(userID, GroupID, InviterID int) {
 		log.Printf("Failed to retrieve group name info: %v", err)
 		return
 	}
-	Data.User = append(Data.User, *inviterInfo)
+	Data.User = *inviterInfo
 	Data.GroupName = groupName
 
 	dataJSON, err := json.Marshal(&Data)
@@ -70,7 +72,7 @@ func triggerGroupInvite(userID, GroupID, InviterID int) {
 	}
 	manager := sockets.GetManager()
 
-	client, ok := manager.ClientsByUserID[userID]["notify"]
+	client, ok := manager.ClientsByUserID[userID][notify]
 	if !ok {
 		log.Printf("User with ID %d not connected", userID)
 		return
@@ -82,7 +84,7 @@ func triggerGroupInvite(userID, GroupID, InviterID int) {
 
 func triggerGroupJoin(GroupID, reqUserID int) {
 	var Data struct {
-		User      []structs.User
+		User      structs.User
 		GroupName string
 	}
 	reqUserInfo, err := middleware.GetUser(reqUserID)
@@ -95,7 +97,7 @@ func triggerGroupJoin(GroupID, reqUserID int) {
 		log.Printf("Failed to retrieve group name info: %v", err)
 		return
 	}
-	Data.User = append(Data.User, *reqUserInfo)
+	Data.User = *reqUserInfo
 	Data.GroupName = groupName
 
 	dataJSON, err := json.Marshal(&Data)
@@ -109,7 +111,7 @@ func triggerGroupJoin(GroupID, reqUserID int) {
 	}
 	manager := sockets.GetManager()
 
-	client, ok := manager.ClientsByUserID[creatorID]["notify"]
+	client, ok := manager.ClientsByUserID[creatorID][notify]
 	if !ok {
 		log.Printf("User with ID %d not connected", creatorID)
 		return
@@ -121,7 +123,7 @@ func triggerGroupJoin(GroupID, reqUserID int) {
 
 func triggerGroupEventNotify(groupEvent structs.Event) {
 	var Data struct {
-		GroupEvent []structs.Event
+		GroupEvent structs.Event
 		GroupName  string
 	}
 	groupName, _, err := sqlite.Db.GetGroupNameAndCreatorID(groupEvent.GroupID)
@@ -129,7 +131,7 @@ func triggerGroupEventNotify(groupEvent structs.Event) {
 		log.Printf("Failed to retrieve group name info: %v", err)
 		return
 	}
-	Data.GroupEvent = append(Data.GroupEvent, groupEvent)
+	Data.GroupEvent = groupEvent
 	Data.GroupName = groupName
 
 	dataJSON, err := json.Marshal(&Data)
@@ -143,7 +145,7 @@ func triggerGroupEventNotify(groupEvent structs.Event) {
 	}
 	manager := sockets.GetManager()
 
-	client, ok := manager.ClientsByUserID[groupEvent.UserID]["notify"]
+	client, ok := manager.ClientsByUserID[groupEvent.UserID][notify]
 	if !ok {
 		log.Printf("User with ID %d is not online", groupEvent.UserID)
 		return

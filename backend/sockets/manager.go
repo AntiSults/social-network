@@ -45,8 +45,12 @@ func NewManager() *Manager {
 	return m
 }
 
-var managerInstance *Manager
-var once sync.Once
+var (
+	managerInstance *Manager
+	once            sync.Once
+	notify          = "notify"
+	chat            = "chat"
+)
 
 // GetManager returns the singleton instance of the Manager
 func GetManager() *Manager {
@@ -59,7 +63,7 @@ func GetManager() *Manager {
 // setupEventHandlers adds Event handlers to handlers Map
 func (m *Manager) setupEventHandlers() {
 
-	// may add different events e.g. for sending posts, comments, notifications in future
+	// may add different events for receiving events to route them to handler
 	m.handlers[EventMessage] = m.handleMessages
 	m.handlers[EventGroupMessage] = m.handleMessages
 	m.handlers[EventUpload] = m.handleUpload
@@ -72,25 +76,25 @@ func (m *Manager) HandleNotify(e Event, c *Client) error {
 
 	if e.Type == EventNewGroupEvent {
 		var req struct {
-			GroupEvent []structs.Event
+			GroupEvent structs.Event
 			GroupName  string
 		}
 		err := json.Unmarshal(e.Payload, &req)
 		if err != nil {
 			return fmt.Errorf("error unmarshalling the payload fordata struct: %w", err)
 		}
-		userIDs, err := sqlite.Db.GetGroupUserIDs(req.GroupEvent[0].GroupID)
+		userIDs, err := sqlite.Db.GetGroupUserIDs(req.GroupEvent.GroupID)
 		if err != nil {
 			return fmt.Errorf("error getting slice of userID from GroupUsers: %w", err)
 		}
 		for _, userID := range userIDs {
-			if client, ok := m.ClientsByUserID[userID]["notify"]; ok {
+			if client, ok := m.ClientsByUserID[userID][notify]; ok {
 				client.egress <- *notifyEvent
 			}
 		}
 		return nil
 	}
-	if client, ok := m.ClientsByUserID[c.clientId]["notify"]; ok {
+	if client, ok := m.ClientsByUserID[c.clientId][notify]; ok {
 		client.egress <- *notifyEvent
 	} else {
 		log.Printf("User with ID %d not connected", c.clientId)
@@ -152,7 +156,7 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 		// Create the response event for group upload
 		updateEvent := newEvent("initial_group_upload_response", dataJSON, token)
 		// Send the response to the correct client
-		if client, ok := m.ClientsByUserID[userID]["chat"]; ok {
+		if client, ok := m.ClientsByUserID[userID][chat]; ok {
 			client.egress <- *updateEvent
 		}
 		return nil
@@ -199,7 +203,7 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 		// Create the response event for regular chat upload
 		updateEvent := newEvent("initial_upload_response", dataJSON, token)
 		// Send the response to the correct client
-		if client, ok := m.ClientsByUserID[userID]["chat"]; ok {
+		if client, ok := m.ClientsByUserID[userID][chat]; ok {
 			client.egress <- *updateEvent
 		}
 		return nil
@@ -245,7 +249,7 @@ func (m *Manager) handleMessages(e Event, c *Client) error {
 		// finding user to send message to
 		updateEvent := newEvent(EventMessage, e.Payload, e.SessionToken)
 
-		if recipientClient, ok := m.ClientsByUserID[common.Message[0].RecipientID]["chat"]; ok {
+		if recipientClient, ok := m.ClientsByUserID[common.Message[0].RecipientID][chat]; ok {
 			recipientClient.egress <- *updateEvent
 		}
 		return nil
@@ -285,9 +289,9 @@ func (m *Manager) Serve_WS(w http.ResponseWriter, r *http.Request) {
 	// Determine connection type
 	connType := r.URL.Path
 	if connType == "/ws" {
-		connType = "chat"
+		connType = chat
 	} else if connType == "/notify" {
-		connType = "notify"
+		connType = notify
 	}
 	// Begin by upgrading the HTTP request
 	conn, err := WebsocketUpgrader.Upgrade(w, r, nil)
@@ -324,7 +328,6 @@ func (m *Manager) addClient(client *Client, connType string, userID int) {
 }
 
 // removeClient concurrently safely (w/mutex) removing client
-// removeClient safely removes the client from the manager
 func (m *Manager) removeClient(client *Client) {
 	m.Lock()
 	defer m.Unlock()

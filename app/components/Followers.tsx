@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useEffect } from "react";
 import { User } from "@/app/utils/types"
 interface FollowersProps {
@@ -49,9 +48,9 @@ const Followers: React.FC<FollowersProps> = ({ profileUser, user }) => {
     return (
         <div className="flex justify-center mt-6">
             {isFollowing ? (
-                <button 
-                onClick={handleUnfollow}
-                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out"
+                <button
+                    onClick={handleUnfollow}
+                    className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out"
 
                 >
                     Unfollow
@@ -59,9 +58,9 @@ const Followers: React.FC<FollowersProps> = ({ profileUser, user }) => {
             ) : isPending ? (
                 <p className="text-gray-500 text-center">Follow request pending...</p>
             ) : (
-                <button 
-                onClick={handleFollow}
-                className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out"
+                <button
+                    onClick={handleFollow}
+                    className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-200 ease-in-out"
                 >
                     Follow
                 </button>

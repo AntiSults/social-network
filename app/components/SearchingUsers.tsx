@@ -1,4 +1,3 @@
-"use client"
 import { useState } from 'react';
 import { searchUsers } from '@/app/utils/searchUsers';
 import { User as SearchResult } from "@/app/utils/types";

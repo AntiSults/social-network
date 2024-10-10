@@ -54,6 +54,7 @@ func (c *Client) readMessages() {
 	}
 }
 
+// writeMessages writes mesages to client
 func (c *Client) writeMessages() {
 	defer func() {
 		c.manager.removeClient(c)

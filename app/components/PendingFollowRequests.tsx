@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useEffect } from "react";
 import { User } from "@/app/utils/types";
 interface PendingRequestsProps {
@@ -9,7 +8,7 @@ const PendingRequests: React.FC<PendingRequestsProps> = ({ user }) => {
     useEffect(() => {
         const fetchPendingRequests = async () => {
             try {
-                // Fetch pending follow requests for the logged-in user
+
                 const response = await fetch(`http://localhost:8080/followers/pending?userId=${user.ID}`);
                 const data = await response.json();
 
@@ -64,35 +63,35 @@ const PendingRequests: React.FC<PendingRequestsProps> = ({ user }) => {
             <h2 className="text-2xl font-bold mb-4">Pending Follow Requests</h2>
             <ul className="w-full max-w-lg">
                 {pendingRequests.map((request) => (
-                    <li 
+                    <li
 
                         key={request.ID}
                         className="flex justify-between items-center bg-white shadow-md rounded-lg p-4 mb-4"
                     >
                         <div>
-                        <p className="font-semibold">
-                            {request.firstName} {request.lastName}
-                        </p>
-                    </div>
-                    <div className="flex space-x-4">
-                        <button
-                            onClick={() => handleAccept(user.ID, request.ID)}
-                            className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition"
-                        >
-                            Accept
-                        </button>
-                        <button
-                            onClick={() => handleReject(user.ID, request.ID)}
-                            className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition"
-                        >
-                            Reject
-                        </button>
-                    </div>
-                </li>
-            ))}
-        </ul>
-    </div>
-);
+                            <p className="font-semibold">
+                                {request.firstName} {request.lastName}
+                            </p>
+                        </div>
+                        <div className="flex space-x-4">
+                            <button
+                                onClick={() => handleAccept(user.ID, request.ID)}
+                                className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition"
+                            >
+                                Accept
+                            </button>
+                            <button
+                                onClick={() => handleReject(user.ID, request.ID)}
+                                className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition"
+                            >
+                                Reject
+                            </button>
+                        </div>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
 
 };
 export default PendingRequests;
