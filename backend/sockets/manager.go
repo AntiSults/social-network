@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 	"net/url"
@@ -14,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/gorilla/websocket"
 )
 
 var WebsocketUpgrader = websocket.Upgrader{
@@ -27,9 +28,9 @@ var (
 )
 
 type Manager struct {
-	Clients         ClientList
-	sync.RWMutex    // to protect clients activity with mutex
-	ClientsByUserID map[int]*Client
+	Clients ClientList
+	sync.RWMutex
+	ClientsByUserID map[int]map[string]*Client
 	handlers        map[string]EventHandler
 }
 
@@ -37,7 +38,7 @@ type Manager struct {
 func NewManager() *Manager {
 	m := &Manager{
 		Clients:         make(ClientList),
-		ClientsByUserID: make(map[int]*Client),
+		ClientsByUserID: make(map[int]map[string]*Client),
 		handlers:        make(map[string]EventHandler),
 	}
 	m.setupEventHandlers()
@@ -83,13 +84,13 @@ func (m *Manager) HandleNotify(e Event, c *Client) error {
 			return fmt.Errorf("error getting slice of userID from GroupUsers: %w", err)
 		}
 		for _, userID := range userIDs {
-			if client, ok := m.ClientsByUserID[userID]; ok {
+			if client, ok := m.ClientsByUserID[userID]["notify"]; ok {
 				client.egress <- *notifyEvent
 			}
 		}
 		return nil
 	}
-	if client, ok := m.ClientsByUserID[c.clientId]; ok {
+	if client, ok := m.ClientsByUserID[c.clientId]["notify"]; ok {
 		client.egress <- *notifyEvent
 	} else {
 		log.Printf("User with ID %d not connected", c.clientId)
@@ -151,7 +152,7 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 		// Create the response event for group upload
 		updateEvent := newEvent("initial_group_upload_response", dataJSON, token)
 		// Send the response to the correct client
-		if client, ok := m.ClientsByUserID[userID]; ok {
+		if client, ok := m.ClientsByUserID[userID]["chat"]; ok {
 			client.egress <- *updateEvent
 		}
 		return nil
@@ -198,7 +199,7 @@ func (m *Manager) handleUpload(e Event, c *Client) error {
 		// Create the response event for regular chat upload
 		updateEvent := newEvent("initial_upload_response", dataJSON, token)
 		// Send the response to the correct client
-		if client, ok := m.ClientsByUserID[userID]; ok {
+		if client, ok := m.ClientsByUserID[userID]["chat"]; ok {
 			client.egress <- *updateEvent
 		}
 		return nil
@@ -224,7 +225,7 @@ func (m *Manager) handleMessages(e Event, c *Client) error {
 		// finding user to send message to
 		updateEvent := newEvent(EventGroupMessage, e.Payload, e.SessionToken)
 
-		if recipientClient, ok := m.ClientsByUserID[common.Message[0].RecipientID]; ok {
+		if recipientClient, ok := m.ClientsByUserID[common.Message[0].RecipientID]["chat"]; ok {
 			recipientClient.egress <- *updateEvent
 		}
 		return nil
@@ -244,7 +245,7 @@ func (m *Manager) handleMessages(e Event, c *Client) error {
 		// finding user to send message to
 		updateEvent := newEvent(EventMessage, e.Payload, e.SessionToken)
 
-		if recipientClient, ok := m.ClientsByUserID[common.Message[0].RecipientID]; ok {
+		if recipientClient, ok := m.ClientsByUserID[common.Message[0].RecipientID]["chat"]; ok {
 			recipientClient.egress <- *updateEvent
 		}
 		return nil
@@ -281,6 +282,13 @@ func (m *Manager) Serve_WS(w http.ResponseWriter, r *http.Request) {
 		middleware.SendErrorResponse(w, "Error getting user ID: "+err.Error(), http.StatusBadRequest)
 		return
 	}
+	// Determine connection type
+	connType := r.URL.Path
+	if connType == "/ws" {
+		connType = "chat"
+	} else if connType == "/notify" {
+		connType = "notify"
+	}
 	// Begin by upgrading the HTTP request
 	conn, err := WebsocketUpgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -290,33 +298,50 @@ func (m *Manager) Serve_WS(w http.ResponseWriter, r *http.Request) {
 	// Create New Client
 	client := NewClient(conn, m)
 	client.clientId = userID
+	client.connType = connType
 	// Add the newly created client to the manager
-	m.addClient(client)
-	m.ClientsByUserID[userID] = client
+	m.addClient(client, connType, userID)
 
 	go client.readMessages()
 	go client.writeMessages()
 }
 
 // addClient is concurrently adding client to manager (w/mutex)
-func (m *Manager) addClient(client *Client) {
+func (m *Manager) addClient(client *Client, connType string, userID int) {
 	m.Lock()
 	defer m.Unlock()
+
+	// Check if the user already has a connection map; if not, create it
+	if _, ok := m.ClientsByUserID[userID]; !ok {
+		m.ClientsByUserID[userID] = make(map[string]*Client)
+	}
+
+	// Add the new client under the correct connection type
+	m.ClientsByUserID[userID][connType] = client
+
+	// Add to global client list
 	m.Clients[client] = true
-	m.ClientsByUserID[client.clientId] = client
 }
 
 // removeClient concurrently safely (w/mutex) removing client
+// removeClient safely removes the client from the manager
 func (m *Manager) removeClient(client *Client) {
 	m.Lock()
 	defer m.Unlock()
-	// Check if Client exists, then delete it
-	if _, ok := m.Clients[client]; ok {
-		// close connection
+
+	userID := client.clientId
+	connType := client.connType
+
+	// Check if the user has a connection of this type and remove it
+	if _, ok := m.ClientsByUserID[userID][connType]; ok {
 		client.connection.Close()
-		// remove
+		delete(m.ClientsByUserID[userID], connType)
 		delete(m.Clients, client)
-		delete(m.ClientsByUserID, client.clientId) // Remove from ClientsByUserID
+
+		// Optionally, you can remove the user's entry entirely if no connections remain
+		if len(m.ClientsByUserID[userID]) == 0 {
+			delete(m.ClientsByUserID, userID)
+		}
 	}
 }
 

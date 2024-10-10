@@ -31,7 +31,7 @@ func triggerFollowNotification(userID, followerID int) {
 	}
 	manager := sockets.GetManager()
 
-	client, ok := manager.ClientsByUserID[userID]
+	client, ok := manager.ClientsByUserID[userID]["notify"]
 	if !ok {
 		log.Printf("User with ID %d not connected", userID)
 		return
@@ -70,7 +70,7 @@ func triggerGroupInvite(userID, GroupID, InviterID int) {
 	}
 	manager := sockets.GetManager()
 
-	client, ok := manager.ClientsByUserID[userID]
+	client, ok := manager.ClientsByUserID[userID]["notify"]
 	if !ok {
 		log.Printf("User with ID %d not connected", userID)
 		return
@@ -109,7 +109,7 @@ func triggerGroupJoin(GroupID, reqUserID int) {
 	}
 	manager := sockets.GetManager()
 
-	client, ok := manager.ClientsByUserID[creatorID]
+	client, ok := manager.ClientsByUserID[creatorID]["notify"]
 	if !ok {
 		log.Printf("User with ID %d not connected", creatorID)
 		return
@@ -143,7 +143,7 @@ func triggerGroupEventNotify(groupEvent structs.Event) {
 	}
 	manager := sockets.GetManager()
 
-	client, ok := manager.ClientsByUserID[groupEvent.UserID]
+	client, ok := manager.ClientsByUserID[groupEvent.UserID]["notify"]
 	if !ok {
 		log.Printf("User with ID %d is not online", groupEvent.UserID)
 		return

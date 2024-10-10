@@ -1,7 +1,6 @@
 "use client";
 import { useCallback, useState, useEffect } from 'react';
-import { useChatAndNotify } from "@/app/hooks/UseChat";
-
+import { useNotificationWS } from "@/app/hooks/UseNotify"
 
 interface User {
     ID: number;
@@ -29,7 +28,7 @@ export const Notifications: React.FC<Props> = ({ setHasNotifications }) => {
         },
         [] // Dependencies: No dependencies so it's memoized once
     );
-    useChatAndNotify(handleSetNotifications);
+    useNotificationWS(handleSetNotifications);
 
 
     useEffect(() => {

@@ -3,7 +3,7 @@
 import NavBar from "@/app/components/NavBar";
 import ChatMessages from "@/app/components/ChatMessages";
 import ChatInput from "@/app/components/ChatInput";
-import { useChatAndNotify } from "@/app/hooks/UseChat";
+import { useChat } from "@/app/hooks/UseChat";
 import { useUser } from "@/app/context/UserContext";
 import GroupList from "@/app/components/GroupList";
 
@@ -20,7 +20,7 @@ const ChatMessage = () => {
         setSelectedRecipient,
         groupId,
         setGroupId,
-    } = useChatAndNotify();
+    } = useChat();
 
     const { user: currentUser } = useUser();
     if (!currentUser) {
