@@ -7,7 +7,7 @@ interface User {
     lastName: string;
 }
 
-interface ChatMessagesProps {
+interface Props {
     messages: Message[];
     users: Record<number, User>;
     currentUser: User | null;
@@ -15,7 +15,7 @@ interface ChatMessagesProps {
     setGroupId: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, users, currentUser, groupId, setGroupId }) => {
+const ChatMessages: React.FC<Props> = ({ messages, users, currentUser, groupId, setGroupId }) => {
     const handleBackToRegularChat = () => {
         setGroupId(null); // Reset the groupId to go back to regular chat
     };

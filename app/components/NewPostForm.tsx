@@ -4,11 +4,11 @@ import { getUserGroups } from "@/app/lib/api";
 
 
 
-interface NewPostFormProps {
+interface Props {
   onPostCreated: (content: string, privacy: string, file?: File | null, groupId?: number | null) => void;
 }
 
-const NewPostForm: React.FC<NewPostFormProps> = ({ onPostCreated }) => {
+const NewPostForm: React.FC<Props> = ({ onPostCreated }) => {
   const [content, setContent] = useState("");
   const [privacy, setPrivacy] = useState("public"); // "public" by default
   const [file, setFile] = useState<File | null>(null);
@@ -35,19 +35,19 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ onPostCreated }) => {
         alert("Please select a group to post to.");
         return;
       }
-  
-      const groupId = privacy === "group" ? selectedGroup :null;
+
+      const groupId = privacy === "group" ? selectedGroup : null;
       onPostCreated(content, privacy, file, groupId);
       setPrivacy("public");
       setFile(null);
       setSelectedGroup(null);
     }
   };
-  
+
   return (
-    <form 
-    className="relative mx-auto max-w-lg p-6 bg-white shadow-md rounded-lg mb-4"
-    onSubmit={handleSubmit}
+    <form
+      className="relative mx-auto max-w-lg p-6 bg-white shadow-md rounded-lg mb-4"
+      onSubmit={handleSubmit}
     >
       <textarea
         value={content}
@@ -81,7 +81,7 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ onPostCreated }) => {
           ))}
         </select>
       )}
-      
+
       <input
         type="file"
         accept="image/*, .gif"

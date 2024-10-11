@@ -2,11 +2,11 @@ import React from "react";
 import { Post } from "@/app/utils/types";
 import Comments from "./Comments";
 
-interface PostsListProps {
+interface Props {
     posts: Post[];
 }
 
-const PostsList: React.FC<PostsListProps> = ({ posts }) => {
+const PostsList: React.FC<Props> = ({ posts }) => {
     return (
         <div className="mt-10 flex flex-col items-center">
             {!posts || posts.length === 0 ? (

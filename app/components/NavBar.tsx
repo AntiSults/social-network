@@ -85,7 +85,7 @@ const NavBar = ({ logged, logpage = false }: Props) => {
                   className="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow"
                 >
                   <li>
-                    <a href="/profile">My Profile</a>
+                    <a href={`/users/${user?.ID}/profile`}>My Profile</a>
                   </li>
                   <li>
                     <a onClick={handleLogOut}>Log out</a>

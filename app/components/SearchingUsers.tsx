@@ -4,11 +4,11 @@ import { User as SearchResult } from "@/app/utils/types";
 import FieldInput from "./FieldInput";
 import Button from "./Button";
 
-interface UserSearchProps {
+interface Props {
     onSelectUser: (user: SearchResult) => void; // Callback function to handle the selected user
 }
 
-const UserSearch: React.FC<UserSearchProps> = ({ onSelectUser }) => {
+const UserSearch: React.FC<Props> = ({ onSelectUser }) => {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 

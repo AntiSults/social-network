@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { User } from "@/app/utils/types";
 
-interface InviteToGroupProps {
+interface Props {
     groupId: number; // The selected group ID
     invitedUser: User; // The user to be invited
     currentUser: User | null; // The current logged-in user (group creator)
 }
 
-const InviteToGroup: React.FC<InviteToGroupProps> = ({ groupId, invitedUser, currentUser }) => {
+const InviteToGroup: React.FC<Props> = ({ groupId, invitedUser, currentUser }) => {
     const [error, setError] = useState<string | null>(null);
     const [inviteSent, setInviteSent] = useState<boolean>(false);
 

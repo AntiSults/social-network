@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import { getComments, createComment } from "@/app/lib/api";
 import { Comment } from "@/app/utils/types";
 
-interface CommentsProps {
+interface Props {
   postID: number;
 }
 
-const Comments: React.FC<CommentsProps> = ({ postID }) => {
+const Comments: React.FC<Props> = ({ postID }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
@@ -62,7 +62,7 @@ const Comments: React.FC<CommentsProps> = ({ postID }) => {
             comments.map((comment) => (
               <li key={comment.id} className="border-b p-2">
                 <p className="text-sm">
-                <strong>{comment.author_first_name} {comment.author_last_name}:</strong> {comment.content}
+                  <strong>{comment.author_first_name} {comment.author_last_name}:</strong> {comment.content}
                 </p>
                 {comment.file && (
                   <div className="mt-4">
@@ -78,43 +78,43 @@ const Comments: React.FC<CommentsProps> = ({ postID }) => {
                   </div>
                 )}
                 <small className="block mt-4 text-gray-500">
-                            {new Date(comment.created_at).toLocaleString()}
+                  {new Date(comment.created_at).toLocaleString()}
                 </small>
               </li>
             ))
           )}
         </ul>
       )}
-     <form onSubmit={handleSubmit} className="relative mx-auto max-w-lg p-4 bg-white shadow-md rounded-lg mb-4">
-  <div className="mb-4">
-    <input
-      type="text"
-      value={newComment}
-      onChange={(e) => setNewComment(e.target.value)}
-      placeholder="Add a comment..."
-      className="w-full p-2 border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-    />
-  </div>
-  <div className="mb-4">
-    <input
-      type="file"
-      accept="image/*, .gif"
-      onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
-      className="border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-    />
-  </div>
-  <button
-    type="submit"
-    className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full"
-    disabled={loading}
-  >
-    {loading ? "Submitting..." : "Comment"}
-  </button>
-</form>
+      <form onSubmit={handleSubmit} className="relative mx-auto max-w-lg p-4 bg-white shadow-md rounded-lg mb-4">
+        <div className="mb-4">
+          <input
+            type="text"
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Add a comment..."
+            className="w-full p-2 border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="file"
+            accept="image/*, .gif"
+            onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
+            className="border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+          />
+        </div>
+        <button
+          type="submit"
+          className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 w-full"
+          disabled={loading}
+        >
+          {loading ? "Submitting..." : "Comment"}
+        </button>
+      </form>
 
     </div>
   );
-  
+
 };
 
 export default Comments;

@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { User } from "@/app/utils/types";
 
-interface JoinGroupProps {
+interface Props {
     groupId: number;
     currentUser: User | null;
 }
 
-const JoinGroup: React.FC<JoinGroupProps> = ({ groupId, currentUser }) => {
+const JoinGroup: React.FC<Props> = ({ groupId, currentUser }) => {
     const [error, setError] = useState<string | null>(null);
     const [requestSent, setRequestSent] = useState<boolean>(false); // State to track if the request was sent
 

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { User } from "@/app/utils/types";
-interface PendingRequestsProps {
+interface Props {
     user: User;
 }
-const PendingRequests: React.FC<PendingRequestsProps> = ({ user }) => {
+const PendingRequests: React.FC<Props> = ({ user }) => {
     const [pendingRequests, setPendingRequests] = useState<User[]>([]);
     useEffect(() => {
         const fetchPendingRequests = async () => {

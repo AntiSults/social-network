@@ -6,7 +6,7 @@ import RecipientSelector from "./ChatRecipientSelector";
 import { Recipient } from "@/app/utils/types";
 
 
-interface ChatInputProps {
+interface Props {
     message: string;
     setMessage: React.Dispatch<React.SetStateAction<string>>;
     onSubmit: (e: React.FormEvent) => void;
@@ -16,7 +16,7 @@ interface ChatInputProps {
     groupId: string | null;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({
+const ChatInput: React.FC<Props> = ({
     message,
     setMessage,
     onSubmit,

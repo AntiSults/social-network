@@ -2,13 +2,13 @@ import React from "react";
 import { getOptionStyle } from "@/app/utils/getOptionStyle";
 import { Recipient } from "@/app/utils/types";
 
-interface RecipientSelectorProps {
+interface Props {
     recipients: Recipient[];
     selectedRecipient: number | null;
     setSelectedRecipient: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
-const RecipientSelector: React.FC<RecipientSelectorProps> = ({
+const RecipientSelector: React.FC<Props> = ({
     recipients,
     selectedRecipient,
     setSelectedRecipient,

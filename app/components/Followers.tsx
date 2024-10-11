@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { User } from "@/app/utils/types"
-interface FollowersProps {
+interface Props {
     profileUser: User | null;
     user: User | null;
 }
-const Followers: React.FC<FollowersProps> = ({ profileUser, user }) => {
+const Followers: React.FC<Props> = ({ profileUser, user }) => {
     const [isFollowing, setIsFollowing] = useState<boolean>(false);
     const [isPending, setIsPending] = useState<boolean>(false);
     useEffect(() => {

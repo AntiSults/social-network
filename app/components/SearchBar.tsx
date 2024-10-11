@@ -12,8 +12,8 @@ const SearchBar: React.FC = () => {
     const { setSelectedUser } = useUser();
 
     const handleSearch = async () => {
-        const users = await searchUsers(searchQuery); // Reusable search logic
-        setSearchResults(users || []); // Ensure searchResults is always an array
+        const users = await searchUsers(searchQuery);
+        setSearchResults(users || []);
     };
 
     const goToUserProfile = (user: SearchResult) => {

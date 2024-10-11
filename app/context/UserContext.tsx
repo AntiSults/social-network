@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@/app/utils/types";
 
-interface UserContextProps {
+interface Props {
     user: User | null;
     selectedUser: User | null;
     setUser: React.Dispatch<React.SetStateAction<User | null>>;
@@ -11,7 +11,7 @@ interface UserContextProps {
 }
 
 // Create the context
-const UserContext = createContext<UserContextProps | undefined>(undefined);
+const UserContext = createContext<Props | undefined>(undefined);
 
 // Hook to use the user context
 export const useUser = () => {
@@ -29,23 +29,31 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         const getUserData = async () => {
-            const response = await fetch("http://localhost:8080/getUserData", {
-                method: "GET",
-                credentials: "include",
-            });
+            try {
+                const response = await fetch("http://localhost:8080/getUserData", {
+                    method: "GET",
+                    credentials: "include",
+                });
 
-            if (response.ok) {
-                const userData: User = await response.json();
+                if (response.status === 401) {
+                    console.log("User is not logged in.");
+                    return;
+                }
 
-                // Process avatar path with regex
-                const regex = /\/uploads\/.*/;
-                const paths = userData.avatarPath?.match(regex);
-                const avatarUrl = paths ? paths[0] : undefined;
-                userData.avatarPath = avatarUrl;
+                if (response.ok) {
+                    const userData: User = await response.json();
 
-                setUser(userData);
-            } else {
-                console.log("Failed to retrieve user data");
+                    // Process avatar path with regex
+                    const regex = /\/uploads\/.*/;
+                    const paths = userData.avatarPath?.match(regex);
+                    const avatarUrl = paths ? paths[0] : undefined;
+                    userData.avatarPath = avatarUrl;
+                    setUser(userData);
+                } else {
+                    console.log("Failed to retrieve user data. Status:", response.status);
+                }
+            } catch (error) {
+                console.error("Error retrieving user data:", error);
             }
         };
 
@@ -58,3 +66,4 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         </UserContext.Provider>
     );
 };
+

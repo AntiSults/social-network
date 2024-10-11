@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { User } from "@/app/utils/types";
 
-interface FollowListProps {
+interface Props {
     user: User | null;
 }
 
-const FollowList: React.FC<FollowListProps> = ({ user }) => {
+const FollowList: React.FC<Props> = ({ user }) => {
     const [following, setFollowing] = useState<User[]>([]);
     const [followers, setFollowers] = useState<User[]>([]);
     const [error, setError] = useState<string | null>(null);

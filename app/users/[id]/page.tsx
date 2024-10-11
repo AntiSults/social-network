@@ -1,4 +1,5 @@
 "use client";
+
 import Image from 'next/image';
 import React from "react";
 import { useUser } from "@/app/context/UserContext";
@@ -47,17 +48,12 @@ const ProfilePage = () => {
                     </div>
                 </div>
             </div>
-            {/* Pending Group Join Requests (Only if viewing own profile) */}
             {profileUser?.ID === user?.ID && <PendingGroupInvites />}
-            {/* Pending Group Join Requests (Only if viewing own profile) */}
             {profileUser?.ID === user?.ID && <PendingGroupRequests />}
-            {/* Pending Follow Requests (Only if viewing own profile) */}
             {profileUser?.ID === user?.ID && <PendingRequests user={user} />}
-            {/* Follow / Unfollow Component */}
             {profileUser?.ID !== user?.ID && (
                 <Followers profileUser={profileUser} user={user} />
             )}
-            {/* Following/Followers list (Only if viewing own profile) */}
             {profileUser?.ID === user?.ID && <FollowList user={user} />}
 
 

@@ -3,12 +3,12 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@/app/context/UserContext';
 import { User, Group } from "@/app/utils/types";
 
-interface GroupListProps {
+interface Props {
     onSelectGroup: (groupId: number) => void;  // Pass group ID when selected
     actionType: 'invite' | 'createEvent' | 'chat'; // Add 'chat' for group chat selection
 }
 
-const GroupList: React.FC<GroupListProps> = ({ onSelectGroup, actionType }) => {
+const GroupList: React.FC<Props> = ({ onSelectGroup, actionType }) => {
     const { user } = useUser();  // Current logged-in user context
     const [groups, setGroups] = useState<Group[]>([]);
     const [error, setError] = useState<string | null>(null);
