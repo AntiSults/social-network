@@ -3,14 +3,12 @@ import { searchUsers } from '@/app/utils/searchUsers';
 import { User as SearchResult } from '@/app/utils/types';
 import FieldInput from './FieldInput';
 import Button from './Button';
+import { useRouter } from 'next/navigation'; // Import useRouter from next/navigation
 
-interface Props {
-    onSelectUser: (user: SearchResult) => void; // Callback function to handle the selected user
-}
-
-const UserSearch: React.FC<Props> = ({ onSelectUser }) => {
+const UserSearch: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+    const router = useRouter();  // Initialize router
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -19,7 +17,8 @@ const UserSearch: React.FC<Props> = ({ onSelectUser }) => {
     };
 
     const handleUserClick = (user: SearchResult) => {
-        onSelectUser(user); // Invoke the callback to pass the selected user to the parent component
+        // Navigate to the found user's profile page using their ID
+        router.push(`/users/${user.ID}/profile`);  // Change the URL to /profile/userID
     };
 
     return (
@@ -34,7 +33,6 @@ const UserSearch: React.FC<Props> = ({ onSelectUser }) => {
                 />
                 <Button type='submit' name='Search' />
             </form>
-
             <ul>
                 {searchResults.map(result => (
                     <li key={result.ID} onClick={() => handleUserClick(result)} className='cursor-pointer hover:bg-gray-100 p-2'>

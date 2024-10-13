@@ -6,23 +6,23 @@ import { useUser } from '@/app/context/UserContext';
 import NavBar from '@/app/components/NavBar';
 import SearchBar from '@/app/components/SearchBar';
 import Followers from '@/app/components/Followers';
+import FollowList from '@/app/components/FollowLists';
 import PendingRequests from '@/app/components/PendingFollowRequests';
 import PendingGroupRequests from '@/app/components/GroupRequestsPending';
 import PendingGroupInvites from '@/app/components/GroupInvitePending';
-import FollowList from '@/app/components/FollowLists';
 
 const ProfilePage = () => {
-    const { user, selectedUser } = useUser();
-    const profileUser = selectedUser || user;
+    const { user } = useUser();  // Focus only on the logged-in user
 
-    if (!profileUser) {
+    if (!user) {
         return (
             <div className="min-h-screen">
                 <NavBar logged={false} />
-                <p className="text-center text-gray-600">Please login to see User Profile!</p>
+                <p className="text-center text-gray-600">Please login to see your Profile!</p>
             </div>
         );
     }
+
     return (
         <div className="min-h-screen">
             <NavBar logged={true} />
@@ -32,32 +32,29 @@ const ProfilePage = () => {
                 </div>
                 <div className="bg-white shadow-md rounded-lg p-8 max-w-lg w-full text-center">
                     <h1 className="text-2xl font-bold mb-4">
-                        {`${profileUser.firstName} ${profileUser.lastName}'s Profile`}
+                        {`${user.firstName} ${user.lastName}'s Profile`}
                     </h1>
                     <div className="flex flex-col items-center">
                         <Image
-                            src={profileUser.avatarPath || "/default_avatar.jpg"}
-                            alt={`${profileUser.firstName}'s Avatar`}
+                            src={user.avatarPath || "/default_avatar.jpg"}
+                            alt={`${user.firstName}'s Avatar`}
                             width={250}
                             height={250}
                             className="rounded-full shadow-lg"
                         />
                         <p className="text-gray-600 mt-4">
-                            About Me: {profileUser.aboutMe || "No details provided"}
+                            About Me: {user.aboutMe || "No details provided"}
                         </p>
                     </div>
                 </div>
             </div>
-            {profileUser?.ID === user?.ID && <PendingGroupInvites />}
-            {profileUser?.ID === user?.ID && <PendingGroupRequests />}
-            {profileUser?.ID === user?.ID && <PendingRequests user={user} />}
-            {profileUser?.ID !== user?.ID && (
-                <Followers profileUser={profileUser} user={user} />
-            )}
-            {profileUser?.ID === user?.ID && <FollowList user={user} />}
-
-
+            {/* Show pending requests only for the logged-in user */}
+            <PendingGroupInvites />
+            <PendingGroupRequests />
+            <PendingRequests user={user} />
+            <FollowList user={user} />
         </div>
     );
 };
+
 export default ProfilePage;
