@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Group } from "@/app/utils/types";
-import { getUserGroups } from "@/app/lib/api";
+import React, { useState, useEffect } from 'react';
+import { Group } from '@/app/utils/types';
+import { getUserGroups } from '@/app/lib/api';
 
 
 

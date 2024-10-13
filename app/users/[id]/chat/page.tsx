@@ -1,11 +1,11 @@
 "use client";
 
-import NavBar from "@/app/components/NavBar";
-import ChatMessages from "@/app/components/ChatMessages";
-import ChatInput from "@/app/components/ChatInput";
-import { useChat } from "@/app/hooks/UseChat";
-import { useUser } from "@/app/context/UserContext";
-import GroupList from "@/app/components/GroupList";
+import NavBar from '@/app/components/NavBar';
+import ChatMessages from '@/app/components/ChatMessages';
+import ChatInput from '@/app/components/ChatInput';
+import { useChat } from '@/app/hooks/UseChat';
+import { useUser } from '@/app/context/UserContext';
+import GroupList from '@/app/components/GroupList';
 
 const ChatMessage = () => {
     const {

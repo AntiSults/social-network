@@ -1,5 +1,5 @@
-import React from "react";
-import { Message } from "@/app/utils/types";
+import React from 'react';
+import { Message } from '@/app/utils/types';
 
 interface User {
     ID: number;

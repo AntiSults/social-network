@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { getComments, createComment } from "@/app/lib/api";
-import { Comment } from "@/app/utils/types";
+import React, { useState, useEffect } from 'react';
+import { getComments, createComment } from '@/app/lib/api';
+import { Comment } from '@/app/utils/types';
 
 interface Props {
   postID: number;

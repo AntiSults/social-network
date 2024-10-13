@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import FieldInput from './FieldInput';
-import Button from "@/app/components/Button";
-import { useUser } from "@/app/context/UserContext";
+import Button from '@/app/components/Button';
+import { useUser } from '@/app/context/UserContext';
 
 
 const CreateEventForm = ({ groupId }: { groupId: number }) => {

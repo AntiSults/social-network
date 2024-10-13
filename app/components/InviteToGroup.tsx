@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User } from "@/app/utils/types";
+import { User } from '@/app/utils/types';
 
 interface Props {
     groupId: number; // The selected group ID

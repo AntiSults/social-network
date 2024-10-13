@@ -1,13 +1,13 @@
 "use client";
 
 import Image from 'next/image';
-import React from "react";
-import { useUser } from "@/app/context/UserContext";
-import NavBar from "@/app/components/NavBar";
-import SearchBar from "@/app/components/SearchBar";
-import Followers from "@/app/components/Followers";
-import PendingRequests from "@/app/components/PendingFollowRequests";
-import PendingGroupRequests from "@/app/components/GroupRequestsPending";
+import React from 'react';
+import { useUser } from '@/app/context/UserContext';
+import NavBar from '@/app/components/NavBar';
+import SearchBar from '@/app/components/SearchBar';
+import Followers from '@/app/components/Followers';
+import PendingRequests from '@/app/components/PendingFollowRequests';
+import PendingGroupRequests from '@/app/components/GroupRequestsPending';
 import PendingGroupInvites from '@/app/components/GroupInvitePending';
 import FollowList from '@/app/components/FollowLists';
 

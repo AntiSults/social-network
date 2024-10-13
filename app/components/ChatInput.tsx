@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import FieldInput from "./FieldInput";
-import Button from "./Button";
-import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
-import RecipientSelector from "./ChatRecipientSelector";
-import { Recipient } from "@/app/utils/types";
+import React, { useState } from 'react';
+import FieldInput from './FieldInput';
+import Button from './Button';
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
+import RecipientSelector from './ChatRecipientSelector';
+import { Recipient } from '@/app/utils/types';
 
 
 interface Props {

@@ -1,6 +1,6 @@
 "use client";
 import GroupList from '@/app/components/GroupList';
-import NavBar from "@/app/components/NavBar";
+import NavBar from '@/app/components/NavBar';
 import CreateGroupForm from '@/app/components/CreateGroupForm';
 import UserSearch from '@/app/components/SearchingUsers';
 import InviteToGroup from '@/app/components/InviteToGroup';

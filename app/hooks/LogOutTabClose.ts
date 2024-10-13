@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect } from 'react';
 
 const useLogoutOnTabClose = (logoutUrl: string) => {
     useEffect(() => {
@@ -11,16 +11,16 @@ const useLogoutOnTabClose = (logoutUrl: string) => {
             if (!isNavigating) {
                 // Only log out if it is not navigating but closing the tab
                 await fetch(logoutUrl, {
-                    method: "POST",
-                    credentials: "include",
+                    method: 'POST',
+                    credentials: 'include',
                 });
             }
         };
-        window.addEventListener("beforeunload", handleBeforeUnload);
-        window.addEventListener("click", handleBeforeNavigate); // Tracks clicks for navigation
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        window.addEventListener('click', handleBeforeNavigate); // Tracks clicks for navigation
         return () => {
-            window.removeEventListener("beforeunload", handleBeforeUnload);
-            window.removeEventListener("click", handleBeforeNavigate);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            window.removeEventListener('click', handleBeforeNavigate);
         };
     }, [logoutUrl]);
 };

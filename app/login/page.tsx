@@ -12,8 +12,8 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const { setUser } = useUser(); // Access setUser to update context
-  //GOTTA USE USEEFFECT TO RECOGNISE ERRORS FROM MIDDLEWARE
+  const { setUser } = useUser();
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const errorParam = params.get("error");

@@ -1,6 +1,6 @@
-import React from "react";
-import { getOptionStyle } from "@/app/utils/getOptionStyle";
-import { Recipient } from "@/app/utils/types";
+import React from 'react';
+import { getOptionStyle } from '@/app/utils/getOptionStyle';
+import { Recipient } from '@/app/utils/types';
 
 interface Props {
     recipients: Recipient[];

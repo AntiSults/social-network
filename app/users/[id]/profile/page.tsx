@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
-import { useUser } from "@/app/context/UserContext";
-import NavBar from "@/app/components/NavBar";
+import React from 'react';
+import { useUser } from '@/app/context/UserContext';
+import NavBar from '@/app/components/NavBar';
 import Image from 'next/image';
 
 const Profile = () => {

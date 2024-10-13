@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Image from 'next/image';
 import { useUser } from "@/app/context/UserContext";
 
 interface Props {
@@ -29,17 +30,24 @@ const AvatarUploadField = ({ onFileSelect }: Props) => {
           accept="image/*"
           onChange={handleFileChange}
         />
-
         {preview ? (
           <div className="avatar">
             <div className="w-24 rounded">
-              <img src={preview} alt="Avatar Preview" />
+              <Image src={preview}
+                alt="Avatar Preview"
+                width={400}
+                height={400}
+              />
             </div>
           </div>
         ) : user && user.avatarPath ? (
           <div className="avatar">
             <div className="w-24 rounded">
-              <img src={user.avatarPath} alt="Current Avatar" />
+              <Image src={user.avatarPath}
+                alt="Current Avatar"
+                width={400}
+                height={400}
+              />
             </div>
           </div>
         ) : null}

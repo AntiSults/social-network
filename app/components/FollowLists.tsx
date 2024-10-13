@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { User } from "@/app/utils/types";
+import React, { useEffect, useState } from 'react';
+import { User } from '@/app/utils/types';
 
 interface Props {
     user: User | null;

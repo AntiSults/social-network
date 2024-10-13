@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect } from 'react';
-import { useNotificationWS } from "@/app/hooks/UseNotify"
+import { useNotificationWS } from '@/app/hooks/UseNotify';
 import { useUser } from '@/app/context/UserContext';
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation';
 
 interface User {
     ID: number;
