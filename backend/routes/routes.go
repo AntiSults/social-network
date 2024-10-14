@@ -23,6 +23,7 @@ func SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/create-comment", handlers.CreateComment)
 	mux.HandleFunc("/comments", handlers.GetComments)
 	mux.HandleFunc("/search", handlers.SearchUser)
+	mux.HandleFunc("/user-update", handlers.UpdateUser)
 	mux.HandleFunc("/followers", HandleFollowers)
 	mux.HandleFunc("/followers/status", HandleFollowers)
 	mux.HandleFunc("/followers/pending", HandleFollowers)

@@ -58,7 +58,7 @@ const FoundUserProfile: React.FC<Props> = ({ foundUser, currentUser }) => {
                         className="rounded-full shadow-lg"
                     />
                     <p className="text-gray-600 mt-4">
-                        Birth date: {foundUser.dob ? new Date(foundUser.dob).toLocaleDateString('en-US', {
+                        Made in: {foundUser.dob ? new Date(foundUser.dob).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric',

@@ -272,3 +272,20 @@ func (d *Database) SearchUsersInDB(query string) ([]structs.User, error) {
 
 	return users, nil
 }
+
+func (d *Database) UpdateProfileVisibility(userID int, visibility string) error {
+	query := `UPDATE Users SET Profile_visibility = ? WHERE ID = ?`
+
+	result, err := d.db.Exec(query, visibility, userID)
+	if err != nil {
+		return fmt.Errorf("failed to update Profile Visibility for user %d: %w", userID, err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to retrieve the number of affected rows for user %d: %w", userID, err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("no user found with ID %d", userID)
+	}
+	return nil
+}
