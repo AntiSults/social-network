@@ -61,7 +61,7 @@ const FollowList: React.FC<Props> = ({ user }) => {
                         </div>
                     ))
                 ) : (
-                    <p className="text-gray-500 text-center">You are not following anyone yet.</p>
+                    <p className="text-gray-500 text-center">Is not following anyone yet.</p>
                 )}
             </div>
             <div className="w-full max-w-md">
@@ -73,7 +73,7 @@ const FollowList: React.FC<Props> = ({ user }) => {
                         </div>
                     ))
                 ) : (
-                    <p className="text-gray-500 text-center">You have no followers yet.</p>
+                    <p className="text-gray-500 text-center">No followers yet.</p>
                 )}
             </div>
         </div>

@@ -240,7 +240,7 @@ func (d *Database) SaveSession(userID int, token string, exp time.Time) error {
 func (d *Database) SearchUsersInDB(query string) ([]structs.User, error) {
 	// SQL query to search users by name or email
 	stmt := `
-        SELECT ID, Email, FirstName, LastName, NickName, AboutMe, AvatarPath, Profile_visibility 
+        SELECT ID, Email, FirstName, LastName, NickName, AboutMe, AvatarPath, DOB, Profile_visibility 
         FROM Users 
         WHERE FirstName LIKE ? OR LastName LIKE ? OR Email LIKE ?`
 	// Run the query with search term placeholders
@@ -258,7 +258,7 @@ func (d *Database) SearchUsersInDB(query string) ([]structs.User, error) {
 		var avatarPath sql.NullString
 
 		// Scan the additional fields into the User struct
-		if err := rows.Scan(&user.ID, &user.Email, &user.FirstName, &user.LastName, &nickname, &aboutMe, &avatarPath, &user.ProfileVisibility); err != nil {
+		if err := rows.Scan(&user.ID, &user.Email, &user.FirstName, &user.LastName, &nickname, &aboutMe, &avatarPath, &user.DOB, &user.ProfileVisibility); err != nil {
 			return nil, err
 		}
 
