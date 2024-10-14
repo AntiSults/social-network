@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { User } from '@/app/utils/types';
 import Image from 'next/image';
-import Followers from '@/app/components/Followers';
 import FollowList from './FollowLists';
 
 
 interface Props {
-    foundUser: User;  // User being viewed
-    currentUser: User | null;  // Logged-in user
+    foundUser: User;
+    currentUser: User | null;
 }
 
 const FoundUserProfile: React.FC<Props> = ({ foundUser, currentUser }) => {
@@ -16,15 +15,18 @@ const FoundUserProfile: React.FC<Props> = ({ foundUser, currentUser }) => {
     const [canViewFullProfile, setCanViewFullProfile] = useState<boolean>(false);
 
     useEffect(() => {
-
         const checkFollowerStatus = async () => {
-            // Fetch follower status
             if (currentUser && foundUser) {
-                fetch(`http://localhost:8080/followers/status?userId=${foundUser.ID}&followerId=${currentUser.ID}`)
-                    .then((res) => res.json())
-                    .then((data) => {
-                        setIsFollower(data.isFollowing);
-                    });
+                try {
+                    const res = await fetch(`http://localhost:8080/followers/status?userId=${foundUser.ID}&followerId=${currentUser.ID}`);
+                    if (!res.ok) {
+                        throw new Error(`Error: ${res.status}`);
+                    }
+                    const data = await res.json();
+                    setIsFollower(data.isFollowing);
+                } catch (error) {
+                    console.error('Error fetching follower status:', error);
+                }
             }
         };
         if (currentUser && foundUser) {
@@ -56,7 +58,11 @@ const FoundUserProfile: React.FC<Props> = ({ foundUser, currentUser }) => {
                         className="rounded-full shadow-lg"
                     />
                     <p className="text-gray-600 mt-4">
-                        Berth date: {foundUser.dob || "No details provided"}
+                        Birth date: {foundUser.dob ? new Date(foundUser.dob).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                        }) : "No details provided"}
                     </p>
                     <p className="text-gray-600 mt-4">
                         Nick: {foundUser.nickname || "No details provided"}
@@ -72,12 +78,10 @@ const FoundUserProfile: React.FC<Props> = ({ foundUser, currentUser }) => {
                     </p>
                     {<FollowList user={foundUser} />}
                 </div>
-
             ) : (
                 <p>This profile is private. You can only see limited information.</p>
             )}
         </div>
-
     );
 };
 

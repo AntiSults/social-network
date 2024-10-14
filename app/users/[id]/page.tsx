@@ -10,11 +10,11 @@ import FollowList from '@/app/components/FollowLists';
 import PendingRequests from '@/app/components/PendingFollowRequests';
 import PendingGroupRequests from '@/app/components/GroupRequestsPending';
 import PendingGroupInvites from '@/app/components/GroupInvitePending';
-import FoundUserProfile from '@/app/components/FoundUserProfile'; // Import the FoundUserProfile component
+import FoundUserProfile from '@/app/components/FoundUserProfile';
 
 const ProfilePage = () => {
     const { user, selectedUser } = useUser();
-    const profileUser = selectedUser || user; // The user being viewed
+    const profileUser = selectedUser || user;
 
     if (!profileUser) {
         return (

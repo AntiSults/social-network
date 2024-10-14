@@ -18,22 +18,17 @@ const FollowList: React.FC<Props> = ({ user }) => {
                 setIsLoading(false);
                 return;
             }
-
             try {
                 const response = await fetch(`http://localhost:8080/followers/followersList?userId=${user.ID}`);
-
                 if (!response.ok) {
                     throw new Error("Failed to fetch follow lists");
                 }
-
                 const data: { followers: User[], following: User[] } = await response.json();
                 if (!data || (!Array.isArray(data.followers) && data.followers !== null) || (!Array.isArray(data.following) && data.following !== null)) {
                     throw new Error("Invalid data received");
                 }
-
                 setFollowers(data.followers || []);
                 setFollowing(data.following || []);
-
                 setError(null);
             } catch (err) {
                 setError((err as Error).message || "An unexpected error occurred");
