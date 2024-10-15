@@ -72,21 +72,15 @@ func (d *Database) GetUser(userID int) (*structs.User, error) {
 		&avatarPath,
 		&user.ProfileVisibility,
 	)
-
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("user with ID %d not found", userID)
 		}
 		return nil, fmt.Errorf("failed to query user: %w", err)
 	}
-
 	user.NickName = nickName.String
 	user.AboutMe = aboutMe.String
-	if avatarPath.Valid && strings.HasPrefix(avatarPath.String, "../public/") {
-		user.AvatarPath = strings.TrimPrefix(avatarPath.String, "../public")
-	} else {
-		user.AvatarPath = avatarPath.String
-	}
+	user.AvatarPath = avatarPath.String
 
 	return &user, nil
 }
@@ -140,19 +134,13 @@ func (d *Database) GetUsersByIDs(userIDs []int) ([]structs.User, error) {
 
 		user.NickName = nickName.String
 		user.AboutMe = aboutMe.String
-		if avatarPath.Valid && strings.HasPrefix(avatarPath.String, "../public/") {
-			user.AvatarPath = strings.TrimPrefix(avatarPath.String, "../public")
-		} else {
-			user.AvatarPath = avatarPath.String
-		}
+		user.AvatarPath = avatarPath.String
 
 		users = append(users, user)
 	}
-
 	if err = rows.Err(); err != nil {
 		return nil, fmt.Errorf("error occurred while fetching users: %w", err)
 	}
-
 	return users, nil
 }
 
@@ -179,21 +167,15 @@ func (d *Database) GetUserByEmail(email string) (*structs.User, error) {
 		&avatarPath,
 		&user.ProfileVisibility,
 	)
-
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("user with e-mail %v not found: %w", email, err)
 		}
 		return nil, fmt.Errorf("failed to query user: %w", err)
 	}
-
 	user.NickName = nickName.String
 	user.AboutMe = aboutMe.String
-	if avatarPath.Valid && strings.HasPrefix(avatarPath.String, "../public/") {
-		user.AvatarPath = strings.TrimPrefix(avatarPath.String, "../public")
-	} else {
-		user.AvatarPath = avatarPath.String
-	}
+	user.AvatarPath = avatarPath.String
 
 	return &user, nil
 }
@@ -211,11 +193,13 @@ func (d *Database) SaveUser(user structs.User) error {
 		return fmt.Errorf("failed to prepare statement: %w", err)
 	}
 	defer prep.Close()
-
 	// Prepare sql.NullString fields for nullable columns
 	nickName := sql.NullString{String: user.NickName, Valid: user.NickName != ""}
 	aboutMe := sql.NullString{String: user.AboutMe, Valid: user.AboutMe != ""}
-	avatarPath := sql.NullString{String: user.AvatarPath, Valid: user.AvatarPath != ""}
+	avatarPath := sql.NullString{
+		String: strings.TrimPrefix(user.AvatarPath, "../public"),
+		Valid:  user.AvatarPath != "",
+	}
 
 	_, err = prep.Exec(
 		user.Email,
@@ -230,7 +214,6 @@ func (d *Database) SaveUser(user structs.User) error {
 	if err != nil {
 		return fmt.Errorf("failed to execute statement: %w", err)
 	}
-
 	fmt.Println("Successfully inserted to db!")
 	return nil
 }
@@ -244,7 +227,6 @@ func (d *Database) SaveSession(userID int, token string, exp time.Time) error {
 		// Wrap the error with additional context
 		return fmt.Errorf("failed to save session for user %d: %w", userID, err)
 	}
-
 	return nil
 }
 
@@ -268,20 +250,14 @@ func (d *Database) SearchUsersInDB(query string) ([]structs.User, error) {
 		var nickname sql.NullString
 		var aboutMe sql.NullString
 		var avatarPath sql.NullString
-
 		// Scan the additional fields into the User struct
 		if err := rows.Scan(&user.ID, &user.Email, &user.FirstName, &user.LastName, &nickname, &aboutMe, &avatarPath, &user.DOB, &user.ProfileVisibility); err != nil {
 			return nil, err
 		}
-
 		// Assign scanned fields to the User struct
 		user.NickName = nickname.String
 		user.AboutMe = aboutMe.String
-		if avatarPath.Valid && strings.HasPrefix(avatarPath.String, "../public/") {
-			user.AvatarPath = strings.TrimPrefix(avatarPath.String, "../public")
-		} else {
-			user.AvatarPath = avatarPath.String
-		}
+		user.AvatarPath = avatarPath.String
 
 		users = append(users, user)
 	}
