@@ -38,16 +38,20 @@ backend runs on port :8080
 Run Docker
 Go to the folder "social-network" and use:
 
+
 `docker build -t front-image .`
 
 Go to the folder "backend" and use:
+
 
 `docker build -t back-image .`
 
 Go back to the "social-network" folder and use:
 
+
 `docker-compose up`
 
+[port:3000](http://localhost:3000)
 [port:3000](http://localhost:3000)
 
 ## Directories
@@ -57,9 +61,21 @@ Info about different directories
 ### `/app`
 
 - this is where entire frontend is based, page.tsx here is html for home page
+- this is where entire frontend is based, page.tsx here is html for home page
 
 #### `/components`
 
+- reusable components for react
+
+#### `/context`
+
+- user context
+
+#### `/hooks`
+
+- for loggingout user on browser tab close
+- for WS chat frontend
+- for WS notifications
 - reusable components for react
 
 #### `/context`
@@ -81,9 +97,34 @@ Different pages (page.tsx in both these directories is the page itself)
 - api for posts
 
 #### `users[id]/page.tsx`
+#### `/lib`
+
+- api for posts
+
+#### `users[id]/page.tsx`
 
 - user's root page
+- user's root page
 
+#### `users[id]/chat`
+
+- user's chat
+
+#### `users[id]/events`
+
+- user's group events
+
+#### `users[id]/groups`
+
+- user's groups
+
+#### `users[id]/posts`
+
+- user's posts
+
+#### `users[id]/profile`
+
+- user's profile
 #### `users[id]/chat`
 
 - user's chat
@@ -111,6 +152,11 @@ Different pages (page.tsx in both these directories is the page itself)
 - style for chat group and regular
 - search user handler
 - interfaces
+- authentication
+- check login status
+- style for chat group and regular
+- search user handler
+- interfaces
 
 ####
 
@@ -123,36 +169,47 @@ Entire back-end is located here, also `main.go` is here which initializes the en
 #### `/db`
 
 - Database location
+- Database location
 
 ##### `/migrations/sqlite`
 
+- Migrations location
 - Migrations location
 
 ##### `/sqlite`
 
 - Calling the migrations, also used for opening the database, all methods
+- Calling the migrations, also used for opening the database, all methods
 
 #### `/handlers`
 
+- Handles requests from http, they're set up in `/routes`  
 - Handles requests from http, they're set up in `/routes`  
 
 #### `/middleware`
 
 - Holds middleware functions between server and frontend  
 - validates if user is logged in, handles CORS, handles server errors, sets range of ports available for frontend, two funcs retreiving user id and user either from map or from DB. 
+- Holds middleware functions between server and frontend  
+- validates if user is logged in, handles CORS, handles server errors, sets range of ports available for frontend, two funcs retreiving user id and user either from map or from DB. 
 
 #### `/routes`
 
+- Sets up handlers
 - Sets up handlers
 
 #### `/structs`
 
 - File for structs
+- File for structs
 
 #### `/public/uploads`
 
 - Right now holds avatar images for users
+- Right now holds avatar images for users
 
 #### `/sockets/`
+#### `/sockets/`
 
+- WebSocket backend server
 - WebSocket backend server
