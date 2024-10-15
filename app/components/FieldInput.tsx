@@ -17,7 +17,7 @@ const FieldInput = ({
   required,
   value,
   onChange,
-  className = "", // Default to empty string
+  className = "",
 }: Props) => {
   return (
     <label className={`input input-bordered flex items-center gap-2 ${className}`}> {/* Merge className with default */}

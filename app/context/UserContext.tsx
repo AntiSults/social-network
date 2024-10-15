@@ -10,7 +10,6 @@ interface Props {
     setSelectedUser: React.Dispatch<React.SetStateAction<User | null>>;
     updateUser: (updatedUser: Partial<User>) => void;  // Function to update user
 }
-
 // Create the context
 const UserContext = createContext<Props | undefined>(undefined);
 
@@ -22,7 +21,6 @@ export const useUser = () => {
     }
     return context;
 };
-
 // Provider component
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
@@ -60,7 +58,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             setUser({ ...user, ...updatedUser }); // Merge the updated fields with the current user
         }
     };
-
     return (
         <UserContext.Provider value={{ user, setUser, selectedUser, setSelectedUser, updateUser }}>
             {children}

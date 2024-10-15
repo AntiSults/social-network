@@ -33,7 +33,6 @@ const EventsPage = () => {
                 </div>
             )}
             <GroupList onSelectGroup={handleGroupSelect} actionType="createEvent" />
-
             <UserProfileEvents />
         </div>
     );

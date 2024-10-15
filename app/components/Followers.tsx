@@ -22,7 +22,7 @@ const Followers: React.FC<Props> = ({ profileUser, user }) => {
     }, [profileUser, user]);
 
     if (!profileUser || !user) {
-        return null; // Don't render anything if profileUser or user is null
+        return null;
     }
 
     const handleFollow = async () => {

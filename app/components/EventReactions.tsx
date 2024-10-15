@@ -3,7 +3,7 @@ import { useUser } from '@/app/context/UserContext';
 
 
 const EventReactions = ({ eventId }: { eventId: number }) => {
-    const { user } = useUser(); // Get the logged-in user from context
+    const { user } = useUser();
     const [error, setError] = useState<string | null>(null);
     const [status, setStatus] = useState<string | null>(null); // Feedback message for user action
     const [loading, setLoading] = useState(false); // Loading state for API requests
