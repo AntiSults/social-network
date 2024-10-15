@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS GroupJoinRequests (
     Status TEXT CHECK (Status IN ('pending', 'accepted', 'rejected')) DEFAULT 'pending',
     RequestType TEXT DEFAULT 'join', -- 'join' or 'invite'
     FOREIGN KEY (GroupID) REFERENCES Groups(ID),
-    FOREIGN KEY (UserID) REFERENCES Users(ID)
+    FOREIGN KEY (UserID) REFERENCES Users(ID) ON DELETE CASCADE
 );
 
 CREATE TRIGGER IF NOT EXISTS DeleteRejectedGroupJoinRequests

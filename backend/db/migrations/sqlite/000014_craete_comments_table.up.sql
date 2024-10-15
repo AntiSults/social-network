@@ -8,5 +8,5 @@ CREATE TABLE Comments (
     author_first_name TEXT,
     author_last_name TEXT,
     FOREIGN KEY (PostID) REFERENCES Posts(ID),
-    FOREIGN KEY (UserID) REFERENCES Users(ID)
+    FOREIGN KEY (UserID) REFERENCES Users(ID) ON DELETE CASCADE
 );

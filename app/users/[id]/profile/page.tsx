@@ -62,7 +62,7 @@ const Profile = () => {
               <div className="basis-1/3 avatar p-8">
                 <div className="w-24 rounded-full">
                   <Image
-                    src={user.avatarPath || "/default_avatar.jpg"}
+                    src={user.avatarPath ? `${user.avatarPath}` : "/default_avatar.jpg"}
                     alt={`${user.firstName}'s Avatar`}
                     width={250}
                     height={250}

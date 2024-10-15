@@ -82,7 +82,11 @@ func (d *Database) GetUser(userID int) (*structs.User, error) {
 
 	user.NickName = nickName.String
 	user.AboutMe = aboutMe.String
-	user.AvatarPath = avatarPath.String
+	if avatarPath.Valid && strings.HasPrefix(avatarPath.String, "../public/") {
+		user.AvatarPath = strings.TrimPrefix(avatarPath.String, "../public")
+	} else {
+		user.AvatarPath = avatarPath.String
+	}
 
 	return &user, nil
 }
@@ -136,7 +140,11 @@ func (d *Database) GetUsersByIDs(userIDs []int) ([]structs.User, error) {
 
 		user.NickName = nickName.String
 		user.AboutMe = aboutMe.String
-		user.AvatarPath = avatarPath.String
+		if avatarPath.Valid && strings.HasPrefix(avatarPath.String, "../public/") {
+			user.AvatarPath = strings.TrimPrefix(avatarPath.String, "../public")
+		} else {
+			user.AvatarPath = avatarPath.String
+		}
 
 		users = append(users, user)
 	}
@@ -181,7 +189,11 @@ func (d *Database) GetUserByEmail(email string) (*structs.User, error) {
 
 	user.NickName = nickName.String
 	user.AboutMe = aboutMe.String
-	user.AvatarPath = avatarPath.String
+	if avatarPath.Valid && strings.HasPrefix(avatarPath.String, "../public/") {
+		user.AvatarPath = strings.TrimPrefix(avatarPath.String, "../public")
+	} else {
+		user.AvatarPath = avatarPath.String
+	}
 
 	return &user, nil
 }
@@ -265,7 +277,11 @@ func (d *Database) SearchUsersInDB(query string) ([]structs.User, error) {
 		// Assign scanned fields to the User struct
 		user.NickName = nickname.String
 		user.AboutMe = aboutMe.String
-		user.AvatarPath = avatarPath.String
+		if avatarPath.Valid && strings.HasPrefix(avatarPath.String, "../public/") {
+			user.AvatarPath = strings.TrimPrefix(avatarPath.String, "../public")
+		} else {
+			user.AvatarPath = avatarPath.String
+		}
 
 		users = append(users, user)
 	}

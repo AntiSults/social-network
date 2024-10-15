@@ -51,7 +51,7 @@ const FoundUserProfile: React.FC<Props> = ({ foundUser, currentUser }) => {
             {canViewFullProfile ? (
                 <div className="flex flex-col items-center">
                     <Image
-                        src={foundUser.avatarPath || "/default_avatar.jpg"}
+                        src={foundUser.avatarPath ? `${foundUser.avatarPath}` : "/default_avatar.jpg"}
                         alt={`${foundUser.firstName}'s Avatar`}
                         width={250}
                         height={250}

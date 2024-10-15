@@ -43,12 +43,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
                 if (response.ok) {
                     const userData: User = await response.json();
-
-                    // Process avatar path with regex
-                    const regex = /\/uploads\/.*/;
-                    const paths = userData.avatarPath?.match(regex);
-                    const avatarUrl = paths ? paths[0] : undefined;
-                    userData.avatarPath = avatarUrl;
                     setUser(userData);
                 } else {
                     console.log("Failed to retrieve user data. Status:", response.status);
@@ -57,7 +51,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                 console.error("Error retrieving user data:", error);
             }
         };
-
         getUserData();
     }, []);
 

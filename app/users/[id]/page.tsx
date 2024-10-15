@@ -42,7 +42,7 @@ const ProfilePage = () => {
                         </h1>
                         <div className="flex flex-col items-center">
                             <Image
-                                src={profileUser.avatarPath || "/default_avatar.jpg"}
+                                src={profileUser.avatarPath ? `${profileUser.avatarPath}` : "/default_avatar.jpg"}
                                 alt={`${profileUser.firstName}'s Avatar`}
                                 width={250}
                                 height={250}

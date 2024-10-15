@@ -3,8 +3,8 @@ CREATE TABLE IF NOT EXISTS followers (
     user_id INTEGER,
     follower_id INTEGER,
     status TEXT CHECK( status IN ('pending', 'accepted', 'rejected') ) DEFAULT 'pending',
-    FOREIGN KEY (user_id) REFERENCES Users(ID),
-    FOREIGN KEY (follower_id) REFERENCES Users(ID),
+    FOREIGN KEY (user_id) REFERENCES Users(ID) ON DELETE CASCADE,
+    FOREIGN KEY (follower_id) REFERENCES Users(ID) ON DELETE CASCADE,
     UNIQUE (user_id, follower_id) -- Unique constraint to avoid duplicate records
 );
 
