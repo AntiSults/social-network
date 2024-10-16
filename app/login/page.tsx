@@ -1,5 +1,5 @@
 "use client";
-
+import styles from "./page.module.css";
 import React, { useEffect, useState } from "react";
 import FieldInput from "@/app/components/FieldInput";
 import { useRouter } from "next/navigation";
@@ -52,30 +52,32 @@ const LoginPage = () => {
 
   return (
     <>
-      <NavBar logged={false} logpage={true}></NavBar>
+      <NavBar logged={false} logpage={true} />
       <div>{error && <p style={{ color: "red" }}>{error}</p>}</div>
-      <form onSubmit={handleLogin}>
-        <FieldInput
-          name="Email"
-          type="text"
-          placeholder="example@example.com"
-          required={true}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <FieldInput
-          name="Password"
-          type="password"
-          placeholder="example"
-          required={true}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <Button type="submit" name="Login" />
-        <a href="/register" className="btn">
-          Register
-        </a>
-      </form>
+      <div id={styles.login} className="mx-auto">
+        <form onSubmit={handleLogin}>
+          <FieldInput
+            name="Email"
+            type="text"
+            placeholder="example@example.com"
+            required={true}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <FieldInput
+            name="Password"
+            type="password"
+            placeholder="example"
+            required={true}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Button type="submit" name="Login" />
+          <a href="/register" className="btn">
+            Register
+          </a>
+        </form>
+      </div>
     </>
   );
 };

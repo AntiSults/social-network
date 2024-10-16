@@ -20,18 +20,37 @@ _Andreas Veber_ [gitea](https://01.kood.tech/git/aveber)
 [link](https://github.com/01-edu/public/tree/master/subjects/social-network/audit)
 
 ### SET UP
+```
+git clone https://01.kood.tech/git/agedz/social-network.git
+```
+
 run `npm install`
 ### RUNNING FRONTEND SERVER
 
 `npm run dev`
-[port:3000](http://localhost:3000)
-(_server set to use range 3000-3010_)
+
+
+[localhost:3000](http://localhost:3000)
+
+(_server is set to use range 3000-3010_)
 
 ### RUNNING BACKEND
 - backend runs on port :8080
+  
 `cd /backend`
+
 `go run .`
-[port:8080](http://localhost:8080)
+
+### REGISTERED USERS & PASSWORD
+for your easy access, may use:
+- lio@lio.ee
+- james@bond.net
+- winnie@pooh.net
+- space@man.net
+- john@brown.net
+- sara@black.com
+- password for all:
+12345678
 
 ### START PROJECT WITH DOCKER
 - Run Docker
@@ -42,23 +61,19 @@ run `npm install`
 
 - Go to the folder "backend" and use:
 
-
 `docker build -t back-image .`
 
 - Go back to the "social-network" folder and use:
 
-
 `docker-compose up`
 
-[port:3000](http://localhost:3000)
+[localhost:3000](http://localhost:3000)
 
 ## Directories
 - Info about different directories
 
 ## Front end
 ### `/app`
-
-- this is where entire frontend is based, page.tsx here is html for home page
 - this is where entire frontend is based, page.tsx here is html for home page
 
 ### `/components`
@@ -143,5 +158,4 @@ run `npm install`
 -  avatar images for users
 
 ### `/sockets/`
-
 - WebSocket backend server
