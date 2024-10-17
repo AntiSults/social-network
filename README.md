@@ -86,7 +86,6 @@ for your easy access, may use:
 - for loggingout user on browser tab close
 - for WS chat frontend
 - for WS notifications
-- reusable components for react
 
 ### `/context`
 - user context
