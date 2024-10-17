@@ -52,6 +52,8 @@ export interface Post {
     author_last_name: string;
     files: string | null;
     group_name: string | null;
+    privacy: string | null;
+    allowedUserIds?: number[];
 }
 
 export interface Comment {

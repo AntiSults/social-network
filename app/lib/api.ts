@@ -16,9 +16,10 @@ export const getPosts = async () => {
   }
 };
 
-export const createPost = async (content: string, privacy: string, file: File | null, groupId?: number | null) => {
+export const createPost = async (content: string, privacy: string, file: File | null, groupId?: number | null, visibleUsers?: number[] | null) => {
   try {
     const formData = new FormData();
+
     formData.append("content", content);
     formData.append("privacy", privacy);
 
@@ -27,6 +28,9 @@ export const createPost = async (content: string, privacy: string, file: File | 
     }
     if (groupId !== null) {
       formData.append("group_id", String(groupId));
+  }
+  if (visibleUsers && visibleUsers.length > 0) {
+    formData.append("visible_users", JSON.stringify(visibleUsers));
   }
 
     // Send POST request to create a new post

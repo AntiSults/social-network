@@ -80,6 +80,7 @@ type Post struct {
 	AuthorLastName  string    `json:"author_last_name"`
 	Files           string    `json:"files"`
 	GroupName       string    `json:"group_name"`
+	VisibleUsers    []int     `json:"visible_users"`
 }
 
 type Comment struct {

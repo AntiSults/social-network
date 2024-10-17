@@ -27,6 +27,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	content := r.FormValue("content")
 	privacy := r.FormValue("privacy")
 	groupIDStr := r.FormValue("group_id")
+	visibleUsersStr := r.FormValue("visible_users")
 
 	var post structs.Post
 	post.Content = content
@@ -80,6 +81,20 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	if post.Privacy == "" {
 		post.Privacy = "public"
+	}
+
+	if post.Privacy == "almost private" {
+		if visibleUsersStr != "" {
+			var visibleUsers []int
+			err = json.Unmarshal([]byte(visibleUsersStr), &visibleUsers)
+			if err != nil {
+				middleware.SendErrorResponse(w, "Failed to parse visible users: "+err.Error(), http.StatusBadRequest)
+				return
+			}
+			post.VisibleUsers = visibleUsers
+		} else {
+			post.VisibleUsers = []int{}
+		}
 	}
 
 	filePath, err := savePostFile(r)

@@ -8,5 +8,6 @@ CREATE TABLE IF NOT EXISTS Posts (
     author_first_name TEXT,
     author_last_name TEXT,
     files TEXT,
+    visible_users TEXT,
     FOREIGN KEY (UserID) REFERENCES users(ID) ON DELETE CASCADE
 );
