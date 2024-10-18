@@ -37,7 +37,7 @@ run `npm install`
 ### RUNNING BACKEND
 - backend runs on port :8080
   
-`cd /backend`
+`cd backend/`
 
 `go run .`
 
