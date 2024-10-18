@@ -21,6 +21,8 @@ func SetupRoutes() *http.ServeMux {
 	mux.HandleFunc("/create-posts", handlers.CreatePost)
 	mux.HandleFunc("/posts", handlers.GetPosts)
 	mux.HandleFunc("/create-comment", handlers.CreateComment)
+	mux.HandleFunc("/posts/user/", handlers.GetUserPosts)
+
 	mux.HandleFunc("/comments", handlers.GetComments)
 	mux.HandleFunc("/search", handlers.SearchUser)
 	mux.HandleFunc("/user-update", handlers.UpdateUser)

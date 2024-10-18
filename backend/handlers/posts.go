@@ -147,6 +147,28 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(posts)
 }
 
+func GetUserPosts(w http.ResponseWriter, r *http.Request) {
+	userIDStr := r.URL.Query().Get("userId")
+	if userIDStr == "" {
+		http.Error(w, "Missing userId", http.StatusBadRequest)
+		return
+	}
+
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		http.Error(w, "Invalid userId", http.StatusBadRequest)
+		return
+	}
+
+	posts, err := sqlite.Db.GetPostsByUserID(userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(posts)
+}
+
 func savePostFile(r *http.Request) (string, error) {
 	file, handler, err := r.FormFile("files")
 	if err != nil {

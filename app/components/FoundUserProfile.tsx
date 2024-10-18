@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { User } from '@/app/utils/types';
+import { User, Post } from '@/app/utils/types';
 import Image from 'next/image';
 import FollowList from './FollowLists';
+import PostsList from './PostsList';
+import { getUserPosts } from '@/app/lib/api';
 
 
 interface Props {
@@ -13,6 +15,9 @@ const FoundUserProfile: React.FC<Props> = ({ foundUser, currentUser }) => {
     const [isFollower, setIsFollower] = useState<boolean>(false);
 
     const [canViewFullProfile, setCanViewFullProfile] = useState<boolean>(false);
+
+    const [userPosts, setUserPosts] = useState<Post[]>([]);
+
 
     useEffect(() => {
         const checkFollowerStatus = async () => {
@@ -33,6 +38,21 @@ const FoundUserProfile: React.FC<Props> = ({ foundUser, currentUser }) => {
             checkFollowerStatus();
         }
     }, [currentUser, foundUser]);
+
+    useEffect(() => {
+        const fetchUserPosts = async () => {
+          try {
+            const postsData = await getUserPosts(foundUser.ID);
+            setUserPosts(postsData);
+          } catch (error) {
+            console.error('Error fetching user posts:', error);
+          }
+        };
+      
+        if (foundUser) {
+          fetchUserPosts();
+        }
+      }, [foundUser]);
 
     useEffect(() => {
         if (foundUser.profileVisibility === "public" || (foundUser.profileVisibility === "private" && isFollower)) {
@@ -77,6 +97,11 @@ const FoundUserProfile: React.FC<Props> = ({ foundUser, currentUser }) => {
                         Email: {foundUser.email || "No details provided"}
                     </p>
                     {<FollowList user={foundUser} />}
+
+                    <div className="mt-8 w-full">
+                    <h2 className="text-xl font-bold mb-4">Posts by {foundUser.firstName}</h2>
+                    <PostsList posts={userPosts} />
+                </div>
                 </div>
             ) : (
                 <p>This profile is private. You can only see limited information.</p>

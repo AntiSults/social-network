@@ -93,3 +93,15 @@ export const getUserGroups = async () => {
     throw error;
   }
 };
+
+export const getUserPosts = async (userId: number) => {
+  try {
+    const response = await axios.get(`${API_URL}/posts/user?userId=${userId}`, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user posts:", error);
+    throw error;
+  }
+};

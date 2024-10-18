@@ -124,3 +124,61 @@ func parseVisibleUsers(usersStr string) ([]int, error) {
 	}
 	return users, nil
 }
+
+func (d *Database) GetPostsByUserID(userID int) ([]structs.Post, error) {
+	query := `
+	SELECT p.ID, p.UserID, p.Content, p.Privacy, p.created_at, p.GroupID, 
+		   p.author_first_name, p.author_last_name, p.files, 
+		   g.name AS group_name, p.visible_users 
+	FROM Posts p 
+	LEFT JOIN Groups g ON p.GroupID = g.ID 
+	WHERE p.UserID = ?
+	ORDER BY p.created_at DESC
+	`
+
+	rows, err := d.db.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []structs.Post
+	for rows.Next() {
+		var post structs.Post
+		var files sql.NullString
+		var groupName sql.NullString
+		var visibleUsersStr sql.NullString
+
+		if err := rows.Scan(&post.ID, &post.UserID, &post.Content, &post.Privacy, &post.CreatedAt, &post.GroupID, &post.AuthorFirstName, &post.AuthorLastName, &files, &groupName, &visibleUsersStr); err != nil {
+			return nil, err
+		}
+
+		if files.Valid {
+			post.Files = files.String
+		} else {
+			post.Files = ""
+		}
+
+		if groupName.Valid {
+			post.GroupName = groupName.String
+		} else {
+			post.GroupName = ""
+		}
+
+		if visibleUsersStr.Valid {
+			users, err := parseVisibleUsers(visibleUsersStr.String)
+			if err != nil {
+				return nil, err
+			}
+			post.VisibleUsers = users
+		}
+
+		posts = append(posts, post)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return posts, nil
+}
