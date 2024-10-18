@@ -49,8 +49,11 @@ for your easy access, may use:
 - space@man.net
 - john@brown.net
 - sara@black.com
-- password for all:
-12345678
+  
+${\color{green}Password for all:}$
+${\color{red}12345678}$
+
+- You may search users with a single letter of e-mail / first or last names.
 
 ### START PROJECT WITH DOCKER
 - Run Docker
