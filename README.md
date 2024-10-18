@@ -50,8 +50,8 @@ for your easy access, may use:
 - john@brown.net
 - sara@black.com
   
-${\color{green}Password for all:}$
-${\color{red}12345678}$
+- Password for all:
+- 12345678
 
 - You may search users with a single letter of e-mail / first or last names.
 
